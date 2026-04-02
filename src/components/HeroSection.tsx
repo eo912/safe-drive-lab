@@ -9,7 +9,7 @@ const HeroSection = () => {
       <div className="absolute inset-0">
         <img
           src={heroRoad}
-          alt="Strada urbana in condizioni reali"
+          alt="Strada di montagna alpina in Valle d'Aosta con traffico reale"
           className="w-full h-full object-cover animate-slow-zoom"
           width={1920}
           height={1080}
