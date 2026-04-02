@@ -26,26 +26,26 @@ const HeroSection = () => {
           transition={{ duration: 1, delay: 0.3 }}
           className="max-w-3xl mx-auto"
         >
-          {/* Brand */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="font-mono text-xs tracking-[0.3em] uppercase text-muted-foreground mb-8"
-          >
-            by Guida Sicura VDA
-          </motion.p>
-
-          {/* Safe Drive Lab */}
+          {/* Main Brand */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-4"
           >
-            <span className="text-gradient">Safe Drive</span>{" "}
-            <span className="text-foreground">Lab</span>
+            <span className="text-gradient">Guida Sicura</span>{" "}
+            <span className="text-foreground">VDA</span>
           </motion.h1>
+
+          {/* Sub-brand */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
+            className="font-mono text-sm md:text-base tracking-[0.25em] uppercase text-primary/80 mb-6"
+          >
+            Safe Drive Lab
+          </motion.p>
 
           {/* Divider */}
           <motion.div
