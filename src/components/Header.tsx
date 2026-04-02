@@ -12,10 +12,15 @@ const Header = () => {
     >
       <div className="container mx-auto flex items-center justify-between h-16 px-6">
         <div className="flex items-center gap-3">
-          <Shield className="w-5 h-5 text-primary" />
-          <span className="text-sm font-semibold tracking-widest uppercase text-foreground">
-            Guida Sicura VDA
-          </span>
+          <Shield className="w-6 h-6 text-primary" />
+          <div className="flex flex-col">
+            <span className="text-sm font-bold tracking-widest uppercase text-foreground leading-tight">
+              Guida Sicura VDA
+            </span>
+            <span className="text-[10px] font-mono tracking-wider text-muted-foreground uppercase">
+              Safe Drive Lab
+            </span>
+          </div>
         </div>
         <a href="#moduli" className="btn-outline-lab text-xs py-2 px-5">
           Esplora i moduli
