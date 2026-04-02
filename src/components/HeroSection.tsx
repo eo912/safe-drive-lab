@@ -60,18 +60,20 @@ const HeroSection = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2, duration: 0.8 }}
-            className="text-xl md:text-2xl font-light text-foreground/90 mb-3"
+            className="text-xl md:text-2xl font-light text-foreground/90 mb-2 leading-relaxed"
           >
-            La sicurezza non si studia. Si capisce.
+            Ogni strada è un viaggio.
+            <br />
+            Ogni viaggio è una scelta.
           </motion.p>
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.4, duration: 0.8 }}
-            className="text-sm text-muted-foreground tracking-wide mb-12"
+            className="text-sm md:text-base text-muted-foreground tracking-wide mb-12"
           >
-            Piattaforma interattiva di guida sicura per aziende
+            La sicurezza nasce da come scegli di guidare.
           </motion.p>
 
           {/* CTA */}
