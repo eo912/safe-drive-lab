@@ -154,7 +154,7 @@ const IstatSection = () => {
   );
 };
 
-
+const PercheLaGuidaSicura = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Back nav */}
