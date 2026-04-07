@@ -1,6 +1,8 @@
-import { motion } from "framer-motion";
-import { ArrowLeft, AlertTriangle, Clock, TrendingUp, Users, Briefcase, Heart, Scale, Brain } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, AlertTriangle, Clock, TrendingUp, Users, Briefcase, Heart, Scale, Brain, ExternalLink, ZoomIn, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import istatInfografica from "@/assets/istat-infografica.jpg";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -87,59 +89,8 @@ const PercheLaGuidaSicura = () => {
         </div>
       </section>
 
-      {/* 3. BLOCCO VISIVO — Infografica */}
-      <section className="py-20 px-6" style={{ backgroundColor: "hsl(220 18% 9%)" }}>
-        <div className="container mx-auto max-w-3xl">
-          <motion.div {...fadeUp} className="rounded-lg border border-border/50 bg-card p-8 md:p-12">
-            <div className="space-y-6">
-              <p className="font-mono text-xs tracking-[0.2em] uppercase text-primary mb-8">
-                Dati annuali — Italia
-              </p>
-              <div className="space-y-5">
-                {[
-                  { label: "Incidenti con lesioni", value: "173.364", width: "100%" },
-                  { label: "Feriti", value: "233.853", width: "85%" },
-                  { label: "Decessi", value: "3.030", width: "12%" },
-                ].map((row, i) => (
-                  <motion.div
-                    key={row.label}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.15 }}
-                  >
-                    <div className="flex justify-between items-baseline mb-2">
-                      <span className="text-sm text-muted-foreground">{row.label}</span>
-                      <span className="font-mono text-sm font-semibold text-foreground">{row.value}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-secondary overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: `linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))` }}
-                        initial={{ width: 0 }}
-                        whileInView={{ width: row.width }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, delay: 0.3 + i * 0.15, ease: "easeOut" }}
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-          <motion.p {...fadeUp} className="text-center text-xs text-muted-foreground mt-6">
-            Fonte:{" "}
-            <a
-              href="https://www.istat.it/it/archivio/incidenti+stradali"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              ISTAT – ACI
-            </a>
-          </motion.p>
-        </div>
-      </section>
+      {/* 3. BLOCCO INFOGRAFICA ISTAT */}
+      <IstatSection />
 
       {/* 4. BLOCCO SIGNIFICATO */}
       <section className="py-24 px-6">
