@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { HelpCircle, User, Car, Atom, CloudRain, Wrench } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const modules = [
   {
@@ -35,6 +36,7 @@ const modules = [
 ];
 
 const ModulesSection = () => {
+  const navigate = useNavigate();
   return (
     <section id="moduli" className="section-full py-24 px-6">
       <div className="container mx-auto max-w-6xl">
@@ -65,6 +67,11 @@ const ModulesSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
               className="card-lab text-left cursor-pointer group"
+              onClick={() => {
+                if (m.title === "Perché la guida sicura") {
+                  navigate("/perche-la-guida-sicura");
+                }
+              }}
             >
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
