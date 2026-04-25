@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Aula from "./pages/Aula.tsx";
 import Istruttore from "./pages/Istruttore.tsx";
+import IstruttoreModulo from "./pages/IstruttoreModulo.tsx";
 import PercheLaGuidaSicura from "./pages/PercheLaGuidaSicura.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/aula" element={<Aula />} />
           <Route path="/istruttore" element={<Istruttore />} />
+          <Route path="/istruttore/:slug" element={<IstruttoreModulo />} />
           <Route
             path="/modulo/perche-la-guida-sicura"
             element={<PercheLaGuidaSicura />}

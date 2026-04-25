@@ -62,7 +62,7 @@ const Istruttore = () => {
                 <button
                   type="button"
                   disabled={!m.available}
-                  onClick={() => navigate(`/modulo/${m.slug}`)}
+                  onClick={() => navigate(`/istruttore/${m.slug}`)}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border text-sm text-foreground hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <BookOpen className="w-4 h-4" />
