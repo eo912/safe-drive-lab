@@ -30,7 +30,7 @@ const App = () => (
           />
           <Route
             path="/aula/perche-la-guida-sicura"
-            element={<PercheLaGuidaSicura />}
+            element={<AulaPerche />}
           />
           {/* Legacy redirect */}
           <Route
