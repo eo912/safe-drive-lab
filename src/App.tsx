@@ -8,6 +8,7 @@ import Aula from "./pages/Aula.tsx";
 import Istruttore from "./pages/Istruttore.tsx";
 import IstruttoreModulo from "./pages/IstruttoreModulo.tsx";
 import PercheLaGuidaSicura from "./pages/PercheLaGuidaSicura.tsx";
+import AulaPerche from "./pages/AulaPerche.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
