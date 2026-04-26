@@ -583,20 +583,34 @@ const IstruttoreModulo = () => {
           </div>
         </main>
 
-        {/* DESTRA — TIMER + NOTE ISTRUTTORE (solo desktop) */}
+        {/* DESTRA — TIMER + SUGGERIMENTI DIDATTICI (solo desktop) */}
         <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
           <div className="p-4 border-b border-border/60">
             <AulaTimer compact onRequestAulaPause={pauseAula} aulaPaused={aulaPaused} />
           </div>
           <div className="p-4 border-b border-border/60 flex items-center gap-2">
-            <StickyNote className="w-3.5 h-3.5 text-primary" />
+            <BookOpen className="w-3.5 h-3.5 text-primary" />
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
-              Note istruttore
+              Suggerimenti didattici
             </p>
           </div>
-          {NotesContent}
+          {TeachingNotes}
         </aside>
       </div>
+
+      {/* DRAWERS richiamabili — note istruttore (N) e archivio (A) */}
+      <NotesDrawer
+        open={notesOpen}
+        onOpenChange={setNotesOpen}
+        modulo={slug}
+        blocco={previewState.blocco}
+        blockTitle={active.title}
+      />
+      <ArchiveDrawer
+        open={archiveOpen}
+        onOpenChange={setArchiveOpen}
+        onAttachToSlide={handleAttachFromArchive}
+      />
     </div>
   );
 };
