@@ -19,7 +19,7 @@ export const perchéBlocks: ModuleBlock[] = [
     kind: "intro",
     hasExplanation: true,
     notes:
-      "Apertura. Stabilire il tono: niente drammatizzazione, niente retorica. Far capire che parliamo di qualcosa di quotidiano. Pausa lunga prima di passare ai numeri.",
+      "Apertura. Tono reale, niente drammatizzazione. Introdurre con qualcosa tipo: «Prima di guardare i numeri, fermiamoci un attimo. Quando pensiamo a un incidente immaginiamo qualcosa di raro, lontano, che capita agli altri. I dati raccontano un'altra storia.» Pausa lunga prima di passare ai numeri.",
   },
   {
     id: "numeri",
@@ -29,7 +29,7 @@ export const perchéBlocks: ModuleBlock[] = [
     hasExplanation: true,
     hasDeepDive: true,
     notes:
-      "173.364 incidenti, 3.030 morti, 233.853 feriti, 475 al giorno. Non leggere i numeri: lasciarli leggere. Chiedere in aula: «Quanti di voi pensavano fosse meno?». Fonte: ISTAT–ACI 2024.",
+      "173.364 incidenti, 3.030 morti, 233.853 feriti, 475 al giorno. Non leggere i numeri: lasciarli leggere. Sottolineare: «475 al giorno = uno ogni 3 minuti. Mentre parliamo, da qualche parte sta succedendo». Domanda all'aula: «Pensavate fosse di più, di meno, o circa così?». Fonte: ISTAT–ACI 2024.",
   },
   {
     id: "strada-conosciuta",
@@ -39,7 +39,7 @@ export const perchéBlocks: ModuleBlock[] = [
     hasScenario: true,
     hasExplanation: true,
     notes:
-      "Chiedere ai partecipanti di pensare al tragitto casa-lavoro. Quanti dettagli ricordano davvero? Il punto: la familiarità abbassa la soglia di attenzione.",
+      "Far pensare al tragitto casa-lavoro. Domanda: «Quante curve, incroci, semafori ci sono sulla strada che fai più spesso? Riusciresti a elencarli?». Punto chiave: la familiarità abbassa la soglia di attenzione. Sei presente, ma non davvero.",
   },
   {
     id: "abitudine",
@@ -58,7 +58,7 @@ export const perchéBlocks: ModuleBlock[] = [
     hasOutcomes: true,
     hasExplanation: true,
     notes:
-      "4 conseguenze: lavoro, sanità, famiglia, aspetti legali. Per le aziende: focus su capacità lavorativa e responsabilità. Tempo: max 2 minuti.",
+      "Un incidente non finisce quando finisce. Le conseguenze continuano per mesi, anni, a volte per sempre. 4 aree: lavoro, salute, famiglia, responsabilità. Per le aziende: focus su capacità lavorativa e responsabilità. Tempo: max 2 minuti.",
   },
   {
     id: "guidare-lavoro",
@@ -68,7 +68,7 @@ export const perchéBlocks: ModuleBlock[] = [
     hasExplanation: true,
     hasDeepDive: true,
     notes:
-      "Punto chiave per il pubblico aziendale. Citare: gli incidenti in itinere e in missione sono tra le prime cause di infortunio. Approfondimento INAIL disponibile.",
+      "Punto chiave per il pubblico aziendale. «Quando guidi per lavoro, stai lavorando. Il rischio è parte dell'attività». Gli incidenti in itinere e in missione sono tra le prime cause di infortunio sul lavoro. Approfondimento INAIL disponibile.",
   },
   {
     id: "distrazione",
@@ -89,7 +89,7 @@ export const perchéBlocks: ModuleBlock[] = [
     hasOutcomes: true,
     hasExplanation: true,
     notes:
-      "Far guardare in silenzio. Niente commenti durante. Alla fine: pausa di 3-5 secondi prima di parlare. Chiedere: «Cosa avete visto per primo?». Lasciare emergere le risposte.",
+      "Far guardare in silenzio. Niente commenti durante. Alla fine: pausa di 3-5 secondi prima di parlare. Chiedere: «Cosa avete visto per primo?» e «Quante volte oggi hai guardato il telefono in macchina, anche solo per un attimo?». Da ricordare: non serve un evento eccezionale, bastano i 2 secondi sbagliati nel posto sbagliato.",
   },
   {
     id: "chiusura",
