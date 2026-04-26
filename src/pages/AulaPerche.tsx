@@ -194,10 +194,10 @@ const AulaPerche = () => {
             ].map((s, i) => (
               <motion.div
                 key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
+                transition={{ duration: 0.4, delay: 0.5 + i * 0.15 }}
               >
                 <div className="rounded-md overflow-hidden mb-3 aspect-[16/9]">
                   <img
