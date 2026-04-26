@@ -302,7 +302,7 @@ const IstruttoreModulo = () => {
                 </SheetTitle>
               </SheetHeader>
               <div className="p-4 border-b border-border/60">
-                <AulaTimer compact />
+                <AulaTimer compact onRequestAulaPause={pauseAula} aulaPaused={aulaPaused} />
               </div>
               {NotesContent}
             </SheetContent>
@@ -521,7 +521,7 @@ const IstruttoreModulo = () => {
         {/* DESTRA — TIMER + NOTE ISTRUTTORE (solo desktop) */}
         <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
           <div className="p-4 border-b border-border/60">
-            <AulaTimer compact />
+            <AulaTimer compact onRequestAulaPause={pauseAula} aulaPaused={aulaPaused} />
           </div>
           <div className="p-4 border-b border-border/60 flex items-center gap-2">
             <StickyNote className="w-3.5 h-3.5 text-primary" />
