@@ -580,6 +580,16 @@ const IstruttoreModulo = () => {
                 </button>
               </div>
             )}
+
+            {/* CONTENUTI COLLEGATI alla slide attiva + controlli media */}
+            <SlideContentsPanel
+              modulo={slug}
+              blocco={previewState.blocco}
+              liveMediaId={liveMediaId}
+              onProject={projectMedia}
+              onHide={hideMedia}
+              onOpenArchive={() => setArchiveOpen(true)}
+            />
           </div>
         </main>
 
