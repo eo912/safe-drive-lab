@@ -45,17 +45,34 @@ const writeToUrl = (state: AulaState) => {
 
 /**
  * Hook per la modalità Istruttore.
- * Espone publish(blocco, step) → notifica tutte le finestre Aula aperte.
+ * - `previewState`: stato selezionato in anteprima (NON inviato all'Aula).
+ * - `liveState`: ultimo stato pubblicato all'Aula.
+ * - `publish(patch)`: invia il patch all'Aula e aggiorna liveState.
+ * - `setPreview(patch)`: aggiorna solo l'anteprima locale.
  */
 export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
-  const [state, setState] = useState<AulaState>(() => readFromUrl(modulo, defaultBlocco));
+  const initial = readFromUrl(modulo, defaultBlocco);
+  const [previewState, setPreviewState] = useState<AulaState>(initial);
+  const [liveState, setLiveState] = useState<AulaState | null>(null);
+
+  const setPreview = useCallback(
+    (patch: Partial<Omit<AulaState, "ts" | "modulo">>) => {
+      setPreviewState((prev) => ({
+        ...prev,
+        ...patch,
+        modulo,
+        ts: Date.now(),
+      }));
+    },
+    [modulo],
+  );
 
   const publish = useCallback(
-    (patch: Partial<Omit<AulaState, "ts" | "modulo">>) => {
-      setState((prev) => {
+    (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) => {
+      setPreviewState((prev) => {
         const next: AulaState = {
           ...prev,
-          ...patch,
+          ...(patch ?? {}),
           modulo,
           ts: Date.now(),
         };
@@ -66,13 +83,14 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           /* ignore */
         }
         channel?.postMessage(next);
+        setLiveState(next);
         return next;
       });
     },
     [modulo],
   );
 
-  return { state, publish };
+  return { previewState, liveState, setPreview, publish };
 };
 
 /**
