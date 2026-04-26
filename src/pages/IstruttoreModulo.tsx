@@ -348,7 +348,7 @@ const IstruttoreModulo = () => {
               </span>
               <span className="text-muted-foreground text-xs">•</span>
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                Step: <span className="text-foreground/80">{state.step}</span>
+                Step: <span className="text-foreground/80">{previewState.step}</span>
               </span>
             </div>
 
@@ -356,13 +356,14 @@ const IstruttoreModulo = () => {
               {active.title}
             </h2>
 
-            <div className="flex flex-wrap gap-2 mb-8">
+            <div className="flex flex-wrap gap-2 mb-6">
               {active.hasScenario && (
                 <ActionButton
                   icon={Play}
                   label="Avvia scenario"
                   primary
-                  active={state.step === "scenario"}
+                  active={previewState.step === "scenario"}
+                  live={isLive && liveStep === "scenario"}
                   onClick={() => setStep("scenario")}
                 />
               )}
@@ -370,7 +371,8 @@ const IstruttoreModulo = () => {
                 <ActionButton
                   icon={ListChecks}
                   label="Mostra esiti"
-                  active={state.step === "esiti"}
+                  active={previewState.step === "esiti"}
+                  live={isLive && liveStep === "esiti"}
                   onClick={() => setStep("esiti")}
                 />
               )}
@@ -378,7 +380,8 @@ const IstruttoreModulo = () => {
                 <ActionButton
                   icon={BookOpen}
                   label="Mostra spiegazione"
-                  active={state.step === "spiegazione"}
+                  active={previewState.step === "spiegazione"}
+                  live={isLive && liveStep === "spiegazione"}
                   onClick={() => setStep("spiegazione")}
                 />
               )}
@@ -386,17 +389,44 @@ const IstruttoreModulo = () => {
                 <ActionButton
                   icon={ExternalLink}
                   label="Apri approfondimento"
-                  active={state.step === "approfondimento"}
+                  active={previewState.step === "approfondimento"}
+                  live={isLive && liveStep === "approfondimento"}
                   onClick={() => setStep("approfondimento")}
                 />
               )}
             </div>
 
-            <div className="relative rounded-lg border border-border bg-card aspect-video flex items-center justify-center overflow-hidden">
+            {/* PREVIEW BOX con stati: default / selezionato (giallo) / live (verde) */}
+            <div
+              className={`relative rounded-lg border-2 bg-card aspect-video flex items-center justify-center overflow-hidden transition-colors ${
+                isLive
+                  ? "border-emerald-500/70"
+                  : "border-primary/60"
+              }`}
+            >
+              {/* Etichetta stato */}
+              <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2 py-1 rounded-sm bg-background/80 backdrop-blur">
+                {isLive ? (
+                  <>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-emerald-500">
+                      In Aula
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-3 h-3 text-primary" />
+                    <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary">
+                      Anteprima
+                    </span>
+                  </>
+                )}
+              </div>
+
               <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary))_0%,transparent_50%)]" />
               <div className="relative text-center px-6">
                 <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-3">
-                  Anteprima blocco
+                  {KindLabel[active.kind]} · step {previewState.step}
                 </p>
                 <p className="text-base sm:text-lg text-foreground/80 mb-4">
                   {active.title}
@@ -404,12 +434,50 @@ const IstruttoreModulo = () => {
                 <button
                   type="button"
                   onClick={launchAula}
-                  className="inline-flex items-center gap-2 text-xs text-primary hover:underline font-mono uppercase tracking-wider"
+                  className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-mono uppercase tracking-wider transition-colors"
                 >
                   <Maximize2 className="w-3.5 h-3.5" />
-                  Apri in aula
+                  Apri finestra aula
                 </button>
               </div>
+            </div>
+
+            {/* INVIA IN AULA */}
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <div className="text-[11px] text-muted-foreground">
+                {liveState ? (
+                  <>
+                    In Aula:{" "}
+                    <span className="text-foreground/80 font-mono">
+                      {blocks.find((b) => b.id === liveBlockId)?.title ?? "—"} · {liveStep}
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-mono">Aula in attesa</span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={sendToAula}
+                disabled={isLive}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
+                  isLive
+                    ? "bg-emerald-500/15 text-emerald-500 cursor-default"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                }`}
+              >
+                {isLive ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    In Aula
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Invia in Aula
+                  </>
+                )}
+              </button>
             </div>
 
             {mode === "guidata" && nextBlock && (
