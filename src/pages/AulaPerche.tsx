@@ -109,9 +109,20 @@ const ImgBg = ({
 const AulaPerche = () => {
   const navigate = useNavigate();
   const [showExit, setShowExit] = useState(false);
+  const aulaState = useAulaSubscriber("perche-la-guida-sicura", "hero");
+
+  // Scroll automatico al blocco indicato dall'istruttore
+  useEffect(() => {
+    if (!aulaState.blocco) return;
+    const el = document.querySelector<HTMLElement>(
+      `[data-block="${aulaState.blocco}"]`,
+    );
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [aulaState.blocco, aulaState.step, aulaState.ts]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
