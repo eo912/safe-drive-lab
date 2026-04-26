@@ -503,8 +503,11 @@ const IstruttoreModulo = () => {
           </div>
         </main>
 
-        {/* DESTRA — NOTE ISTRUTTORE (solo desktop) */}
-        <aside className="hidden lg:block lg:border-l border-border bg-card/40">
+        {/* DESTRA — TIMER + NOTE ISTRUTTORE (solo desktop) */}
+        <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
+          <div className="p-4 border-b border-border/60">
+            <AulaTimer compact />
+          </div>
           <div className="p-4 border-b border-border/60 flex items-center gap-2">
             <StickyNote className="w-3.5 h-3.5 text-primary" />
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
