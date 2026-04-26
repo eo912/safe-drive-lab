@@ -178,6 +178,38 @@ const AulaPerche = () => {
         </p>
       </div>
 
+      {/* OVERLAY PAUSA AULA — controllato solo dall'istruttore */}
+      {aulaState.paused && (
+        <div
+          className="fixed inset-0 z-[90] bg-background flex flex-col items-center justify-center text-center px-8"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="relative w-full max-w-2xl aspect-[3/2] mb-10 rounded-lg overflow-hidden">
+            <img
+              src={pauseCoffee}
+              alt=""
+              loading="lazy"
+              width={1536}
+              height={1024}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          </div>
+          <p className="font-mono text-xs tracking-[0.4em] uppercase text-primary mb-4">
+            Intervallo
+          </p>
+          <h2 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
+            Pausa
+          </h2>
+          {aulaState.pauseMinutes && (
+            <p className="text-lg md:text-xl text-muted-foreground">
+              Riprendiamo tra {aulaState.pauseMinutes} minuti
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Uscita aula — invisibile durante la lezione */}
       <Link
         to="/istruttore/perche-la-guida-sicura"
