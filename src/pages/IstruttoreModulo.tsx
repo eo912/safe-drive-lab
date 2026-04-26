@@ -141,6 +141,33 @@ const IstruttoreModulo = () => {
     });
   };
 
+  // ----- Media in Aula (controllato manualmente dall'istruttore) -----
+  const liveMediaId = liveState?.media?.id ?? null;
+
+  const projectMedia = (r: Resource) => {
+    publish({
+      blocco: previewState.blocco,
+      step: previewState.step,
+      media: r,
+      paused: false,
+    });
+  };
+
+  const hideMedia = () => {
+    publish({
+      blocco: liveState?.blocco ?? previewState.blocco,
+      step: (liveState?.step ?? previewState.step) as AulaStep,
+      media: null,
+    });
+  };
+
+  // Linked content della slide attiva (per attach dall'archivio)
+  const linkedAttach = useLinkedContent(slug, previewState.blocco).attach;
+  const handleAttachFromArchive = (r: Resource) => {
+    linkedAttach(r);
+    setArchiveOpen(false);
+  };
+
   const launchAula = () => {
     // Usa lo stato live se gia' pubblicato, altrimenti la preview corrente.
     // Cosi' la finestra Aula si apre direttamente sul punto giusto, ma
