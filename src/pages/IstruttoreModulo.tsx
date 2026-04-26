@@ -27,6 +27,7 @@ import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
+import { SlidePreview } from "@/components/istruttore/SlidePreview";
 
 type Mode = "guidata" | "libera";
 
