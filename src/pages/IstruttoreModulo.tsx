@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type Mode = "guidata" | "libera";
 
