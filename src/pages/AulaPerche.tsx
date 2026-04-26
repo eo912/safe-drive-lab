@@ -15,6 +15,7 @@ import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
 import pauseCoffee from "@/assets/pause-coffee.jpg";
 import { useAulaSubscriber } from "@/lib/aulaSync";
+import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 
 // Fade lento per testi principali — solo opacity, nessun movimento
 const fade = {
