@@ -13,6 +13,7 @@ import routineDriving from "@/assets/routine-driving.jpg";
 import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
+import pauseCoffee from "@/assets/pause-coffee.jpg";
 import { useAulaSubscriber } from "@/lib/aulaSync";
 
 // Fade lento per testi principali — solo opacity, nessun movimento
@@ -114,13 +115,14 @@ const AulaPerche = () => {
   // Scroll automatico al blocco indicato dall'istruttore
   useEffect(() => {
     if (!aulaState.blocco) return;
+    if (aulaState.paused) return; // durante la pausa non scrolliamo
     const el = document.querySelector<HTMLElement>(
       `[data-block="${aulaState.blocco}"]`,
     );
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [aulaState.blocco, aulaState.step, aulaState.ts]);
+  }, [aulaState.blocco, aulaState.step, aulaState.ts, aulaState.paused]);
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
