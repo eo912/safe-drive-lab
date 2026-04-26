@@ -13,6 +13,7 @@ import routineDriving from "@/assets/routine-driving.jpg";
 import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
+import { useAulaSubscriber } from "@/lib/aulaSync";
 
 // Fade lento per testi principali — solo opacity, nessun movimento
 const fade = {
@@ -38,10 +39,12 @@ const Slide = ({
   children,
   bg,
   className = "",
+  blockId,
 }: {
   children: React.ReactNode;
   bg?: "dark" | "darker" | "card" | "black";
   className?: string;
+  blockId?: string;
 }) => {
   const bgStyle =
     bg === "darker"
@@ -54,6 +57,7 @@ const Slide = ({
 
   return (
     <section
+      data-block={blockId}
       className={`relative w-full h-screen flex items-center justify-center overflow-hidden ${className}`}
       style={bgStyle ? { backgroundColor: bgStyle } : undefined}
     >
@@ -68,11 +72,16 @@ const Slide = ({
 const Free = ({
   children,
   className = "",
+  blockId,
 }: {
   children: React.ReactNode;
   className?: string;
+  blockId?: string;
 }) => (
-  <section className={`relative w-full py-32 md:py-44 px-6 ${className}`}>
+  <section
+    data-block={blockId}
+    className={`relative w-full py-32 md:py-44 px-6 ${className}`}
+  >
     <div className="max-w-2xl mx-auto">{children}</div>
   </section>
 );
@@ -100,9 +109,20 @@ const ImgBg = ({
 const AulaPerche = () => {
   const navigate = useNavigate();
   const [showExit, setShowExit] = useState(false);
+  const aulaState = useAulaSubscriber("perche-la-guida-sicura", "hero");
+
+  // Scroll automatico al blocco indicato dall'istruttore
+  useEffect(() => {
+    if (!aulaState.blocco) return;
+    const el = document.querySelector<HTMLElement>(
+      `[data-block="${aulaState.blocco}"]`,
+    );
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [aulaState.blocco, aulaState.step, aulaState.ts]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
@@ -145,7 +165,7 @@ const AulaPerche = () => {
           ============================================================ */}
 
       {/* SLIDE IMPATTO: Apertura */}
-      <Slide>
+      <Slide blockId="hero">
         <ImgBg src={heroBg} alt="Strada reale" opacity="opacity-40" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.p
@@ -183,7 +203,7 @@ const AulaPerche = () => {
           ============================================================ */}
 
       {/* SLIDE TENSIONE: Numeri */}
-      <Slide bg="card">
+      <Slide bg="card" blockId="numeri">
         <div className="relative z-10 w-full max-w-5xl px-6">
           <div className="grid grid-cols-2 gap-8 md:gap-14">
             {[
@@ -247,7 +267,7 @@ const AulaPerche = () => {
           ============================================================ */}
 
       {/* SLIDE IMPATTO */}
-      <Slide>
+      <Slide blockId="strada-conosciuta">
         <ImgBg src={familiarRoad} alt="Strada familiare" opacity="opacity-25" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
@@ -285,7 +305,7 @@ const AulaPerche = () => {
       </Slide>
 
       {/* SLIDE CONSEGUENZA */}
-      <Slide bg="black">
+      <Slide bg="black" blockId="abitudine">
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
             {...fade}
@@ -302,7 +322,7 @@ const AulaPerche = () => {
           Slide impatto → Free comprensione
           ============================================================ */}
 
-      <Slide>
+      <Slide blockId="guidare-lavoro">
         <ImgBg src={workDriving} alt="Veicolo aziendale" opacity="opacity-20" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
@@ -330,7 +350,7 @@ const AulaPerche = () => {
           ============================================================ */}
 
       {/* SLIDE SCENARIO */}
-      <Slide bg="darker">
+      <Slide bg="darker" blockId="distrazione">
         <ImgBg src={phoneDriving} alt="Telefono al volante" opacity="opacity-25" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
@@ -343,7 +363,7 @@ const AulaPerche = () => {
       </Slide>
 
       {/* SLIDE SCELTA: POV video, nessun testo */}
-      <Slide bg="black">
+      <Slide bg="black" blockId="video-pov">
         <video
           src={povVideo.url}
           autoPlay
@@ -390,7 +410,7 @@ const AulaPerche = () => {
           Slide impatto finale
           ============================================================ */}
 
-      <Slide bg="black">
+      <Slide bg="black" blockId="chiusura">
         <div className="relative z-10 text-center px-6 max-w-4xl">
           <motion.p
             {...fade}
