@@ -39,10 +39,12 @@ const Slide = ({
   children,
   bg,
   className = "",
+  blockId,
 }: {
   children: React.ReactNode;
   bg?: "dark" | "darker" | "card" | "black";
   className?: string;
+  blockId?: string;
 }) => {
   const bgStyle =
     bg === "darker"
@@ -55,6 +57,7 @@ const Slide = ({
 
   return (
     <section
+      data-block={blockId}
       className={`relative w-full h-screen flex items-center justify-center overflow-hidden ${className}`}
       style={bgStyle ? { backgroundColor: bgStyle } : undefined}
     >
@@ -69,11 +72,16 @@ const Slide = ({
 const Free = ({
   children,
   className = "",
+  blockId,
 }: {
   children: React.ReactNode;
   className?: string;
+  blockId?: string;
 }) => (
-  <section className={`relative w-full py-32 md:py-44 px-6 ${className}`}>
+  <section
+    data-block={blockId}
+    className={`relative w-full py-32 md:py-44 px-6 ${className}`}
+  >
     <div className="max-w-2xl mx-auto">{children}</div>
   </section>
 );
