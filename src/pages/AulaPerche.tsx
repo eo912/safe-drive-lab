@@ -14,11 +14,20 @@ import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
 
+// Fade lento per testi principali — solo opacity, nessun movimento
 const fade = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
+  initial: { opacity: 0 },
+  whileInView: { opacity: 1 },
   viewport: { once: true, margin: "-15%" },
-  transition: { duration: 0.7 },
+  transition: { duration: 0.4, delay: 0.5 },
+};
+
+// Fade breve per elementi secondari
+const fadeQuick = {
+  initial: { opacity: 0 },
+  whileInView: { opacity: 1 },
+  viewport: { once: true, margin: "-15%" },
+  transition: { duration: 0.25, delay: 0.5 },
 };
 
 /* =========================================================
