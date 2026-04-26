@@ -60,10 +60,23 @@ const IstruttoreModulo = () => {
   const [mode, setMode] = useState<Mode>("guidata");
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  // Scorciatoie tastiera per istruttore: N = note, A = archivio
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "n" || e.key === "N") setNotesOpen((v) => !v);
+      if (e.key === "a" || e.key === "A") setArchiveOpen((v) => !v);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   if (!module || blocks.length === 0) {
