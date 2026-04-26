@@ -147,6 +147,35 @@ const AulaPerche = () => {
 
   return (
     <div className="bg-background text-foreground">
+      {/* Blocco orientamento: aula = solo landscape su schermi piccoli */}
+      <div
+        className="fixed inset-0 z-[100] bg-background flex-col items-center justify-center text-center px-8 hidden portrait:flex landscape:hidden md:portrait:hidden"
+        role="alert"
+      >
+        <div className="w-12 h-12 rounded-md border border-border flex items-center justify-center mb-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="w-6 h-6 text-primary"
+          >
+            <rect x="3" y="6" width="18" height="12" rx="2" />
+            <path d="M7 21h10" strokeLinecap="round" />
+          </svg>
+        </div>
+        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-3">
+          Modalità Aula
+        </p>
+        <p className="text-lg font-semibold text-foreground mb-2">
+          Ruota il dispositivo in orizzontale
+        </p>
+        <p className="text-sm text-muted-foreground max-w-xs">
+          L'aula è progettata per schermi orizzontali e proiettori.
+        </p>
+      </div>
+
       {/* Uscita aula — invisibile durante la lezione */}
       <Link
         to="/istruttore/perche-la-guida-sicura"
