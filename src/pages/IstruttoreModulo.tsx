@@ -97,7 +97,30 @@ const IstruttoreModulo = () => {
   const setStep = (step: AulaStep) => setPreview({ step });
 
   const sendToAula = () => {
-    publish({ blocco: previewState.blocco, step: previewState.step });
+    publish({
+      blocco: previewState.blocco,
+      step: previewState.step,
+      paused: false,
+    });
+  };
+
+  const aulaPaused = liveState?.paused === true;
+
+  const pauseAula = (minutes = 5) => {
+    publish({
+      blocco: previewState.blocco,
+      step: previewState.step,
+      paused: true,
+      pauseMinutes: minutes,
+    });
+  };
+
+  const resumeAula = () => {
+    publish({
+      blocco: liveState?.blocco ?? previewState.blocco,
+      step: (liveState?.step ?? previewState.step) as AulaStep,
+      paused: false,
+    });
   };
 
   const launchAula = () => {
