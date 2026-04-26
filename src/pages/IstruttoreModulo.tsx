@@ -8,13 +8,12 @@ import {
   ExternalLink,
   ChevronRight,
   StickyNote,
-  Maximize2,
   Radio,
   ListOrdered,
   Send,
-  Eye,
   CheckCircle2,
   Coffee,
+  Archive,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -29,6 +28,11 @@ import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
+import { NotesDrawer } from "@/components/istruttore/NotesDrawer";
+import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
+import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
+import { useLinkedContent } from "@/lib/instructorStorage";
+import type { Resource } from "@/lib/instructorTypes";
 
 type Mode = "guidata" | "libera";
 
