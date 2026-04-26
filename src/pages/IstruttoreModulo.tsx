@@ -261,8 +261,8 @@ const IstruttoreModulo = () => {
     </nav>
   );
 
-  // Contenuto Note (riusato in colonna desktop e in drawer mobile)
-  const NotesContent = (
+  // Note didattiche pre-scritte (consigli per condurre la slide)
+  const TeachingNotes = (
     <div className="p-4">
       <h3 className="text-sm font-semibold mb-3 text-foreground/90">
         {active.title}
@@ -272,9 +272,7 @@ const IstruttoreModulo = () => {
       </p>
       <div className="mt-6 pt-4 border-t border-border/60">
         <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/70">
-          Visibili solo all'istruttore.
-          <br />
-          Nascoste in modalità aula.
+          Suggerimenti didattici · mai visibili in Aula
         </p>
       </div>
     </div>
