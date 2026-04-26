@@ -203,7 +203,7 @@ const AulaPerche = () => {
           ============================================================ */}
 
       {/* SLIDE TENSIONE: Numeri */}
-      <Slide bg="card">
+      <Slide bg="card" blockId="numeri">
         <div className="relative z-10 w-full max-w-5xl px-6">
           <div className="grid grid-cols-2 gap-8 md:gap-14">
             {[
