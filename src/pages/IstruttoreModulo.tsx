@@ -38,6 +38,7 @@ const IstruttoreModulo = () => {
 
   const { state, publish } = useAulaPublisher(slug, blocks[0]?.id ?? "");
   const [mode, setMode] = useState<Mode>("guidata");
+  const aulaWindowRef = useRef<Window | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
