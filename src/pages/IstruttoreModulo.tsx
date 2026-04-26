@@ -113,27 +113,34 @@ const IstruttoreModulo = () => {
   const TimelineContent = (
     <nav className="p-2">
       {blocks.map((b, i) => {
-        const isActive = b.id === active.id;
+        const isSelected = b.id === active.id;
+        const isLiveBlock = b.id === liveBlockId;
         const isNext = mode === "guidata" && b.id === nextBlock?.id;
-        const isPast = i < activeIndex;
+        const isPast = i < previewIndex;
         return (
           <button
             key={b.id}
             type="button"
             onClick={() => goToBlock(b.id)}
-            className={`group w-full text-left px-3 py-2.5 rounded-md flex items-start gap-3 transition-all relative ${
-              isActive
-                ? "bg-primary/10 border border-primary/40"
-                : "border border-transparent hover:bg-secondary/60"
+            className={`group w-full text-left px-3 py-2.5 rounded-md flex items-start gap-3 transition-all relative border ${
+              isSelected && isLiveBlock
+                ? "bg-emerald-500/10 border-emerald-500/50"
+                : isSelected
+                  ? "bg-primary/10 border-primary/40"
+                  : isLiveBlock
+                    ? "bg-emerald-500/5 border-emerald-500/30"
+                    : "border-transparent hover:bg-secondary/60"
             }`}
           >
             <span
               className={`font-mono text-[11px] mt-0.5 shrink-0 ${
-                isActive
+                isSelected
                   ? "text-primary"
-                  : isPast
-                    ? "text-muted-foreground/50"
-                    : "text-muted-foreground"
+                  : isLiveBlock
+                    ? "text-emerald-500"
+                    : isPast
+                      ? "text-muted-foreground/50"
+                      : "text-muted-foreground"
               }`}
             >
               {String(b.index).padStart(2, "0")}
@@ -141,7 +148,7 @@ const IstruttoreModulo = () => {
             <span className="min-w-0 flex-1">
               <span
                 className={`block text-sm leading-tight truncate ${
-                  isActive ? "text-foreground font-medium" : "text-foreground/80"
+                  isSelected ? "text-foreground font-medium" : "text-foreground/80"
                 }`}
               >
                 {b.title}
@@ -150,7 +157,13 @@ const IstruttoreModulo = () => {
                 {KindLabel[b.kind]}
               </span>
             </span>
-            {isNext && (
+            {isLiveBlock && (
+              <span className="absolute right-2 top-2 inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider text-emerald-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                live
+              </span>
+            )}
+            {!isLiveBlock && isNext && (
               <span className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider text-primary">
                 <ChevronRight className="w-3 h-3" />
               </span>
