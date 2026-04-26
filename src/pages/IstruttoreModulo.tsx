@@ -441,6 +441,29 @@ const IstruttoreModulo = () => {
               )}
             </div>
 
+            {/* BANNER PAUSA AULA */}
+            {aulaPaused && (
+              <div className="mb-4 flex items-center justify-between gap-3 p-3 rounded-md border border-amber-500/40 bg-amber-500/5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Coffee className="w-4 h-4 text-amber-500 shrink-0" />
+                  <p className="text-sm text-foreground/90 truncate">
+                    Aula in pausa
+                    {liveState?.pauseMinutes
+                      ? ` · ${liveState.pauseMinutes} min`
+                      : ""}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={resumeAula}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-amber-500/15 text-amber-500 text-xs font-mono uppercase tracking-wider hover:bg-amber-500/25 transition-colors shrink-0"
+                >
+                  <Play className="w-3 h-3" />
+                  Riprendi
+                </button>
+              </div>
+            )}
+
             {/* DUAL VIEW: In Aula (live) | Anteprima (preview) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               <SlidePreview
