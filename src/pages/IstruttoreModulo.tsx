@@ -252,13 +252,16 @@ const IstruttoreModulo = () => {
                 <span className="hidden sm:inline">Note</span>
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="p-0 w-[320px] sm:w-[380px]">
+            <SheetContent side="right" className="p-0 w-[320px] sm:w-[380px] overflow-y-auto">
               <SheetHeader className="p-4 border-b border-border/60 text-left flex-row items-center gap-2 space-y-0">
                 <StickyNote className="w-3.5 h-3.5 text-primary" />
                 <SheetTitle className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground font-normal">
                   Note istruttore
                 </SheetTitle>
               </SheetHeader>
+              <div className="p-4 border-b border-border/60">
+                <AulaTimer compact />
+              </div>
               {NotesContent}
             </SheetContent>
           </Sheet>
