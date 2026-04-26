@@ -151,15 +151,15 @@ const AulaPerche = () => {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
             className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-6"
           >
             Modulo 01
           </motion.p>
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.4 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.9 }}
             className="text-5xl md:text-7xl font-bold leading-[1.05]"
           >
             La realtà della strada
