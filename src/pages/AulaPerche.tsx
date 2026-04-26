@@ -322,7 +322,7 @@ const AulaPerche = () => {
           Slide impatto → Free comprensione
           ============================================================ */}
 
-      <Slide>
+      <Slide blockId="guidare-lavoro">
         <ImgBg src={workDriving} alt="Veicolo aziendale" opacity="opacity-20" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
