@@ -14,6 +14,7 @@ import {
   Send,
   Eye,
   CheckCircle2,
+  Coffee,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -97,7 +98,30 @@ const IstruttoreModulo = () => {
   const setStep = (step: AulaStep) => setPreview({ step });
 
   const sendToAula = () => {
-    publish({ blocco: previewState.blocco, step: previewState.step });
+    publish({
+      blocco: previewState.blocco,
+      step: previewState.step,
+      paused: false,
+    });
+  };
+
+  const aulaPaused = liveState?.paused === true;
+
+  const pauseAula = (minutes = 5) => {
+    publish({
+      blocco: previewState.blocco,
+      step: previewState.step,
+      paused: true,
+      pauseMinutes: minutes,
+    });
+  };
+
+  const resumeAula = () => {
+    publish({
+      blocco: liveState?.blocco ?? previewState.blocco,
+      step: (liveState?.step ?? previewState.step) as AulaStep,
+      paused: false,
+    });
   };
 
   const launchAula = () => {
@@ -279,7 +303,7 @@ const IstruttoreModulo = () => {
                 </SheetTitle>
               </SheetHeader>
               <div className="p-4 border-b border-border/60">
-                <AulaTimer compact />
+                <AulaTimer compact onRequestAulaPause={pauseAula} aulaPaused={aulaPaused} />
               </div>
               {NotesContent}
             </SheetContent>
@@ -418,6 +442,29 @@ const IstruttoreModulo = () => {
               )}
             </div>
 
+            {/* BANNER PAUSA AULA */}
+            {aulaPaused && (
+              <div className="mb-4 flex items-center justify-between gap-3 p-3 rounded-md border border-amber-500/40 bg-amber-500/5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Coffee className="w-4 h-4 text-amber-500 shrink-0" />
+                  <p className="text-sm text-foreground/90 truncate">
+                    Aula in pausa
+                    {liveState?.pauseMinutes
+                      ? ` · ${liveState.pauseMinutes} min`
+                      : ""}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={resumeAula}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-amber-500/15 text-amber-500 text-xs font-mono uppercase tracking-wider hover:bg-amber-500/25 transition-colors shrink-0"
+                >
+                  <Play className="w-3 h-3" />
+                  Riprendi
+                </button>
+              </div>
+            )}
+
             {/* DUAL VIEW: In Aula (live) | Anteprima (preview) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               <SlidePreview
@@ -498,7 +545,7 @@ const IstruttoreModulo = () => {
         {/* DESTRA — TIMER + NOTE ISTRUTTORE (solo desktop) */}
         <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
           <div className="p-4 border-b border-border/60">
-            <AulaTimer compact />
+            <AulaTimer compact onRequestAulaPause={pauseAula} aulaPaused={aulaPaused} />
           </div>
           <div className="p-4 border-b border-border/60 flex items-center gap-2">
             <StickyNote className="w-3.5 h-3.5 text-primary" />
