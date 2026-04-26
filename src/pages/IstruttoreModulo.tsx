@@ -11,6 +11,9 @@ import {
   Maximize2,
   Radio,
   ListOrdered,
+  Send,
+  Eye,
+  CheckCircle2,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -23,6 +26,7 @@ import {
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
+import { AulaTimer } from "@/components/istruttore/AulaTimer";
 
 type Mode = "guidata" | "libera";
 
@@ -43,7 +47,10 @@ const IstruttoreModulo = () => {
   const module = useMemo(() => modules.find((m) => m.slug === slug), [slug]);
   const blocks = blocksBySlug[slug] ?? [];
 
-  const { state, publish } = useAulaPublisher(slug, blocks[0]?.id ?? "");
+  const { previewState, liveState, setPreview, publish } = useAulaPublisher(
+    slug,
+    blocks[0]?.id ?? "",
+  );
   const [mode, setMode] = useState<Mode>("guidata");
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
@@ -66,26 +73,37 @@ const IstruttoreModulo = () => {
     );
   }
 
-  const activeId = state.blocco;
-  const activeIndex = Math.max(
+  const previewId = previewState.blocco;
+  const previewIndex = Math.max(
     0,
-    blocks.findIndex((b) => b.id === activeId),
+    blocks.findIndex((b) => b.id === previewId),
   );
-  const active = blocks[activeIndex] ?? blocks[0];
-  const nextBlock = blocks[activeIndex + 1];
+  const active = blocks[previewIndex] ?? blocks[0];
+  const nextBlock = blocks[previewIndex + 1];
+
+  // Stato live (in Aula)
+  const liveBlockId = liveState?.blocco ?? null;
+  const liveStep = liveState?.step ?? null;
+
+  // Stato preview vs live: stesso blocco+step → "in aula"
+  const isLive =
+    liveBlockId === previewState.blocco && liveStep === previewState.step;
 
   const goToBlock = (id: string) => {
-    publish({ blocco: id, step: "intro" });
+    setPreview({ blocco: id, step: "intro" });
     setTimelineOpen(false);
   };
-  const setStep = (step: AulaStep) => publish({ step });
+  const setStep = (step: AulaStep) => setPreview({ step });
+
+  const sendToAula = () => {
+    publish({ blocco: previewState.blocco, step: previewState.step });
+  };
 
   const launchAula = () => {
-    const url = `/aula/${slug}?blocco=${state.blocco}&step=${state.step}`;
+    const url = `/aula/${slug}?blocco=${previewState.blocco}&step=${previewState.step}`;
     const existing = aulaWindowRef.current;
     if (existing && !existing.closed) {
       existing.focus();
-      publish({ blocco: state.blocco, step: state.step });
       return;
     }
     aulaWindowRef.current = window.open(url, "aula-safedrivelab");
@@ -95,27 +113,34 @@ const IstruttoreModulo = () => {
   const TimelineContent = (
     <nav className="p-2">
       {blocks.map((b, i) => {
-        const isActive = b.id === active.id;
+        const isSelected = b.id === active.id;
+        const isLiveBlock = b.id === liveBlockId;
         const isNext = mode === "guidata" && b.id === nextBlock?.id;
-        const isPast = i < activeIndex;
+        const isPast = i < previewIndex;
         return (
           <button
             key={b.id}
             type="button"
             onClick={() => goToBlock(b.id)}
-            className={`group w-full text-left px-3 py-2.5 rounded-md flex items-start gap-3 transition-all relative ${
-              isActive
-                ? "bg-primary/10 border border-primary/40"
-                : "border border-transparent hover:bg-secondary/60"
+            className={`group w-full text-left px-3 py-2.5 rounded-md flex items-start gap-3 transition-all relative border ${
+              isSelected && isLiveBlock
+                ? "bg-emerald-500/10 border-emerald-500/50"
+                : isSelected
+                  ? "bg-primary/10 border-primary/40"
+                  : isLiveBlock
+                    ? "bg-emerald-500/5 border-emerald-500/30"
+                    : "border-transparent hover:bg-secondary/60"
             }`}
           >
             <span
               className={`font-mono text-[11px] mt-0.5 shrink-0 ${
-                isActive
+                isSelected
                   ? "text-primary"
-                  : isPast
-                    ? "text-muted-foreground/50"
-                    : "text-muted-foreground"
+                  : isLiveBlock
+                    ? "text-emerald-500"
+                    : isPast
+                      ? "text-muted-foreground/50"
+                      : "text-muted-foreground"
               }`}
             >
               {String(b.index).padStart(2, "0")}
@@ -123,7 +148,7 @@ const IstruttoreModulo = () => {
             <span className="min-w-0 flex-1">
               <span
                 className={`block text-sm leading-tight truncate ${
-                  isActive ? "text-foreground font-medium" : "text-foreground/80"
+                  isSelected ? "text-foreground font-medium" : "text-foreground/80"
                 }`}
               >
                 {b.title}
@@ -132,7 +157,13 @@ const IstruttoreModulo = () => {
                 {KindLabel[b.kind]}
               </span>
             </span>
-            {isNext && (
+            {isLiveBlock && (
+              <span className="absolute right-2 top-2 inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider text-emerald-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                live
+              </span>
+            )}
+            {!isLiveBlock && isNext && (
               <span className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider text-primary">
                 <ChevronRight className="w-3 h-3" />
               </span>
@@ -221,13 +252,16 @@ const IstruttoreModulo = () => {
                 <span className="hidden sm:inline">Note</span>
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="p-0 w-[320px] sm:w-[380px]">
+            <SheetContent side="right" className="p-0 w-[320px] sm:w-[380px] overflow-y-auto">
               <SheetHeader className="p-4 border-b border-border/60 text-left flex-row items-center gap-2 space-y-0">
                 <StickyNote className="w-3.5 h-3.5 text-primary" />
                 <SheetTitle className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground font-normal">
                   Note istruttore
                 </SheetTitle>
               </SheetHeader>
+              <div className="p-4 border-b border-border/60">
+                <AulaTimer compact />
+              </div>
               {NotesContent}
             </SheetContent>
           </Sheet>
@@ -317,7 +351,7 @@ const IstruttoreModulo = () => {
               </span>
               <span className="text-muted-foreground text-xs">•</span>
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                Step: <span className="text-foreground/80">{state.step}</span>
+                Step: <span className="text-foreground/80">{previewState.step}</span>
               </span>
             </div>
 
@@ -325,13 +359,14 @@ const IstruttoreModulo = () => {
               {active.title}
             </h2>
 
-            <div className="flex flex-wrap gap-2 mb-8">
+            <div className="flex flex-wrap gap-2 mb-6">
               {active.hasScenario && (
                 <ActionButton
                   icon={Play}
                   label="Avvia scenario"
                   primary
-                  active={state.step === "scenario"}
+                  active={previewState.step === "scenario"}
+                  live={isLive && liveStep === "scenario"}
                   onClick={() => setStep("scenario")}
                 />
               )}
@@ -339,7 +374,8 @@ const IstruttoreModulo = () => {
                 <ActionButton
                   icon={ListChecks}
                   label="Mostra esiti"
-                  active={state.step === "esiti"}
+                  active={previewState.step === "esiti"}
+                  live={isLive && liveStep === "esiti"}
                   onClick={() => setStep("esiti")}
                 />
               )}
@@ -347,7 +383,8 @@ const IstruttoreModulo = () => {
                 <ActionButton
                   icon={BookOpen}
                   label="Mostra spiegazione"
-                  active={state.step === "spiegazione"}
+                  active={previewState.step === "spiegazione"}
+                  live={isLive && liveStep === "spiegazione"}
                   onClick={() => setStep("spiegazione")}
                 />
               )}
@@ -355,17 +392,44 @@ const IstruttoreModulo = () => {
                 <ActionButton
                   icon={ExternalLink}
                   label="Apri approfondimento"
-                  active={state.step === "approfondimento"}
+                  active={previewState.step === "approfondimento"}
+                  live={isLive && liveStep === "approfondimento"}
                   onClick={() => setStep("approfondimento")}
                 />
               )}
             </div>
 
-            <div className="relative rounded-lg border border-border bg-card aspect-video flex items-center justify-center overflow-hidden">
+            {/* PREVIEW BOX con stati: default / selezionato (giallo) / live (verde) */}
+            <div
+              className={`relative rounded-lg border-2 bg-card aspect-video flex items-center justify-center overflow-hidden transition-colors ${
+                isLive
+                  ? "border-emerald-500/70"
+                  : "border-primary/60"
+              }`}
+            >
+              {/* Etichetta stato */}
+              <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2 py-1 rounded-sm bg-background/80 backdrop-blur">
+                {isLive ? (
+                  <>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-emerald-500">
+                      In Aula
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-3 h-3 text-primary" />
+                    <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary">
+                      Anteprima
+                    </span>
+                  </>
+                )}
+              </div>
+
               <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary))_0%,transparent_50%)]" />
               <div className="relative text-center px-6">
                 <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-3">
-                  Anteprima blocco
+                  {KindLabel[active.kind]} · step {previewState.step}
                 </p>
                 <p className="text-base sm:text-lg text-foreground/80 mb-4">
                   {active.title}
@@ -373,12 +437,50 @@ const IstruttoreModulo = () => {
                 <button
                   type="button"
                   onClick={launchAula}
-                  className="inline-flex items-center gap-2 text-xs text-primary hover:underline font-mono uppercase tracking-wider"
+                  className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-mono uppercase tracking-wider transition-colors"
                 >
                   <Maximize2 className="w-3.5 h-3.5" />
-                  Apri in aula
+                  Apri finestra aula
                 </button>
               </div>
+            </div>
+
+            {/* INVIA IN AULA */}
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <div className="text-[11px] text-muted-foreground">
+                {liveState ? (
+                  <>
+                    In Aula:{" "}
+                    <span className="text-foreground/80 font-mono">
+                      {blocks.find((b) => b.id === liveBlockId)?.title ?? "—"} · {liveStep}
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-mono">Aula in attesa</span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={sendToAula}
+                disabled={isLive}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
+                  isLive
+                    ? "bg-emerald-500/15 text-emerald-500 cursor-default"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                }`}
+              >
+                {isLive ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    In Aula
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Invia in Aula
+                  </>
+                )}
+              </button>
             </div>
 
             {mode === "guidata" && nextBlock && (
@@ -404,8 +506,11 @@ const IstruttoreModulo = () => {
           </div>
         </main>
 
-        {/* DESTRA — NOTE ISTRUTTORE (solo desktop) */}
-        <aside className="hidden lg:block lg:border-l border-border bg-card/40">
+        {/* DESTRA — TIMER + NOTE ISTRUTTORE (solo desktop) */}
+        <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
+          <div className="p-4 border-b border-border/60">
+            <AulaTimer compact />
+          </div>
           <div className="p-4 border-b border-border/60 flex items-center gap-2">
             <StickyNote className="w-3.5 h-3.5 text-primary" />
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
@@ -424,27 +529,37 @@ const ActionButton = ({
   label,
   primary = false,
   active = false,
+  live = false,
   onClick,
 }: {
   icon: typeof Play;
   label: string;
   primary?: boolean;
   active?: boolean;
+  live?: boolean;
   onClick?: () => void;
 }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs md:text-sm font-medium transition-colors ${
-      active
-        ? "bg-primary text-primary-foreground ring-2 ring-primary/40"
-        : primary
-          ? "bg-primary/90 text-primary-foreground hover:bg-primary"
-          : "border border-border text-foreground/80 hover:bg-secondary hover:text-foreground"
+    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs md:text-sm font-medium transition-colors relative ${
+      live
+        ? "bg-emerald-500/15 text-emerald-500 ring-2 ring-emerald-500/40"
+        : active
+          ? "bg-primary text-primary-foreground ring-2 ring-primary/40"
+          : primary
+            ? "bg-primary/90 text-primary-foreground hover:bg-primary"
+            : "border border-border text-foreground/80 hover:bg-secondary hover:text-foreground"
     }`}
   >
     <Icon className="w-3.5 h-3.5" />
     {label}
+    {live && (
+      <span className="ml-1 inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        live
+      </span>
+    )}
   </button>
 );
 
