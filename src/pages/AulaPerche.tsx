@@ -358,14 +358,16 @@ const AulaPerche = () => {
       <Slide bg="darker">
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.p
-            {...fade}
+            {...fadeQuick}
             className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-6"
           >
             A 50 km/h
           </motion.p>
           <motion.h2
-            {...fade}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-15%" }}
+            transition={{ duration: 0.25, delay: 1.1 }}
             className="text-4xl md:text-6xl font-bold leading-tight"
           >
             2 secondi = <span className="text-primary">28 metri</span>
