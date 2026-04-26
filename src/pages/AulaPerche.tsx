@@ -363,7 +363,7 @@ const AulaPerche = () => {
       </Slide>
 
       {/* SLIDE SCELTA: POV video, nessun testo */}
-      <Slide bg="black">
+      <Slide bg="black" blockId="video-pov">
         <video
           src={povVideo.url}
           autoPlay
