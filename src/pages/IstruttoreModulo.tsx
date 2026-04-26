@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type Mode = "guidata" | "libera";
 
@@ -38,6 +38,7 @@ const IstruttoreModulo = () => {
 
   const { state, publish } = useAulaPublisher(slug, blocks[0]?.id ?? "");
   const [mode, setMode] = useState<Mode>("guidata");
+  const aulaWindowRef = useRef<Window | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -69,7 +70,18 @@ const IstruttoreModulo = () => {
 
   const launchAula = () => {
     const url = `/aula/${slug}?blocco=${state.blocco}&step=${state.step}`;
-    window.open(url, "aula-safedrivelab", "noopener");
+    const existing = aulaWindowRef.current;
+
+    // Se la finestra Aula è già aperta, riusala: focus + ri-pubblica lo stato
+    if (existing && !existing.closed) {
+      existing.focus();
+      // Trigger nuovo evento sync per riallineare l'aula sullo stato corrente
+      publish({ blocco: state.blocco, step: state.step });
+      return;
+    }
+
+    // Altrimenti aprila (senza noopener così possiamo mantenerne il riferimento)
+    aulaWindowRef.current = window.open(url, "aula-safedrivelab");
   };
 
   return (
