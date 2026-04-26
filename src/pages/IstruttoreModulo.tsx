@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -9,10 +9,13 @@ import {
   ChevronRight,
   StickyNote,
   Maximize2,
+  Radio,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
+import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
+import { useState } from "react";
 
 type Mode = "guidata" | "libera";
 
@@ -33,7 +36,7 @@ const IstruttoreModulo = () => {
   const module = useMemo(() => modules.find((m) => m.slug === slug), [slug]);
   const blocks = blocksBySlug[slug] ?? [];
 
-  const [activeId, setActiveId] = useState<string>(blocks[0]?.id ?? "");
+  const { state, publish } = useAulaPublisher(slug, blocks[0]?.id ?? "");
   const [mode, setMode] = useState<Mode>("guidata");
 
   useEffect(() => {
@@ -53,11 +56,21 @@ const IstruttoreModulo = () => {
     );
   }
 
-  const activeIndex = blocks.findIndex((b) => b.id === activeId);
+  const activeId = state.blocco;
+  const activeIndex = Math.max(
+    0,
+    blocks.findIndex((b) => b.id === activeId),
+  );
   const active = blocks[activeIndex] ?? blocks[0];
   const nextBlock = blocks[activeIndex + 1];
 
-  const launchAula = () => navigate(`/aula/${slug}`);
+  const goToBlock = (id: string) => publish({ blocco: id, step: "intro" });
+  const setStep = (step: AulaStep) => publish({ step });
+
+  const launchAula = () => {
+    const url = `/aula/${slug}?blocco=${state.blocco}&step=${state.step}`;
+    window.open(url, "aula-safedrivelab", "noopener");
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -75,8 +88,12 @@ const IstruttoreModulo = () => {
           <div className="h-6 w-px bg-border shrink-0" />
 
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-mono tracking-[0.25em] uppercase text-primary leading-none mb-0.5">
-              Modulo {String(modules.indexOf(module) + 1).padStart(2, "0")}
+            <p className="text-[10px] font-mono tracking-[0.25em] uppercase text-primary leading-none mb-0.5 flex items-center gap-2">
+              <span>Modulo {String(modules.indexOf(module) + 1).padStart(2, "0")}</span>
+              <span className="inline-flex items-center gap-1 text-muted-foreground/80 normal-case tracking-normal font-sans text-[10px]">
+                <Radio className="w-2.5 h-2.5" />
+                live
+              </span>
             </p>
             <h1 className="text-sm font-semibold truncate">{module.title}</h1>
           </div>
@@ -158,7 +175,7 @@ const IstruttoreModulo = () => {
                 <button
                   key={b.id}
                   type="button"
-                  onClick={() => setActiveId(b.id)}
+                  onClick={() => goToBlock(b.id)}
                   className={`group w-full text-left px-3 py-2.5 rounded-md flex items-start gap-3 transition-all relative ${
                     isActive
                       ? "bg-primary/10 border border-primary/40"
@@ -210,23 +227,48 @@ const IstruttoreModulo = () => {
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
                 {KindLabel[active.kind]}
               </span>
+              <span className="text-muted-foreground text-xs">•</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                Step: <span className="text-foreground/80">{state.step}</span>
+              </span>
             </div>
 
             <h2 className="text-2xl md:text-3xl font-bold mb-6">{active.title}</h2>
 
-            {/* Azioni */}
+            {/* Azioni — ognuna pubblica uno step verso l'Aula */}
             <div className="flex flex-wrap gap-2 mb-8">
               {active.hasScenario && (
-                <ActionButton icon={Play} label="Avvia scenario" primary />
+                <ActionButton
+                  icon={Play}
+                  label="Avvia scenario"
+                  primary
+                  active={state.step === "scenario"}
+                  onClick={() => setStep("scenario")}
+                />
               )}
               {active.hasOutcomes && (
-                <ActionButton icon={ListChecks} label="Mostra esiti" />
+                <ActionButton
+                  icon={ListChecks}
+                  label="Mostra esiti"
+                  active={state.step === "esiti"}
+                  onClick={() => setStep("esiti")}
+                />
               )}
               {active.hasExplanation && (
-                <ActionButton icon={BookOpen} label="Mostra spiegazione" />
+                <ActionButton
+                  icon={BookOpen}
+                  label="Mostra spiegazione"
+                  active={state.step === "spiegazione"}
+                  onClick={() => setStep("spiegazione")}
+                />
               )}
               {active.hasDeepDive && (
-                <ActionButton icon={ExternalLink} label="Apri approfondimento" />
+                <ActionButton
+                  icon={ExternalLink}
+                  label="Apri approfondimento"
+                  active={state.step === "approfondimento"}
+                  onClick={() => setStep("approfondimento")}
+                />
               )}
             </div>
 
@@ -262,7 +304,7 @@ const IstruttoreModulo = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setActiveId(nextBlock.id)}
+                  onClick={() => goToBlock(nextBlock.id)}
                   className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary/10 text-primary text-xs font-medium uppercase tracking-wider hover:bg-primary/20 transition-colors shrink-0"
                 >
                   Avanti
@@ -306,17 +348,24 @@ const ActionButton = ({
   icon: Icon,
   label,
   primary = false,
+  active = false,
+  onClick,
 }: {
   icon: typeof Play;
   label: string;
   primary?: boolean;
+  active?: boolean;
+  onClick?: () => void;
 }) => (
   <button
     type="button"
+    onClick={onClick}
     className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs md:text-sm font-medium transition-colors ${
-      primary
-        ? "bg-primary text-primary-foreground hover:bg-primary/90"
-        : "border border-border text-foreground/80 hover:bg-secondary hover:text-foreground"
+      active
+        ? "bg-primary text-primary-foreground ring-2 ring-primary/40"
+        : primary
+          ? "bg-primary/90 text-primary-foreground hover:bg-primary"
+          : "border border-border text-foreground/80 hover:bg-secondary hover:text-foreground"
     }`}
   >
     <Icon className="w-3.5 h-3.5" />
