@@ -13,6 +13,7 @@ import routineDriving from "@/assets/routine-driving.jpg";
 import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
+import { useAulaSubscriber } from "@/lib/aulaSync";
 
 // Fade lento per testi principali — solo opacity, nessun movimento
 const fade = {
