@@ -326,30 +326,29 @@ const IstruttoreModulo = () => {
             </SheetContent>
           </Sheet>
 
-          <Sheet open={notesOpen} onOpenChange={setNotesOpen}>
-            <SheetTrigger asChild>
-              <button
-                type="button"
-                className="lg:hidden inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
-                aria-label="Apri note istruttore"
-              >
-                <StickyNote className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Note</span>
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="p-0 w-[320px] sm:w-[380px] overflow-y-auto">
-              <SheetHeader className="p-4 border-b border-border/60 text-left flex-row items-center gap-2 space-y-0">
-                <StickyNote className="w-3.5 h-3.5 text-primary" />
-                <SheetTitle className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground font-normal">
-                  Note istruttore
-                </SheetTitle>
-              </SheetHeader>
-              <div className="p-4 border-b border-border/60">
-                <AulaTimer compact onRequestAulaPause={pauseAula} aulaPaused={aulaPaused} />
-              </div>
-              {NotesContent}
-            </SheetContent>
-          </Sheet>
+          {/* Note istruttore — drawer richiamabile (anche da tasto N) */}
+          <button
+            type="button"
+            onClick={() => setNotesOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
+            aria-label="Apri note istruttore"
+            title="Note (N)"
+          >
+            <StickyNote className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Note</span>
+          </button>
+
+          {/* Archivio — drawer richiamabile (anche da tasto A) */}
+          <button
+            type="button"
+            onClick={() => setArchiveOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
+            aria-label="Apri archivio"
+            title="Archivio (A)"
+          >
+            <Archive className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Archivio</span>
+          </button>
 
           {/* Mode switch — solo desktop */}
           <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md border border-border">
