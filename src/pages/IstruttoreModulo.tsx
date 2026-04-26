@@ -11,6 +11,9 @@ import {
   Maximize2,
   Radio,
   ListOrdered,
+  Send,
+  Eye,
+  CheckCircle2,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -23,6 +26,7 @@ import {
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
+import { AulaTimer } from "@/components/istruttore/AulaTimer";
 
 type Mode = "guidata" | "libera";
 
