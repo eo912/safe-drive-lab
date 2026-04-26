@@ -410,7 +410,7 @@ const AulaPerche = () => {
           Slide impatto finale
           ============================================================ */}
 
-      <Slide bg="black">
+      <Slide bg="black" blockId="chiusura">
         <div className="relative z-10 text-center px-6 max-w-4xl">
           <motion.p
             {...fade}
