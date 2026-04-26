@@ -182,19 +182,14 @@ const AulaPerche = () => {
         </div>
       </Slide>
 
-      {/* FREE: Istruttore introduce */}
+      {/* FREE: respiro tra apertura e dati */}
       <Free>
-        <FreeTag label="Apertura — istruttore" />
-        <motion.div {...fade}>
-          <p className="text-lg md:text-xl text-foreground/85 leading-relaxed mb-6">
-            Prima di guardare i numeri, fermiamoci un attimo.
-          </p>
-          <p className="text-base md:text-lg text-foreground/70 leading-relaxed">
-            Quando pensiamo a un incidente stradale, immaginiamo qualcosa di raro,
-            di lontano. Qualcosa che capita agli altri. I dati raccontano una storia
-            diversa.
-          </p>
-        </motion.div>
+        <motion.p
+          {...fade}
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+        >
+          Non succede solo agli altri.
+        </motion.p>
       </Free>
 
       {/* ============================================================
@@ -245,33 +240,21 @@ const AulaPerche = () => {
         </div>
       </Slide>
 
-      {/* FREE: Comprensione dei numeri */}
+      {/* FREE: respiro dopo i numeri */}
       <Free>
-        <FreeTag label="Comprensione — discussione" />
-        <motion.div {...fade}>
-          <p className="text-lg md:text-xl text-foreground/85 leading-relaxed mb-8">
-            Sono numeri grandi. Troppo grandi per essere percepiti.
-          </p>
-          <div className="space-y-4 text-base md:text-lg text-foreground/70 leading-relaxed">
-            <p>
-              <span className="text-foreground">475 incidenti al giorno</span> significa
-              uno ogni tre minuti. Mentre stiamo parlando, da qualche parte sta
-              succedendo.
-            </p>
-            <p>
-              Non è un rischio statistico astratto. È un evento che si ripete con
-              regolarità, su strade come quella che hai fatto stamattina.
-            </p>
-          </div>
-          <div className="mt-10 pl-4 border-l-2 border-primary/40">
-            <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-2">
-              Domanda all'aula
-            </p>
-            <p className="text-foreground/80">
-              Pensavate fosse di più, di meno, o circa così?
-            </p>
-          </div>
-        </motion.div>
+        <motion.p
+          {...fade}
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+        >
+          Uno ogni <span className="text-primary">3 minuti</span>.
+        </motion.p>
+        <motion.p
+          {...fade}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="text-lg md:text-xl text-foreground/60 mt-4"
+        >
+          Mentre parliamo, sta succedendo.
+        </motion.p>
       </Free>
 
       {/* ============================================================
@@ -293,39 +276,21 @@ const AulaPerche = () => {
         </div>
       </Slide>
 
-      {/* FREE: Spiegazione + esempio */}
+      {/* FREE: respiro */}
       <Free>
-        <FreeTag label="Spiegazione" />
-        <motion.div {...fade}>
-          <p className="text-xl md:text-2xl text-foreground/90 leading-relaxed mb-8">
-            Ci passi ogni giorno. Sai dove sono le curve. Sai cosa aspettarti.
-          </p>
-          <p className="text-lg md:text-xl text-foreground/70 leading-relaxed mb-12">
-            Ed è proprio lì che l'attenzione cala, e l'abitudine prende il
-            controllo.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-8 items-start">
-            <div>
-              <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-3">
-                Esempio
-              </p>
-              <p className="text-base text-foreground/75 leading-relaxed">
-                Pensa al tragitto casa-lavoro. Quante volte sei arrivato senza
-                ricordare nulla del percorso? Eri presente. Ma non davvero.
-              </p>
-            </div>
-            <div>
-              <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-3">
-                Domanda all'aula
-              </p>
-              <p className="text-base text-foreground/85 leading-relaxed">
-                Quante curve, incroci, semafori ci sono sulla strada che fai più
-                spesso? Riusciresti a elencarli?
-              </p>
-            </div>
-          </div>
-        </motion.div>
+        <motion.p
+          {...fade}
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+        >
+          Sai dove sono le curve.
+        </motion.p>
+        <motion.p
+          {...fade}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/60 mt-3"
+        >
+          Ed è proprio lì che smetti di guardare.
+        </motion.p>
       </Free>
 
       {/* SLIDE: Conseguenza concettuale */}
@@ -355,29 +320,20 @@ const AulaPerche = () => {
           ============================================================ */}
 
       <Free className="bg-card/30">
-        <FreeTag label="Riflessione" />
         <motion.h2
           {...fade}
-          className="text-3xl md:text-4xl font-bold mb-10"
+          className="text-3xl md:text-5xl font-bold mb-12 leading-tight"
         >
-          Un incidente non è solo un numero.
+          Un incidente non finisce<br />
+          <span className="text-primary">quando finisce.</span>
         </motion.h2>
-
-        <motion.p
-          {...fade}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="text-lg text-foreground/75 leading-relaxed mb-12 max-w-2xl"
-        >
-          Quello che vediamo nei dati è solo l'inizio. Le conseguenze reali
-          continuano per mesi, anni, a volte per sempre.
-        </motion.p>
 
         <div className="grid sm:grid-cols-2 gap-6">
           {[
-            { title: "Capacità lavorativa", img: officeImg, alt: "Ufficio" },
-            { title: "Costi sanitari", img: hospital, alt: "Ospedale" },
-            { title: "Impatto familiare", img: familyImg, alt: "Famiglia" },
-            { title: "Conseguenze legali", img: legalImg, alt: "Documenti" },
+            { title: "Lavoro", img: officeImg, alt: "Ufficio" },
+            { title: "Salute", img: hospital, alt: "Ospedale" },
+            { title: "Famiglia", img: familyImg, alt: "Famiglia" },
+            { title: "Responsabilità", img: legalImg, alt: "Documenti" },
           ].map((item, i) => (
             <motion.div
               key={item.title}
@@ -395,7 +351,7 @@ const AulaPerche = () => {
                   className="w-full h-full object-cover grayscale-[50%] opacity-60"
                 />
               </div>
-              <p className="text-foreground/85 font-medium">{item.title}</p>
+              <p className="text-foreground/85 font-medium text-lg">{item.title}</p>
             </motion.div>
           ))}
         </div>
@@ -421,18 +377,13 @@ const AulaPerche = () => {
 
       {/* FREE */}
       <Free>
-        <FreeTag label="Contesto" />
-        <motion.div {...fade}>
-          <p className="text-lg md:text-xl text-foreground/85 leading-relaxed mb-6">
-            Quando guidi per lavoro, stai lavorando. E il rischio è parte
-            dell'attività.
-          </p>
-          <p className="text-base md:text-lg text-foreground/70 leading-relaxed">
-            Gli incidenti stradali sono tra le principali cause di infortunio
-            sul lavoro. In itinere e in missione, il volante è un posto di
-            lavoro come gli altri — solo molto più pericoloso.
-          </p>
-        </motion.div>
+        <motion.p
+          {...fade}
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+        >
+          Quando guidi per lavoro,<br />
+          <span className="text-primary">stai lavorando.</span>
+        </motion.p>
       </Free>
 
       {/* ============================================================
@@ -498,36 +449,21 @@ const AulaPerche = () => {
         </div>
       </Slide>
 
-      {/* FREE: Comprensione dello scenario */}
+      {/* FREE: respiro dopo lo scenario */}
       <Free>
-        <FreeTag label="Comprensione — discussione" />
-        <motion.div {...fade}>
-          <p className="text-lg md:text-xl text-foreground/85 leading-relaxed mb-8">
-            28 metri sono più della lunghezza di un pullman. Sono un incrocio
-            intero. Sono un pedone che attraversa.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-8 mt-10">
-            <div className="pl-4 border-l-2 border-primary/40">
-              <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-primary mb-2">
-                Domanda all'aula
-              </p>
-              <p className="text-foreground/85">
-                Quante volte oggi hai guardato il telefono in macchina? Anche
-                solo per un attimo?
-              </p>
-            </div>
-            <div className="pl-4 border-l-2 border-border">
-              <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-muted-foreground mb-2">
-                Da ricordare
-              </p>
-              <p className="text-foreground/75">
-                Non serve un evento eccezionale. Bastano i 2 secondi sbagliati,
-                nel posto sbagliato.
-              </p>
-            </div>
-          </div>
-        </motion.div>
+        <motion.p
+          {...fade}
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+        >
+          28 metri.
+        </motion.p>
+        <motion.p
+          {...fade}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/60 mt-3"
+        >
+          Un incrocio. Un pedone. Un'auto ferma.
+        </motion.p>
       </Free>
 
       {/* ============================================================
