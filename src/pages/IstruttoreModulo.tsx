@@ -8,13 +8,12 @@ import {
   ExternalLink,
   ChevronRight,
   StickyNote,
-  Maximize2,
   Radio,
   ListOrdered,
   Send,
-  Eye,
   CheckCircle2,
   Coffee,
+  Archive,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -29,6 +28,11 @@ import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
+import { NotesDrawer } from "@/components/istruttore/NotesDrawer";
+import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
+import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
+import { useLinkedContent } from "@/lib/instructorStorage";
+import type { Resource } from "@/lib/instructorTypes";
 
 type Mode = "guidata" | "libera";
 
@@ -56,10 +60,23 @@ const IstruttoreModulo = () => {
   const [mode, setMode] = useState<Mode>("guidata");
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  // Scorciatoie tastiera per istruttore: N = note, A = archivio
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "n" || e.key === "N") setNotesOpen((v) => !v);
+      if (e.key === "a" || e.key === "A") setArchiveOpen((v) => !v);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   if (!module || blocks.length === 0) {
@@ -122,6 +139,33 @@ const IstruttoreModulo = () => {
       step: (liveState?.step ?? previewState.step) as AulaStep,
       paused: false,
     });
+  };
+
+  // ----- Media in Aula (controllato manualmente dall'istruttore) -----
+  const liveMediaId = liveState?.media?.id ?? null;
+
+  const projectMedia = (r: Resource) => {
+    publish({
+      blocco: previewState.blocco,
+      step: previewState.step,
+      media: r,
+      paused: false,
+    });
+  };
+
+  const hideMedia = () => {
+    publish({
+      blocco: liveState?.blocco ?? previewState.blocco,
+      step: (liveState?.step ?? previewState.step) as AulaStep,
+      media: null,
+    });
+  };
+
+  // Linked content della slide attiva (per attach dall'archivio)
+  const linkedAttach = useLinkedContent(slug, previewState.blocco).attach;
+  const handleAttachFromArchive = (r: Resource) => {
+    linkedAttach(r);
+    setArchiveOpen(false);
   };
 
   const launchAula = () => {
@@ -217,8 +261,8 @@ const IstruttoreModulo = () => {
     </nav>
   );
 
-  // Contenuto Note (riusato in colonna desktop e in drawer mobile)
-  const NotesContent = (
+  // Note didattiche pre-scritte (consigli per condurre la slide)
+  const TeachingNotes = (
     <div className="p-4">
       <h3 className="text-sm font-semibold mb-3 text-foreground/90">
         {active.title}
@@ -228,9 +272,7 @@ const IstruttoreModulo = () => {
       </p>
       <div className="mt-6 pt-4 border-t border-border/60">
         <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/70">
-          Visibili solo all'istruttore.
-          <br />
-          Nascoste in modalità aula.
+          Suggerimenti didattici · mai visibili in Aula
         </p>
       </div>
     </div>
@@ -284,30 +326,29 @@ const IstruttoreModulo = () => {
             </SheetContent>
           </Sheet>
 
-          <Sheet open={notesOpen} onOpenChange={setNotesOpen}>
-            <SheetTrigger asChild>
-              <button
-                type="button"
-                className="lg:hidden inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
-                aria-label="Apri note istruttore"
-              >
-                <StickyNote className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Note</span>
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="p-0 w-[320px] sm:w-[380px] overflow-y-auto">
-              <SheetHeader className="p-4 border-b border-border/60 text-left flex-row items-center gap-2 space-y-0">
-                <StickyNote className="w-3.5 h-3.5 text-primary" />
-                <SheetTitle className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground font-normal">
-                  Note istruttore
-                </SheetTitle>
-              </SheetHeader>
-              <div className="p-4 border-b border-border/60">
-                <AulaTimer compact onRequestAulaPause={pauseAula} aulaPaused={aulaPaused} />
-              </div>
-              {NotesContent}
-            </SheetContent>
-          </Sheet>
+          {/* Note istruttore — drawer richiamabile (anche da tasto N) */}
+          <button
+            type="button"
+            onClick={() => setNotesOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
+            aria-label="Apri note istruttore"
+            title="Note (N)"
+          >
+            <StickyNote className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Note</span>
+          </button>
+
+          {/* Archivio — drawer richiamabile (anche da tasto A) */}
+          <button
+            type="button"
+            onClick={() => setArchiveOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
+            aria-label="Apri archivio"
+            title="Archivio (A)"
+          >
+            <Archive className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Archivio</span>
+          </button>
 
           {/* Mode switch — solo desktop */}
           <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md border border-border">
@@ -539,23 +580,47 @@ const IstruttoreModulo = () => {
                 </button>
               </div>
             )}
+
+            {/* CONTENUTI COLLEGATI alla slide attiva + controlli media */}
+            <SlideContentsPanel
+              modulo={slug}
+              blocco={previewState.blocco}
+              liveMediaId={liveMediaId}
+              onProject={projectMedia}
+              onHide={hideMedia}
+              onOpenArchive={() => setArchiveOpen(true)}
+            />
           </div>
         </main>
 
-        {/* DESTRA — TIMER + NOTE ISTRUTTORE (solo desktop) */}
+        {/* DESTRA — TIMER + SUGGERIMENTI DIDATTICI (solo desktop) */}
         <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
           <div className="p-4 border-b border-border/60">
             <AulaTimer compact onRequestAulaPause={pauseAula} aulaPaused={aulaPaused} />
           </div>
           <div className="p-4 border-b border-border/60 flex items-center gap-2">
-            <StickyNote className="w-3.5 h-3.5 text-primary" />
+            <BookOpen className="w-3.5 h-3.5 text-primary" />
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
-              Note istruttore
+              Suggerimenti didattici
             </p>
           </div>
-          {NotesContent}
+          {TeachingNotes}
         </aside>
       </div>
+
+      {/* DRAWERS richiamabili — note istruttore (N) e archivio (A) */}
+      <NotesDrawer
+        open={notesOpen}
+        onOpenChange={setNotesOpen}
+        modulo={slug}
+        blocco={previewState.blocco}
+        blockTitle={active.title}
+      />
+      <ArchiveDrawer
+        open={archiveOpen}
+        onOpenChange={setArchiveOpen}
+        onAttachToSlide={handleAttachFromArchive}
+      />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { Resource } from "./instructorTypes";
 
 /**
  * Stato condiviso tra Istruttore e Aula.
@@ -13,6 +14,8 @@ export type AulaState = {
   step: AulaStep;
   paused?: boolean;
   pauseMinutes?: number;
+  // Media attualmente proiettato in Aula (immagine/video/pdf/link). null = nessuno.
+  media?: Resource | null;
   ts: number;
 };
 
