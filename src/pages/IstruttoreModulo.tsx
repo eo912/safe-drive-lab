@@ -27,6 +27,7 @@ import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
+import { SlidePreview } from "@/components/istruttore/SlidePreview";
 
 type Mode = "guidata" | "libera";
 
@@ -417,50 +418,20 @@ const IstruttoreModulo = () => {
               )}
             </div>
 
-            {/* PREVIEW BOX con stati: default / selezionato (giallo) / live (verde) */}
-            <div
-              className={`relative rounded-lg border-2 bg-card aspect-video flex items-center justify-center overflow-hidden transition-colors ${
-                isLive
-                  ? "border-emerald-500/70"
-                  : "border-primary/60"
-              }`}
-            >
-              {/* Etichetta stato */}
-              <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2 py-1 rounded-sm bg-background/80 backdrop-blur">
-                {isLive ? (
-                  <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-emerald-500">
-                      In Aula
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <Eye className="w-3 h-3 text-primary" />
-                    <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary">
-                      Anteprima
-                    </span>
-                  </>
-                )}
-              </div>
-
-              <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary))_0%,transparent_50%)]" />
-              <div className="relative text-center px-6">
-                <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-3">
-                  {KindLabel[active.kind]} · step {previewState.step}
-                </p>
-                <p className="text-base sm:text-lg text-foreground/80 mb-4">
-                  {active.title}
-                </p>
-                <button
-                  type="button"
-                  onClick={launchAula}
-                  className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground font-mono uppercase tracking-wider transition-colors"
-                >
-                  <Maximize2 className="w-3.5 h-3.5" />
-                  Apri finestra aula
-                </button>
-              </div>
+            {/* DUAL VIEW: In Aula (live) | Anteprima (preview) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+              <SlidePreview
+                variant="live"
+                block={liveState ? blocks.find((b) => b.id === liveBlockId) ?? null : null}
+                step={(liveStep ?? "intro") as AulaStep}
+                onOpenWindow={launchAula}
+                empty={!liveState}
+              />
+              <SlidePreview
+                variant="preview"
+                block={active}
+                step={previewState.step}
+              />
             </div>
 
             {/* INVIA IN AULA */}
