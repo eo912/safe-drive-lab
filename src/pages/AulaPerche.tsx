@@ -165,7 +165,7 @@ const AulaPerche = () => {
           ============================================================ */}
 
       {/* SLIDE IMPATTO: Apertura */}
-      <Slide>
+      <Slide blockId="hero">
         <ImgBg src={heroBg} alt="Strada reale" opacity="opacity-40" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.p
