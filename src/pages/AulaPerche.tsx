@@ -350,7 +350,7 @@ const AulaPerche = () => {
           ============================================================ */}
 
       {/* SLIDE SCENARIO */}
-      <Slide bg="darker">
+      <Slide bg="darker" blockId="distrazione">
         <ImgBg src={phoneDriving} alt="Telefono al volante" opacity="opacity-25" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
