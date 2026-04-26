@@ -47,7 +47,10 @@ const IstruttoreModulo = () => {
   const module = useMemo(() => modules.find((m) => m.slug === slug), [slug]);
   const blocks = blocksBySlug[slug] ?? [];
 
-  const { state, publish } = useAulaPublisher(slug, blocks[0]?.id ?? "");
+  const { previewState, liveState, setPreview, publish } = useAulaPublisher(
+    slug,
+    blocks[0]?.id ?? "",
+  );
   const [mode, setMode] = useState<Mode>("guidata");
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
@@ -70,26 +73,37 @@ const IstruttoreModulo = () => {
     );
   }
 
-  const activeId = state.blocco;
-  const activeIndex = Math.max(
+  const previewId = previewState.blocco;
+  const previewIndex = Math.max(
     0,
-    blocks.findIndex((b) => b.id === activeId),
+    blocks.findIndex((b) => b.id === previewId),
   );
-  const active = blocks[activeIndex] ?? blocks[0];
-  const nextBlock = blocks[activeIndex + 1];
+  const active = blocks[previewIndex] ?? blocks[0];
+  const nextBlock = blocks[previewIndex + 1];
+
+  // Stato live (in Aula)
+  const liveBlockId = liveState?.blocco ?? null;
+  const liveStep = liveState?.step ?? null;
+
+  // Stato preview vs live: stesso blocco+step → "in aula"
+  const isLive =
+    liveBlockId === previewState.blocco && liveStep === previewState.step;
 
   const goToBlock = (id: string) => {
-    publish({ blocco: id, step: "intro" });
+    setPreview({ blocco: id, step: "intro" });
     setTimelineOpen(false);
   };
-  const setStep = (step: AulaStep) => publish({ step });
+  const setStep = (step: AulaStep) => setPreview({ step });
+
+  const sendToAula = () => {
+    publish({ blocco: previewState.blocco, step: previewState.step });
+  };
 
   const launchAula = () => {
-    const url = `/aula/${slug}?blocco=${state.blocco}&step=${state.step}`;
+    const url = `/aula/${slug}?blocco=${previewState.blocco}&step=${previewState.step}`;
     const existing = aulaWindowRef.current;
     if (existing && !existing.closed) {
       existing.focus();
-      publish({ blocco: state.blocco, step: state.step });
       return;
     }
     aulaWindowRef.current = window.open(url, "aula-safedrivelab");
