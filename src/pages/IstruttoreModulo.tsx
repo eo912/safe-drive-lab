@@ -523,27 +523,37 @@ const ActionButton = ({
   label,
   primary = false,
   active = false,
+  live = false,
   onClick,
 }: {
   icon: typeof Play;
   label: string;
   primary?: boolean;
   active?: boolean;
+  live?: boolean;
   onClick?: () => void;
 }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs md:text-sm font-medium transition-colors ${
-      active
-        ? "bg-primary text-primary-foreground ring-2 ring-primary/40"
-        : primary
-          ? "bg-primary/90 text-primary-foreground hover:bg-primary"
-          : "border border-border text-foreground/80 hover:bg-secondary hover:text-foreground"
+    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-xs md:text-sm font-medium transition-colors relative ${
+      live
+        ? "bg-emerald-500/15 text-emerald-500 ring-2 ring-emerald-500/40"
+        : active
+          ? "bg-primary text-primary-foreground ring-2 ring-primary/40"
+          : primary
+            ? "bg-primary/90 text-primary-foreground hover:bg-primary"
+            : "border border-border text-foreground/80 hover:bg-secondary hover:text-foreground"
     }`}
   >
     <Icon className="w-3.5 h-3.5" />
     {label}
+    {live && (
+      <span className="ml-1 inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        live
+      </span>
+    )}
   </button>
 );
 
