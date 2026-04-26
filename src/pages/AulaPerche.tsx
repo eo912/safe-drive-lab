@@ -305,7 +305,7 @@ const AulaPerche = () => {
       </Slide>
 
       {/* SLIDE CONSEGUENZA */}
-      <Slide bg="black">
+      <Slide bg="black" blockId="abitudine">
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
             {...fade}
