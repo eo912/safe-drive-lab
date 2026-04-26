@@ -100,13 +100,31 @@ const IstruttoreModulo = () => {
   };
 
   const launchAula = () => {
-    const url = `/aula/${slug}?blocco=${previewState.blocco}&step=${previewState.step}`;
+    // Usa lo stato live se gia' pubblicato, altrimenti la preview corrente.
+    // Cosi' la finestra Aula si apre direttamente sul punto giusto, ma
+    // non viene "spinto" automaticamente nulla che l'istruttore non abbia inviato.
+    const initial = liveState ?? previewState;
+    const url = `/aula/${slug}?blocco=${initial.blocco}&step=${initial.step}`;
     const existing = aulaWindowRef.current;
     if (existing && !existing.closed) {
       existing.focus();
       return;
     }
-    aulaWindowRef.current = window.open(url, "aula-safedrivelab");
+    // Apertura come popup dedicato: niente toolbar, dimensione proiettore.
+    // Se il browser ignora le feature, apre comunque una nuova finestra/tab.
+    const features = [
+      "popup=yes",
+      "noopener=no", // serve per mantenere il riferimento e poter chiamare focus()
+      `width=${Math.min(window.screen.availWidth, 1920)}`,
+      `height=${Math.min(window.screen.availHeight, 1080)}`,
+      "left=0",
+      "top=0",
+      "menubar=no",
+      "toolbar=no",
+      "location=no",
+      "status=no",
+    ].join(",");
+    aulaWindowRef.current = window.open(url, "aula-safedrivelab", features);
   };
 
   // Contenuto Timeline (riusato in colonna desktop e in drawer mobile)
