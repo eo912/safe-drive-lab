@@ -10,9 +10,6 @@ import hospital from "@/assets/stat-hospital.jpg";
 import intersection from "@/assets/stat-intersection.jpg";
 import familiarRoad from "@/assets/familiar-road.jpg";
 import routineDriving from "@/assets/routine-driving.jpg";
-import officeImg from "@/assets/meaning-office.jpg";
-import familyImg from "@/assets/meaning-family.jpg";
-import legalImg from "@/assets/meaning-legal.jpg";
 import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
@@ -25,8 +22,8 @@ const fade = {
 };
 
 /* =========================================================
-   Slide: sezione full-screen di impatto.
-   Usata SOLO per: apertura, scenario, scelta, conseguenza, frase chiave.
+   Slide: full-screen, impatto.
+   Apertura, scenario, tensione, scelta, conseguenza, frase chiave.
    ========================================================= */
 const Slide = ({
   children,
@@ -57,9 +54,7 @@ const Slide = ({
 };
 
 /* =========================================================
-   Free: sezione libera, altezza auto.
-   Usata per: spiegazione, domande, esempi, comprensione, discussione.
-   Layout volutamente diverso dalle slide: meno rigido, più respiro.
+   Free: respiro per l'istruttore. Altezza auto, testo minimo.
    ========================================================= */
 const Free = ({
   children,
@@ -68,10 +63,8 @@ const Free = ({
   children: React.ReactNode;
   className?: string;
 }) => (
-  <section
-    className={`relative w-full py-24 md:py-32 px-6 ${className}`}
-  >
-    <div className="max-w-3xl mx-auto">{children}</div>
+  <section className={`relative w-full py-32 md:py-44 px-6 ${className}`}>
+    <div className="max-w-2xl mx-auto">{children}</div>
   </section>
 );
 
@@ -95,7 +88,6 @@ const ImgBg = ({
   </div>
 );
 
-
 const AulaPerche = () => {
   const navigate = useNavigate();
   const [showExit, setShowExit] = useState(false);
@@ -106,12 +98,10 @@ const AulaPerche = () => {
       window.history.scrollRestoration = "manual";
     }
 
-    // Mostra il pulsante uscita solo quando il mouse entra nell'angolo in alto a sinistra
     const handleMouseMove = (e: MouseEvent) => {
       setShowExit(e.clientX < 80 && e.clientY < 80);
     };
 
-    // ESC come scorciatoia per uscire (utile per l'istruttore)
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         navigate("/istruttore/perche-la-guida-sicura");
@@ -128,7 +118,7 @@ const AulaPerche = () => {
 
   return (
     <div className="bg-background text-foreground">
-      {/* Uscita aula — invisibile durante la lezione, appare solo passando il mouse in alto a sx o premendo ESC */}
+      {/* Uscita aula — invisibile durante la lezione */}
       <Link
         to="/istruttore/perche-la-guida-sicura"
         aria-label="Esci dalla modalità aula"
@@ -142,10 +132,10 @@ const AulaPerche = () => {
 
       {/* ============================================================
           BLOCCO 1 — APERTURA
-          Slide impatto → Sezione libera istruttore
+          Slide impatto → Free (respiro istruttore)
           ============================================================ */}
 
-      {/* SLIDE: Apertura */}
+      {/* SLIDE IMPATTO: Apertura */}
       <Slide>
         <ImgBg src={heroBg} alt="Strada reale" opacity="opacity-40" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
@@ -161,26 +151,18 @@ const AulaPerche = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.4 }}
-            className="text-5xl md:text-7xl font-bold mb-6 leading-[1.05]"
+            className="text-5xl md:text-7xl font-bold leading-[1.05]"
           >
             La realtà della strada
           </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="text-xl md:text-2xl text-foreground/70"
-          >
-            Non è un rischio raro. È qualcosa che succede ogni giorno.
-          </motion.p>
         </div>
       </Slide>
 
-      {/* FREE: respiro tra apertura e dati */}
+      {/* FREE: respiro */}
       <Free>
         <motion.p
           {...fade}
-          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90 text-center"
         >
           Non succede solo agli altri.
         </motion.p>
@@ -188,13 +170,13 @@ const AulaPerche = () => {
 
       {/* ============================================================
           BLOCCO 2 — I NUMERI
-          Slide impatto (dati) → Sezione libera comprensione
+          Slide tensione (dati) → Slide conseguenza (ritmo) → Free comprensione
           ============================================================ */}
 
-      {/* SLIDE: Numeri */}
+      {/* SLIDE TENSIONE: Numeri */}
       <Slide bg="card">
         <div className="relative z-10 w-full max-w-5xl px-6">
-          <div className="grid grid-cols-2 gap-8 md:gap-14 mb-10">
+          <div className="grid grid-cols-2 gap-8 md:gap-14">
             {[
               { value: "173.364", label: "incidenti", img: urbanRoad, alt: "Strada urbana" },
               { value: "3.030", label: "morti", img: traffic, alt: "Traffico" },
@@ -225,27 +207,26 @@ const AulaPerche = () => {
               </motion.div>
             ))}
           </div>
+        </div>
+      </Slide>
+
+      {/* SLIDE CONSEGUENZA: il ritmo */}
+      <Slide bg="darker">
+        <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.p
             {...fade}
-            className="text-center text-2xl md:text-3xl font-semibold"
+            className="text-4xl md:text-6xl font-bold leading-tight"
           >
-            Ogni <span className="text-primary">3 minuti</span>.
+            Uno ogni <span className="text-primary">3 minuti</span>.
           </motion.p>
         </div>
       </Slide>
 
-      {/* FREE: respiro dopo i numeri */}
+      {/* FREE: comprensione */}
       <Free>
         <motion.p
           {...fade}
-          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
-        >
-          Uno ogni <span className="text-primary">3 minuti</span>.
-        </motion.p>
-        <motion.p
-          {...fade}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="text-lg md:text-xl text-foreground/60 mt-4"
+          className="text-xl md:text-3xl font-semibold leading-snug text-foreground/80 text-center"
         >
           Mentre parliamo, sta succedendo.
         </motion.p>
@@ -253,10 +234,10 @@ const AulaPerche = () => {
 
       {/* ============================================================
           BLOCCO 3 — STRADA CONOSCIUTA & ABITUDINE
-          Slide frase chiave → Sezione libera esempio → Slide chiusura concetto
+          Slide impatto → Free → Slide tensione → Slide conseguenza
           ============================================================ */}
 
-      {/* SLIDE: Frase chiave */}
+      {/* SLIDE IMPATTO */}
       <Slide>
         <ImgBg src={familiarRoad} alt="Strada familiare" opacity="opacity-25" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
@@ -270,93 +251,48 @@ const AulaPerche = () => {
         </div>
       </Slide>
 
-      {/* FREE: respiro */}
+      {/* FREE: respiro / domanda istruttore */}
       <Free>
         <motion.p
           {...fade}
-          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90 text-center"
         >
           Sai dove sono le curve.
         </motion.p>
-        <motion.p
-          {...fade}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/60 mt-3"
-        >
-          Ed è proprio lì che smetti di guardare.
-        </motion.p>
       </Free>
 
-      {/* SLIDE: Conseguenza concettuale */}
+      {/* SLIDE TENSIONE */}
       <Slide bg="darker">
         <ImgBg src={routineDriving} alt="Guida di routine" opacity="opacity-15" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
             {...fade}
-            className="text-4xl md:text-6xl font-bold leading-tight mb-8"
+            className="text-4xl md:text-6xl font-bold leading-tight"
+          >
+            Ed è proprio lì<br />
+            <span className="text-primary">che smetti di guardare.</span>
+          </motion.h2>
+        </div>
+      </Slide>
+
+      {/* SLIDE CONSEGUENZA */}
+      <Slide bg="black">
+        <div className="relative z-10 text-center px-6 max-w-3xl">
+          <motion.h2
+            {...fade}
+            className="text-4xl md:text-6xl font-bold leading-tight"
           >
             Non è esperienza.<br />
             <span className="text-primary">È abitudine.</span>
           </motion.h2>
-          <motion.p
-            {...fade}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg md:text-xl text-foreground/60"
-          >
-            Non stai più guidando. Stai ripetendo.
-          </motion.p>
         </div>
       </Slide>
 
       {/* ============================================================
-          BLOCCO 4 — INCIDENTE NON È UN NUMERO
-          Sezione libera (riflessione, no slide) — momento di respiro
+          BLOCCO 4 — GUIDARE È LAVORO
+          Slide impatto → Free comprensione
           ============================================================ */}
 
-      <Free className="bg-card/30">
-        <motion.h2
-          {...fade}
-          className="text-3xl md:text-5xl font-bold mb-12 leading-tight"
-        >
-          Un incidente non finisce<br />
-          <span className="text-primary">quando finisce.</span>
-        </motion.h2>
-
-        <div className="grid sm:grid-cols-2 gap-6">
-          {[
-            { title: "Lavoro", img: officeImg, alt: "Ufficio" },
-            { title: "Salute", img: hospital, alt: "Ospedale" },
-            { title: "Famiglia", img: familyImg, alt: "Famiglia" },
-            { title: "Responsabilità", img: legalImg, alt: "Documenti" },
-          ].map((item, i) => (
-            <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="flex items-center gap-4"
-            >
-              <div className="w-20 h-20 rounded-md overflow-hidden shrink-0">
-                <img
-                  src={item.img}
-                  alt={item.alt}
-                  loading="lazy"
-                  className="w-full h-full object-cover grayscale-[50%] opacity-60"
-                />
-              </div>
-              <p className="text-foreground/85 font-medium text-lg">{item.title}</p>
-            </motion.div>
-          ))}
-        </div>
-      </Free>
-
-      {/* ============================================================
-          BLOCCO 5 — GUIDARE È LAVORO
-          Slide frase chiave → Sezione libera contesto B2B
-          ============================================================ */}
-
-      {/* SLIDE */}
       <Slide>
         <ImgBg src={workDriving} alt="Veicolo aziendale" opacity="opacity-20" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
@@ -369,11 +305,10 @@ const AulaPerche = () => {
         </div>
       </Slide>
 
-      {/* FREE */}
       <Free>
         <motion.p
           {...fade}
-          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90 text-center"
         >
           Quando guidi per lavoro,<br />
           <span className="text-primary">stai lavorando.</span>
@@ -381,31 +316,24 @@ const AulaPerche = () => {
       </Free>
 
       {/* ============================================================
-          BLOCCO 6 — SCENARIO DISTRAZIONE
-          Slide scenario → Slide scelta (POV video) → Slide conseguenza
+          BLOCCO 5 — SCENARIO DISTRAZIONE
+          Slide scenario → Slide scelta (POV) → Slide conseguenza → Free comprensione
           ============================================================ */}
 
-      {/* SLIDE: Scenario — apertura */}
+      {/* SLIDE SCENARIO */}
       <Slide bg="darker">
         <ImgBg src={phoneDriving} alt="Telefono al volante" opacity="opacity-25" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
             {...fade}
-            className="text-4xl md:text-6xl font-bold leading-tight mb-6"
+            className="text-4xl md:text-6xl font-bold leading-tight"
           >
             Bastano <span className="text-primary">pochi secondi.</span>
           </motion.h2>
-          <motion.p
-            {...fade}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg md:text-xl text-foreground/70"
-          >
-            Guardi il telefono. È un attimo. Ma la strada non si ferma.
-          </motion.p>
         </div>
       </Slide>
 
-      {/* SLIDE: Scelta / scenario POV — solo video, nessun testo */}
+      {/* SLIDE SCELTA: POV video, nessun testo */}
       <Slide bg="black">
         <video
           src={povVideo.url}
@@ -417,7 +345,7 @@ const AulaPerche = () => {
         />
       </Slide>
 
-      {/* SLIDE: Conseguenza */}
+      {/* SLIDE CONSEGUENZA */}
       <Slide bg="darker">
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.p
@@ -429,40 +357,26 @@ const AulaPerche = () => {
           <motion.h2
             {...fade}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl md:text-6xl font-bold leading-tight mb-6"
+            className="text-4xl md:text-6xl font-bold leading-tight"
           >
             2 secondi = <span className="text-primary">28 metri</span>
           </motion.h2>
-          <motion.p
-            {...fade}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-lg md:text-xl text-foreground/70"
-          >
-            Percorsi senza guardare la strada.
-          </motion.p>
         </div>
       </Slide>
 
-      {/* FREE: respiro dopo lo scenario */}
+      {/* FREE: comprensione / domanda aperta */}
       <Free>
         <motion.p
           {...fade}
-          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90 text-center"
         >
-          28 metri.
-        </motion.p>
-        <motion.p
-          {...fade}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/60 mt-3"
-        >
-          Un incrocio. Un pedone. Un'auto ferma.
+          Un incrocio.<br />Un pedone.<br />Un'auto ferma.
         </motion.p>
       </Free>
 
       {/* ============================================================
-          BLOCCO 7 — CHIUSURA
-          Slide frase chiave finale (impatto massimo)
+          BLOCCO 6 — CHIUSURA
+          Slide impatto finale
           ============================================================ */}
 
       <Slide bg="black">
@@ -478,19 +392,14 @@ const AulaPerche = () => {
         </div>
       </Slide>
 
-      {/* FREE: Chiusura operativa */}
+      {/* FREE: chiusura minima */}
       <Free className="text-center">
-        <motion.div {...fade}>
-          <p className="text-base md:text-lg text-foreground/70 leading-relaxed mb-3">
-            Capire è il primo passo.
-          </p>
-          <p className="text-base md:text-lg text-foreground/70 leading-relaxed mb-12">
-            Applicarlo è quello che fa la differenza.
-          </p>
-          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-muted-foreground/60">
-            Fine modulo 01
-          </p>
-        </motion.div>
+        <motion.p
+          {...fade}
+          className="font-mono text-[11px] tracking-[0.3em] uppercase text-muted-foreground/60"
+        >
+          Fine modulo 01
+        </motion.p>
       </Free>
     </div>
   );
