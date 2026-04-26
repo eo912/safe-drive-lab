@@ -14,6 +14,7 @@ import {
   Send,
   Eye,
   CheckCircle2,
+  Coffee,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
