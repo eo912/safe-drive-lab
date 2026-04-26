@@ -95,12 +95,6 @@ const ImgBg = ({
   </div>
 );
 
-/* Etichetta discreta per le sezioni libere — segnala "discussione" senza spezzare il flusso */
-const FreeTag = ({ label }: { label: string }) => (
-  <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-muted-foreground/70 mb-6">
-    — {label}
-  </p>
-);
 
 const AulaPerche = () => {
   const navigate = useNavigate();
