@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import heroBg from "@/assets/perche-hero-bg.jpg";
@@ -103,16 +103,44 @@ const FreeTag = ({ label }: { label: string }) => (
 );
 
 const AulaPerche = () => {
+  const navigate = useNavigate();
+  const [showExit, setShowExit] = useState(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    // Mostra il pulsante uscita solo quando il mouse entra nell'angolo in alto a sinistra
+    const handleMouseMove = (e: MouseEvent) => {
+      setShowExit(e.clientX < 80 && e.clientY < 80);
+    };
+
+    // ESC come scorciatoia per uscire (utile per l'istruttore)
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        navigate("/istruttore/perche-la-guida-sicura");
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [navigate]);
 
   return (
     <div className="bg-background text-foreground">
-      {/* Pulsante uscita aula — minimale, in alto a sinistra */}
+      {/* Uscita aula — invisibile durante la lezione, appare solo passando il mouse in alto a sx o premendo ESC */}
       <Link
         to="/istruttore/perche-la-guida-sicura"
-        className="fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-background/60 backdrop-blur border border-border/40 text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+        aria-label="Esci dalla modalità aula"
+        className={`fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-background/70 backdrop-blur border border-border/40 text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-border transition-opacity duration-300 ${
+          showExit ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
       >
         <ArrowLeft className="w-3.5 h-3.5" />
         Esci
