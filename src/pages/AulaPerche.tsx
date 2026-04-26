@@ -267,7 +267,7 @@ const AulaPerche = () => {
           ============================================================ */}
 
       {/* SLIDE IMPATTO */}
-      <Slide>
+      <Slide blockId="strada-conosciuta">
         <ImgBg src={familiarRoad} alt="Strada familiare" opacity="opacity-25" />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
