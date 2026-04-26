@@ -14,11 +14,20 @@ import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
 
+// Fade lento per testi principali — solo opacity, nessun movimento
 const fade = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
+  initial: { opacity: 0 },
+  whileInView: { opacity: 1 },
   viewport: { once: true, margin: "-15%" },
-  transition: { duration: 0.7 },
+  transition: { duration: 0.4, delay: 0.5 },
+};
+
+// Fade breve per elementi secondari
+const fadeQuick = {
+  initial: { opacity: 0 },
+  whileInView: { opacity: 1 },
+  viewport: { once: true, margin: "-15%" },
+  transition: { duration: 0.25, delay: 0.5 },
 };
 
 /* =========================================================
@@ -142,15 +151,15 @@ const AulaPerche = () => {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
             className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-6"
           >
             Modulo 01
           </motion.p>
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.4 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.9 }}
             className="text-5xl md:text-7xl font-bold leading-[1.05]"
           >
             La realtà della strada
@@ -185,10 +194,10 @@ const AulaPerche = () => {
             ].map((s, i) => (
               <motion.div
                 key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
+                transition={{ duration: 0.4, delay: 0.5 + i * 0.15 }}
               >
                 <div className="rounded-md overflow-hidden mb-3 aspect-[16/9]">
                   <img
@@ -349,14 +358,16 @@ const AulaPerche = () => {
       <Slide bg="darker">
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.p
-            {...fade}
+            {...fadeQuick}
             className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-6"
           >
             A 50 km/h
           </motion.p>
           <motion.h2
-            {...fade}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-15%" }}
+            transition={{ duration: 0.25, delay: 1.1 }}
             className="text-4xl md:text-6xl font-bold leading-tight"
           >
             2 secondi = <span className="text-primary">28 metri</span>
