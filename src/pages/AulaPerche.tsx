@@ -211,6 +211,11 @@ const AulaPerche = () => {
         </div>
       )}
 
+      {/* OVERLAY MEDIA AULA — controllato solo dall'istruttore. Niente autoplay. */}
+      {!aulaState.paused && aulaState.media && (
+        <AulaMediaOverlay media={aulaState.media} />
+      )}
+
       {/* Uscita aula — invisibile durante la lezione */}
       <Link
         to="/istruttore/perche-la-guida-sicura"
