@@ -11,6 +11,8 @@ export type AulaState = {
   modulo: string;
   blocco: string;
   step: AulaStep;
+  paused?: boolean;
+  pauseMinutes?: number;
   ts: number;
 };
 
