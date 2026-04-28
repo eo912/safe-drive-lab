@@ -37,6 +37,7 @@ import type { Resource } from "@/lib/instructorTypes";
 import { buildLinearSequence, findPositionIndex } from "@/lib/courseSequence";
 import { useSlideTimes, useLiveSlideTimer } from "@/lib/slideTiming";
 import { SlideTimeIndicator } from "@/components/istruttore/SlideTimeIndicator";
+import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
 // "regia"   = controllo manuale, preview separata da live (Invia in Aula).
