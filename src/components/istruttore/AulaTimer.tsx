@@ -34,6 +34,10 @@ type Props = {
    */
   onRequestAulaPause?: (minutes: number, atmosphere: PauseAtmosphere) => void;
   /**
+   * Callback per uscire dalla pausa Aula (riprende slide live precedente).
+   */
+  onRequestAulaResume?: () => void;
+  /**
    * True se l'Aula e' attualmente in modalita' pausa.
    */
   aulaPaused?: boolean;
@@ -42,6 +46,7 @@ type Props = {
 export const AulaTimer = ({
   compact = false,
   onRequestAulaPause,
+  onRequestAulaResume,
   aulaPaused = false,
 }: Props) => {
   const [atmosphere, setAtmosphere] = useState<PauseAtmosphere>("sun");
@@ -307,17 +312,30 @@ export const AulaTimer = ({
           </button>
         )}
 
-        {/* DEV: Test Pausa — visibile solo in sviluppo */}
+        {/* DEV: Test Pausa — stesso canale della pausa reale, sincronizza Aula */}
         {onRequestAulaPause && import.meta.env.DEV && (
-          <button
-            type="button"
-            onClick={() => onRequestAulaPause(5, atmosphere)}
-            className="mt-1.5 w-full inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-sm border border-dashed border-amber-500/40 text-amber-500/80 text-[10px] font-mono uppercase tracking-wider hover:bg-amber-500/10 transition-colors"
-            title="Solo sviluppo — attiva pausa aula immediata (shortcut: P)"
-          >
-            <Coffee className="w-3 h-3" />
-            Test pausa (dev)
-          </button>
+          <div className="mt-1.5 flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => onRequestAulaPause(5, atmosphere)}
+              disabled={aulaPaused}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-sm border border-dashed border-amber-500/40 text-amber-500/80 text-[10px] font-mono uppercase tracking-wider hover:bg-amber-500/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Solo sviluppo — attiva pausa aula immediata (shortcut: P)"
+            >
+              <Coffee className="w-3 h-3" />
+              Test pausa (dev)
+            </button>
+            {aulaPaused && onRequestAulaResume && (
+              <button
+                type="button"
+                onClick={onRequestAulaResume}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-sm border border-dashed border-emerald-500/40 text-emerald-500/90 text-[10px] font-mono uppercase tracking-wider hover:bg-emerald-500/10 transition-colors"
+                title="Esce dalla pausa di test e torna alla slide live precedente"
+              >
+                Riprendi da test
+              </button>
+            )}
+          </div>
         )}
       </div>
 
