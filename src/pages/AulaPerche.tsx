@@ -579,16 +579,28 @@ const AulaPerche = () => {
         </div>
       </Slide>
 
-      {/* SLIDE SCELTA: POV video, nessun testo */}
+      {/* SLIDE SCELTA: POV video, nessun testo.
+          - full:    autoplay
+          - live:    montato ma senza autoplay (frame fermo, niente decoding loop)
+          - preview: non montato — solo placeholder statico */}
       <Slide bg="black" blockId="video-pov">
-        <video
-          src={povVideo.url}
-          autoPlay={!embedMode}
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        {renderLevel === "preview" ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-black">
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/40">
+              Scenario POV
+            </span>
+          </div>
+        ) : (
+          <video
+            src={povVideo.url}
+            autoPlay={renderLevel === "full"}
+            muted
+            loop
+            playsInline
+            preload={renderLevel === "live" ? "metadata" : "auto"}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
       </Slide>
 
       {/* SLIDE CONSEGUENZA */}
