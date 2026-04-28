@@ -215,23 +215,46 @@ const IstruttoreModulo = () => {
 
   // (aulaPaused calcolato sopra insieme ai derivati live)
 
+  // Snapshot della slide live prima di una pausa di test, per "Riprendi da test".
+  const preTestLiveRef = useRef<{ blocco: string; step: AulaStep } | null>(null);
+
+  // Pausa: usa SEMPRE la slide live (se presente) cosi' l'Aula resta sulla
+  // sua slide attuale e non viene "spinta" sulla preview dell'istruttore.
   const pauseAula = (minutes = 5, atmosphere?: import("@/lib/pauseAtmosphere").PauseAtmosphere) => {
+    const blocco = liveState?.blocco ?? previewState.blocco;
+    const step = (liveState?.step ?? previewState.step) as AulaStep;
     publish({
-      blocco: previewState.blocco,
-      step: previewState.step,
+      blocco,
+      step,
       paused: true,
       pauseMinutes: minutes,
       ...(atmosphere ? { pauseAtmosphere: atmosphere } : {}),
     });
   };
 
-  // Aggancia lo shortcut "P" (dev) alla pausa aula
-  pauseRemoteRef.current = () => pauseAula(5);
+  // Test Pausa: stesso identico canale della pausa reale (BroadcastChannel
+  // + localStorage via publish), ma memorizza la slide live precedente per
+  // poter tornare esattamente dove eravamo.
+  const testPauseAula = (atmosphere?: import("@/lib/pauseAtmosphere").PauseAtmosphere) => {
+    if (liveState && !liveState.paused) {
+      preTestLiveRef.current = {
+        blocco: liveState.blocco,
+        step: liveState.step as AulaStep,
+      };
+    }
+    pauseAula(5, atmosphere);
+  };
+
+  // Aggancia lo shortcut "P" (dev) alla pausa aula (usa il flusso di test).
+  pauseRemoteRef.current = () => testPauseAula();
 
   const resumeAula = () => {
+    // Se siamo usciti da una pausa di test, torna alla slide live precedente.
+    const restore = preTestLiveRef.current;
+    preTestLiveRef.current = null;
     publish({
-      blocco: liveState?.blocco ?? previewState.blocco,
-      step: (liveState?.step ?? previewState.step) as AulaStep,
+      blocco: restore?.blocco ?? liveState?.blocco ?? previewState.blocco,
+      step: (restore?.step ?? liveState?.step ?? previewState.step) as AulaStep,
       paused: false,
     });
   };
