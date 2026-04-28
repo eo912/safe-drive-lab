@@ -778,7 +778,12 @@ const IstruttoreModulo = () => {
         {/* DESTRA — TIMER + SUGGERIMENTI DIDATTICI (solo desktop) */}
         <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
           <div className="p-4 border-b border-border/60">
-            <AulaTimer compact onRequestAulaPause={pauseAula} aulaPaused={aulaPaused} />
+            <AulaTimer
+              compact
+              onRequestAulaPause={(m, atm) => testPauseAula(atm) || pauseAula(m, atm)}
+              onRequestAulaResume={resumeAula}
+              aulaPaused={aulaPaused}
+            />
           </div>
           <div className="p-4 border-b border-border/60 flex items-center gap-2">
             <BookOpen className="w-3.5 h-3.5 text-primary" />
