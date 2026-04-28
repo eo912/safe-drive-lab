@@ -115,11 +115,22 @@ const AulaPerche = () => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
 
-  // Override via URL: /aula?state=pausa attiva la schermata pausa per test
-  const forcePauseFromUrl =
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("state") === "pausa";
-  const isPaused = aulaState.paused || forcePauseFromUrl;
+  // Parametri URL:
+  // - ?state=pausa  → forza schermata pausa per test
+  // - ?embed=mini   → modalità "stage" usata dalla regia istruttore (live/anteprima):
+  //   nessun listener, nessun overlay tecnico, nessuna sincronizzazione,
+  //   posizione frozen sui parametri ?blocco e ?pausa.
+  const urlParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : null;
+  const forcePauseFromUrl = urlParams?.get("state") === "pausa";
+  const embedMode = urlParams?.get("embed") === "mini";
+  const embedBlocco = urlParams?.get("blocco") ?? "hero";
+  const embedPaused = urlParams?.get("pausa") === "1";
+  const isPaused = embedMode
+    ? embedPaused
+    : aulaState.paused || forcePauseFromUrl;
 
   const navigateSection = useCallback((delta: number) => {
     const scroller = scrollerRef.current;
