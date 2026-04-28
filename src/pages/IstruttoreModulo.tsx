@@ -35,6 +35,8 @@ import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { Resource } from "@/lib/instructorTypes";
 import { buildLinearSequence, findPositionIndex } from "@/lib/courseSequence";
+import { useSlideTimes, useLiveSlideTimer } from "@/lib/slideTiming";
+import { SlideTimeIndicator } from "@/components/istruttore/SlideTimeIndicator";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
 // "regia"   = controllo manuale, preview separata da live (Invia in Aula).
@@ -152,6 +154,15 @@ const IstruttoreModulo = () => {
   // Stato live (in Aula)
   const liveBlockId = liveState?.blocco ?? null;
   const liveStep = liveState?.step ?? null;
+  const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
+
+  // Tempo per slide: previsto (config + override locale) + cronometro live.
+  const { getExpected, setExpected, resetExpected } = useSlideTimes(slug);
+  const aulaPaused = liveState?.paused === true;
+  // Il cronometro si resetta quando cambia la slide live; resta a 0 in pausa o senza live.
+  const liveKey = liveBlock && !aulaPaused ? `${liveBlock.id}:${liveStep}` : null;
+  const liveSeconds = useLiveSlideTimer(liveKey);
+  const liveExpected = getExpected(liveBlock);
 
   // Stato preview vs live: stesso blocco+step → "in aula"
   const isLive =
@@ -202,7 +213,7 @@ const IstruttoreModulo = () => {
     });
   };
 
-  const aulaPaused = liveState?.paused === true;
+  // (aulaPaused calcolato sopra insieme ai derivati live)
 
   const pauseAula = (minutes = 5, atmosphere?: import("@/lib/pauseAtmosphere").PauseAtmosphere) => {
     publish({
@@ -636,15 +647,30 @@ const IstruttoreModulo = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               <SlidePreview
                 variant="live"
-                block={liveState ? blocks.find((b) => b.id === liveBlockId) ?? null : null}
+                modulo={slug}
+                block={liveBlock}
                 step={(liveStep ?? "intro") as AulaStep}
+                paused={aulaPaused}
                 onOpenWindow={launchAula}
                 empty={!liveState}
               />
               <SlidePreview
                 variant="preview"
+                modulo={slug}
                 block={active}
                 step={previewState.step}
+                onSend={mode === "regia" && !isLive ? sendToAula : undefined}
+              />
+            </div>
+
+            {/* INDICATORE TEMPO PER SLIDE LIVE */}
+            <div className="mt-4">
+              <SlideTimeIndicator
+                expectedSeconds={liveExpected}
+                liveSeconds={liveSeconds}
+                isLive={Boolean(liveBlock) && !aulaPaused}
+                onChange={(s) => liveBlock && setExpected(liveBlock.id, s)}
+                onReset={() => liveBlock && resetExpected(liveBlock.id)}
               />
             </div>
 
