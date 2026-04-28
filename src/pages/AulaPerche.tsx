@@ -150,7 +150,7 @@ const AulaPerche = () => {
   // Scroll automatico al blocco indicato dall'istruttore
   useEffect(() => {
     if (!aulaState.blocco) return;
-    if (aulaState.paused) return;
+    if (isPaused) return;
     const el = document.querySelector<HTMLElement>(
       `[data-block="${aulaState.blocco}"]`,
     );
@@ -177,7 +177,7 @@ const AulaPerche = () => {
         navigate("/istruttore/perche-la-guida-sicura");
         return;
       }
-      if (aulaState.paused) return;
+      if (isPaused) return;
       if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
         e.preventDefault();
         navigateSection(1);
@@ -189,7 +189,7 @@ const AulaPerche = () => {
 
     let wheelLock = 0;
     const handleWheel = (e: WheelEvent) => {
-      if (aulaState.paused) return;
+      if (isPaused) return;
       e.preventDefault();
       const now = Date.now();
       if (isAnimatingRef.current || now - wheelLock < 700) return;
@@ -203,7 +203,7 @@ const AulaPerche = () => {
       touchStartY = e.touches[0].clientY;
     };
     const handleTouchEnd = (e: TouchEvent) => {
-      if (aulaState.paused) return;
+      if (isPaused) return;
       const dy = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(dy) < 40) return;
       navigateSection(dy > 0 ? 1 : -1);
@@ -260,7 +260,7 @@ const AulaPerche = () => {
       </div>
 
       {/* OVERLAY PAUSA AULA — controllato solo dall'istruttore */}
-      {aulaState.paused && (
+      {isPaused && (
         <AulaPauseScreen
           atmosphere={aulaState.pauseAtmosphere}
           pauseMinutes={aulaState.pauseMinutes}
@@ -268,7 +268,7 @@ const AulaPerche = () => {
       )}
 
       {/* OVERLAY MEDIA AULA — controllato solo dall'istruttore. Niente autoplay. */}
-      {!aulaState.paused && aulaState.media && (
+      {!isPaused && aulaState.media && (
         <AulaMediaOverlay media={aulaState.media} />
       )}
 
