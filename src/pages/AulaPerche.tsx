@@ -33,6 +33,17 @@ const fadeQuick = {
   transition: { duration: 0.25, delay: 0.5 },
 };
 
+/**
+ * Livello di rendering della pagina Aula:
+ * - "full":    rendering completo (modalità Aula reale, animazioni e video)
+ * - "live":    semplificato — niente video autoplay, animazioni motion azzerate via CSS,
+ *              schermata pausa senza vapore/particelle
+ * - "preview": minimo — niente video del tutto (placeholder), niente animazioni,
+ *              schermata pausa statica
+ */
+type RenderLevel = "full" | "live" | "preview";
+
+
 /* =========================================================
    Slide: full-screen, impatto.
    Apertura, scenario, tensione, scelta, conseguenza, frase chiave.
@@ -116,16 +127,20 @@ const AulaPerche = () => {
   const isAnimatingRef = useRef(false);
 
   // Parametri URL:
-  // - ?state=pausa  → forza schermata pausa per test
-  // - ?embed=mini   → modalità "stage" usata dalla regia istruttore (live/anteprima):
-  //   nessun listener, nessun overlay tecnico, nessuna sincronizzazione,
-  //   posizione frozen sui parametri ?blocco e ?pausa.
+  // - ?state=pausa     → forza schermata pausa per test
+  // - ?embed=mini      → "stage" Live in regia: rendering semplificato
+  // - ?embed=preview   → "stage" Anteprima in regia: rendering minimo
+  // In embed: nessun listener, nessun overlay tecnico, nessuna sync,
+  // posizione frozen sui parametri ?blocco e ?pausa.
   const urlParams =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search)
       : null;
   const forcePauseFromUrl = urlParams?.get("state") === "pausa";
-  const embedMode = urlParams?.get("embed") === "mini";
+  const embedParam = urlParams?.get("embed");
+  const embedMode = embedParam === "mini" || embedParam === "preview";
+  const renderLevel: RenderLevel =
+    embedParam === "preview" ? "preview" : embedParam === "mini" ? "live" : "full";
   const embedBlocco = urlParams?.get("blocco") ?? "hero";
   const embedPaused = urlParams?.get("pausa") === "1";
   const isPaused = embedMode
@@ -245,11 +260,28 @@ const AulaPerche = () => {
   return (
     <div
       ref={scrollerRef}
+      data-render-level={renderLevel}
       className={`bg-background text-foreground fixed inset-0 overflow-y-auto snap-y snap-mandatory overscroll-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
         embedMode ? "pointer-events-none" : ""
       }`}
       style={{ scrollBehavior: embedMode ? "auto" : "smooth" }}
     >
+      {/* OTTIMIZZAZIONE RENDERING: in embed disabilitiamo le animazioni
+          framer-motion via CSS senza modificare ogni nodo motion. */}
+      {embedMode && (
+        <style>{`
+          [data-render-level="preview"] *,
+          [data-render-level="live"] * {
+            animation-duration: 0s !important;
+            animation-delay: 0s !important;
+            transition-duration: 0s !important;
+          }
+          [data-render-level="preview"] [style*="opacity: 0"],
+          [data-render-level="live"] [style*="opacity: 0"] {
+            opacity: 1 !important;
+          }
+        `}</style>
+      )}
       {/* Blocco orientamento: aula = solo landscape su schermi piccoli (no embed) */}
       {!embedMode && (
         <div
@@ -281,11 +313,13 @@ const AulaPerche = () => {
         </div>
       )}
 
-      {/* OVERLAY PAUSA AULA — controllato solo dall'istruttore */}
+      {/* OVERLAY PAUSA AULA — controllato solo dall'istruttore.
+          In embed la schermata pausa è semplificata (no vapore/particelle/breathe). */}
       {isPaused && (
         <AulaPauseScreen
           atmosphere={embedMode ? "sun" : aulaState.pauseAtmosphere}
           pauseMinutes={embedMode ? undefined : aulaState.pauseMinutes}
+          simplified={embedMode}
         />
       )}
 
@@ -511,16 +545,28 @@ const AulaPerche = () => {
         </div>
       </Slide>
 
-      {/* SLIDE SCELTA: POV video, nessun testo */}
+      {/* SLIDE SCELTA: POV video, nessun testo.
+          - full:    autoplay
+          - live:    montato ma senza autoplay (frame fermo, niente decoding loop)
+          - preview: non montato — solo placeholder statico */}
       <Slide bg="black" blockId="video-pov">
-        <video
-          src={povVideo.url}
-          autoPlay={!embedMode}
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        {renderLevel === "preview" ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-black">
+            <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/40">
+              Scenario POV
+            </span>
+          </div>
+        ) : (
+          <video
+            src={povVideo.url}
+            autoPlay={renderLevel === "full"}
+            muted
+            loop
+            playsInline
+            preload={renderLevel === "live" ? "metadata" : "auto"}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )}
       </Slide>
 
       {/* SLIDE CONSEGUENZA */}
