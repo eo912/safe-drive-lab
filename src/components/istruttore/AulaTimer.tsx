@@ -34,6 +34,10 @@ type Props = {
    */
   onRequestAulaPause?: (minutes: number, atmosphere: PauseAtmosphere) => void;
   /**
+   * Callback per uscire dalla pausa Aula (riprende slide live precedente).
+   */
+  onRequestAulaResume?: () => void;
+  /**
    * True se l'Aula e' attualmente in modalita' pausa.
    */
   aulaPaused?: boolean;
@@ -42,6 +46,7 @@ type Props = {
 export const AulaTimer = ({
   compact = false,
   onRequestAulaPause,
+  onRequestAulaResume,
   aulaPaused = false,
 }: Props) => {
   const [atmosphere, setAtmosphere] = useState<PauseAtmosphere>("sun");
