@@ -214,6 +214,9 @@ const IstruttoreModulo = () => {
     });
   };
 
+  // Aggancia lo shortcut "P" (dev) alla pausa aula
+  pauseRemoteRef.current = () => pauseAula(5);
+
   const resumeAula = () => {
     publish({
       blocco: liveState?.blocco ?? previewState.blocco,
