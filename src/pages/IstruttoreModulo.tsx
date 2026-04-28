@@ -98,6 +98,11 @@ const IstruttoreModulo = () => {
         setArchiveOpen((v) => !v);
         return;
       }
+      if (import.meta.env.DEV && (e.key === "p" || e.key === "P")) {
+        e.preventDefault();
+        pauseRemoteRef.current?.();
+        return;
+      }
 
       if (
         e.key === "ArrowRight" ||
