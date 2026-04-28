@@ -808,6 +808,13 @@ const IstruttoreModulo = () => {
         onOpenChange={setArchiveOpen}
         onAttachToSlide={handleAttachFromArchive}
       />
+
+      <SyncDebugOverlay
+        side="istruttore"
+        live={liveState}
+        preview={previewState}
+        mode={mode}
+      />
     </div>
   );
 };
