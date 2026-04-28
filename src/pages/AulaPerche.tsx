@@ -99,25 +99,38 @@ const Free = ({
   </section>
 );
 
+/**
+ * Sfondo immagine + gradient overlay.
+ * In `preview` non monta affatto l'immagine: solo un fondo neutro.
+ * In `live` la monta ma senza fade — la scena resta riconoscibile, leggera.
+ */
 const ImgBg = ({
   src,
   alt,
   opacity = "opacity-30",
+  level = "full",
 }: {
   src: string;
   alt: string;
   opacity?: string;
-}) => (
-  <div className="absolute inset-0">
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      className={`w-full h-full object-cover ${opacity}`}
-    />
-    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
-  </div>
-);
+  level?: RenderLevel;
+}) => {
+  if (level === "preview") {
+    return <div className="absolute inset-0 bg-card" aria-hidden />;
+  }
+  return (
+    <div className="absolute inset-0">
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className={`w-full h-full object-cover ${opacity}`}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
+    </div>
+  );
+};
 
 const AulaPerche = () => {
   const navigate = useNavigate();
