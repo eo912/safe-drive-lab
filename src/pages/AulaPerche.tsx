@@ -16,6 +16,7 @@ import povVideo from "@/assets/pov-distraction.mp4.asset.json";
 import { useAulaSubscriber } from "@/lib/aulaSync";
 import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
+import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 
 // Fade lento per testi principali — solo opacity, nessun movimento
 const fade = {
@@ -340,6 +341,9 @@ const AulaPerche = () => {
       {!embedMode && !isPaused && aulaState.media && (
         <AulaMediaOverlay media={aulaState.media} />
       )}
+
+      {/* DEBUG SYNC — solo dev, mai in embed */}
+      {!embedMode && <SyncDebugOverlay side="aula" live={aulaState} />}
 
       {/* Uscita aula — invisibile durante la lezione, mai in embed */}
       {!embedMode && (
