@@ -60,7 +60,7 @@ const Slide = ({
   return (
     <section
       data-block={blockId}
-      className={`relative w-full h-screen flex items-center justify-center overflow-hidden ${className}`}
+      className={`relative w-full h-screen flex items-center justify-center overflow-hidden snap-start snap-always ${className}`}
       style={bgStyle ? { backgroundColor: bgStyle } : undefined}
     >
       {children}
