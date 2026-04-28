@@ -264,6 +264,32 @@ export const AulaTimer = ({
           </div>
         )}
 
+        {/* Selettore atmosfera per la schermata di pausa Aula */}
+        {onRequestAulaPause && (
+          <div className="mt-3 pt-3 border-t border-border/40">
+            <p className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground/70 mb-1.5">
+              Atmosfera pausa
+            </p>
+            <div className="grid grid-cols-4 gap-1">
+              {PAUSE_ATMOSPHERES.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => setAtmosphere(a.id)}
+                  className={`text-[9px] font-mono py-1 rounded-sm transition-colors ${
+                    atmosphere === a.id
+                      ? "bg-primary/15 text-primary"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  }`}
+                  title={a.label}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Pausa Aula manuale */}
         {onRequestAulaPause && (
           <button
