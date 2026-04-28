@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -7,6 +7,7 @@ import {
   BookOpen,
   ExternalLink,
   ChevronRight,
+  ChevronLeft,
   StickyNote,
   Radio,
   ListOrdered,
@@ -33,8 +34,11 @@ import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { Resource } from "@/lib/instructorTypes";
+import { buildLinearSequence, findPositionIndex } from "@/lib/courseSequence";
 
-type Mode = "guidata" | "libera";
+// "lineare" = tipo slide, telecomando + auto-publish in Aula.
+// "regia"   = controllo manuale, preview separata da live (Invia in Aula).
+type Mode = "lineare" | "regia";
 
 const KindLabel: Record<ModuleBlock["kind"], string> = {
   intro: "Intro",
@@ -57,27 +61,66 @@ const IstruttoreModulo = () => {
     slug,
     blocks[0]?.id ?? "",
   );
-  const [mode, setMode] = useState<Mode>("guidata");
+  const [mode, setMode] = useState<Mode>("regia");
+  const modeRef = useRef<Mode>(mode);
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
+  // Sequenza lineare predefinita del corso (intro di ogni blocco + scenari/video).
+  const sequence = useMemo(() => buildLinearSequence(blocks), [blocks]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Scorciatoie tastiera per istruttore: N = note, A = archivio
+  // Scorciatoie tastiera istruttore: N = note, A = archivio.
+  // Telecomando (lineare + regia): ←/PageUp = indietro, →/PageDown/Space = avanti.
+  // L'attuale gestione drawers e telecomando vive nello stesso listener per evitare conflitti.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if (e.key === "n" || e.key === "N") setNotesOpen((v) => !v);
-      if (e.key === "a" || e.key === "A") setArchiveOpen((v) => !v);
+      const isEditing =
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        (e.target as HTMLElement | null)?.isContentEditable;
+      if (isEditing) return;
+
+      if (e.key === "n" || e.key === "N") {
+        setNotesOpen((v) => !v);
+        return;
+      }
+      if (e.key === "a" || e.key === "A") {
+        setArchiveOpen((v) => !v);
+        return;
+      }
+
+      if (
+        e.key === "ArrowRight" ||
+        e.key === "PageDown" ||
+        e.key === " " ||
+        e.key === "Spacebar"
+      ) {
+        e.preventDefault();
+        stepRemoteRef.current?.(1);
+        return;
+      }
+      if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        stepRemoteRef.current?.(-1);
+        return;
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Ref aggiornata sotto: contiene la callback "telecomando" stabile rispetto a stato.
+  const stepRemoteRef = useRef<((dir: 1 | -1) => void) | null>(null);
 
   if (!module || blocks.length === 0) {
     return (
@@ -108,11 +151,42 @@ const IstruttoreModulo = () => {
   const isLive =
     liveBlockId === previewState.blocco && liveStep === previewState.step;
 
+  // Aggiornamento posizione: in modalità "lineare" pubblica subito in Aula
+  // (preview e live coincidono); in "regia" aggiorna solo l'anteprima.
+  const applyPosition = useCallback(
+    (patch: { blocco: string; step: AulaStep }) => {
+      if (modeRef.current === "lineare") {
+        publish({ ...patch, paused: false });
+      } else {
+        setPreview(patch);
+      }
+    },
+    [publish, setPreview],
+  );
+
   const goToBlock = (id: string) => {
-    setPreview({ blocco: id, step: "intro" });
+    applyPosition({ blocco: id, step: "intro" });
     setTimelineOpen(false);
   };
-  const setStep = (step: AulaStep) => setPreview({ step });
+  const setStep = (step: AulaStep) =>
+    applyPosition({ blocco: previewState.blocco, step });
+
+  // Telecomando: muove la posizione corrente lungo la sequenza lineare.
+  // In "regia" si parte dalla preview, in "lineare" si parte dal live (che coincide).
+  useEffect(() => {
+    stepRemoteRef.current = (dir: 1 | -1) => {
+      if (sequence.length === 0) return;
+      const cur = findPositionIndex(
+        sequence,
+        previewState.blocco,
+        previewState.step,
+      );
+      const safe = cur === -1 ? 0 : cur;
+      const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
+      if (next === safe && cur !== -1) return;
+      applyPosition(sequence[next]);
+    };
+  }, [sequence, previewState.blocco, previewState.step, applyPosition]);
 
   const sendToAula = () => {
     publish({
@@ -202,7 +276,7 @@ const IstruttoreModulo = () => {
       {blocks.map((b, i) => {
         const isSelected = b.id === active.id;
         const isLiveBlock = b.id === liveBlockId;
-        const isNext = mode === "guidata" && b.id === nextBlock?.id;
+        const isNext = mode === "regia" && b.id === nextBlock?.id;
         const isPast = i < previewIndex;
         return (
           <button
@@ -350,26 +424,48 @@ const IstruttoreModulo = () => {
             <span className="hidden sm:inline">Archivio</span>
           </button>
 
-          {/* Mode switch — solo desktop */}
+          {/* Telecomando on-screen — sempre visibile, funziona in entrambe le modalità */}
+          <div className="hidden md:flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => stepRemoteRef.current?.(-1)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              aria-label="Posizione precedente (←)"
+              title="Indietro (← / PageUp)"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => stepRemoteRef.current?.(1)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              aria-label="Posizione successiva (→)"
+              title="Avanti (→ / PageDown / Spazio)"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Mode switch — Lineare (slide + auto-publish) | Regia (preview + Invia in Aula) */}
           <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md border border-border">
             <span
               className={`text-xs font-mono uppercase tracking-wider transition-colors ${
-                mode === "guidata" ? "text-primary" : "text-muted-foreground"
+                mode === "lineare" ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              Guidata
+              Lineare
             </span>
             <Switch
-              checked={mode === "libera"}
-              onCheckedChange={(v) => setMode(v ? "libera" : "guidata")}
-              aria-label="Modalità guidata o libera"
+              checked={mode === "regia"}
+              onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
+              aria-label="Modalità lineare o regia"
             />
             <span
               className={`text-xs font-mono uppercase tracking-wider transition-colors ${
-                mode === "libera" ? "text-primary" : "text-muted-foreground"
+                mode === "regia" ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              Libera
+              Regia
             </span>
           </div>
 
@@ -384,26 +480,46 @@ const IstruttoreModulo = () => {
           </button>
         </div>
 
-        {/* Mode switch — sotto lg */}
-        <div className="lg:hidden flex items-center justify-center gap-3 px-4 pb-2">
-          <span
-            className={`text-[10px] font-mono uppercase tracking-wider ${
-              mode === "guidata" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            Guidata
-          </span>
-          <Switch
-            checked={mode === "libera"}
-            onCheckedChange={(v) => setMode(v ? "libera" : "guidata")}
-          />
-          <span
-            className={`text-[10px] font-mono uppercase tracking-wider ${
-              mode === "libera" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            Libera
-          </span>
+        {/* Mode switch + telecomando — sotto lg */}
+        <div className="lg:hidden flex items-center justify-center gap-4 px-4 pb-2">
+          <div className="flex items-center gap-1 md:hidden">
+            <button
+              type="button"
+              onClick={() => stepRemoteRef.current?.(-1)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground"
+              aria-label="Indietro"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => stepRemoteRef.current?.(1)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground"
+              aria-label="Avanti"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <span
+              className={`text-[10px] font-mono uppercase tracking-wider ${
+                mode === "lineare" ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              Lineare
+            </span>
+            <Switch
+              checked={mode === "regia"}
+              onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
+            />
+            <span
+              className={`text-[10px] font-mono uppercase tracking-wider ${
+                mode === "regia" ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              Regia
+            </span>
+          </div>
         </div>
       </header>
 
@@ -522,7 +638,7 @@ const IstruttoreModulo = () => {
               />
             </div>
 
-            {/* INVIA IN AULA */}
+            {/* INVIA IN AULA — solo in modalità Regia. In Lineare la sincronizzazione è automatica. */}
             <div className="mt-4 flex items-center justify-between gap-3">
               <div className="text-[11px] text-muted-foreground">
                 {liveState ? (
@@ -536,31 +652,38 @@ const IstruttoreModulo = () => {
                   <span className="font-mono">Aula in attesa</span>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={sendToAula}
-                disabled={isLive}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
-                  isLive
-                    ? "bg-emerald-500/15 text-emerald-500 cursor-default"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90"
-                }`}
-              >
-                {isLive ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    In Aula
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    Invia in Aula
-                  </>
-                )}
-              </button>
+              {mode === "regia" ? (
+                <button
+                  type="button"
+                  onClick={sendToAula}
+                  disabled={isLive}
+                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
+                    isLive
+                      ? "bg-emerald-500/15 text-emerald-500 cursor-default"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                  }`}
+                >
+                  {isLive ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      In Aula
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Invia in Aula
+                    </>
+                  )}
+                </button>
+              ) : (
+                <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider">
+                  <Radio className="w-3 h-3" />
+                  Sync automatica
+                </span>
+              )}
             </div>
 
-            {mode === "guidata" && nextBlock && (
+            {mode === "regia" && nextBlock && (
               <div className="mt-6 flex items-center justify-between gap-4 p-4 rounded-md border border-primary/30 bg-primary/5">
                 <div className="min-w-0">
                   <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
