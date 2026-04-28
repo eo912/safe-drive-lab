@@ -44,10 +44,12 @@ export const AulaPauseScreen = ({ atmosphere, pauseMinutes, simplified = false }
     >
       {/* BACKGROUND: paesaggio sfocato + respirazione lenta */}
       <div
-        className="absolute inset-0 will-change-transform"
-        style={{
-          animation: "pause-breathe 14s ease-in-out infinite",
-        }}
+        className={simplified ? "absolute inset-0" : "absolute inset-0 will-change-transform"}
+        style={
+          simplified
+            ? undefined
+            : { animation: "pause-breathe 14s ease-in-out infinite" }
+        }
       >
         <img
           src={atm.bg}
@@ -73,17 +75,21 @@ export const AulaPauseScreen = ({ atmosphere, pauseMinutes, simplified = false }
         }}
       />
 
-      {/* PARTICELLE: pioggia / neve (CSS only, leggere) */}
-      {atm.particles === "rain" && <RainLayer />}
-      {atm.particles === "snow" && <SnowLayer />}
+      {/* PARTICELLE: pioggia / neve (CSS only). Disattivate in simplified. */}
+      {!simplified && atm.particles === "rain" && <RainLayer />}
+      {!simplified && atm.particles === "snow" && <SnowLayer />}
 
       {/* FOREGROUND: tazza con vapore */}
       <div className="absolute inset-0 flex items-end justify-center pointer-events-none">
         <div className="relative w-full max-w-[820px] aspect-[16/10] mb-[2vh]">
-          {/* VAPORE: tre flussi sfalsati, lenti */}
-          <Steam delay={0} duration={9} left="48%" />
-          <Steam delay={3} duration={10} left="52%" />
-          <Steam delay={6} duration={11} left="50%" />
+          {/* VAPORE: tre flussi sfalsati. Disattivato in simplified. */}
+          {!simplified && (
+            <>
+              <Steam delay={0} duration={9} left="48%" />
+              <Steam delay={3} duration={10} left="52%" />
+              <Steam delay={6} duration={11} left="50%" />
+            </>
+          )}
 
           <img
             src={cupImg}
