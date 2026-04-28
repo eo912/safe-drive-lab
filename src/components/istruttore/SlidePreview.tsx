@@ -78,8 +78,10 @@ export const SlidePreview = ({
       : "border-primary/60";
 
   const showStage = !empty && block && !paused;
+  // Live = rendering "mini" (semplificato), Preview = rendering "preview" (minimo)
+  const embedKind = isLive ? "mini" : "preview";
   const embedUrl = block
-    ? `/aula/${modulo}?embed=mini&blocco=${block.id}&step=${step}${paused ? "&pausa=1" : ""}`
+    ? `/aula/${modulo}?embed=${embedKind}&blocco=${block.id}&step=${step}${paused ? "&pausa=1" : ""}`
     : null;
 
   return (
