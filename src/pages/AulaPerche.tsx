@@ -330,11 +330,13 @@ const AulaPerche = () => {
         </div>
       )}
 
-      {/* OVERLAY PAUSA AULA — controllato solo dall'istruttore */}
+      {/* OVERLAY PAUSA AULA — controllato solo dall'istruttore.
+          In embed la schermata pausa è semplificata (no vapore/particelle/breathe). */}
       {isPaused && (
         <AulaPauseScreen
           atmosphere={embedMode ? "sun" : aulaState.pauseAtmosphere}
           pauseMinutes={embedMode ? undefined : aulaState.pauseMinutes}
+          simplified={embedMode}
         />
       )}
 
