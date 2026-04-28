@@ -24,12 +24,15 @@ const fmt = (s: number) => {
 const fmtClock = (d: Date) =>
   `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
 
+import { PAUSE_ATMOSPHERES, type PauseAtmosphere } from "@/lib/pauseAtmosphere";
+
 type Props = {
   compact?: boolean;
   /**
-   * Callback per attivare la pausa Aula. Riceve i minuti consigliati di pausa.
+   * Callback per attivare la pausa Aula. Riceve i minuti consigliati di pausa
+   * e l'atmosfera scelta dall'istruttore.
    */
-  onRequestAulaPause?: (minutes: number) => void;
+  onRequestAulaPause?: (minutes: number, atmosphere: PauseAtmosphere) => void;
   /**
    * True se l'Aula e' attualmente in modalita' pausa.
    */
@@ -41,6 +44,7 @@ export const AulaTimer = ({
   onRequestAulaPause,
   aulaPaused = false,
 }: Props) => {
+  const [atmosphere, setAtmosphere] = useState<PauseAtmosphere>("sun");
   const [totalSec, setTotalSec] = useState(DEFAULT_TOTAL);
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
@@ -132,7 +136,7 @@ export const AulaTimer = ({
   const triggerPause = () => {
     setRunning(false);
     setShowWarn(false);
-    onRequestAulaPause?.(5);
+    onRequestAulaPause?.(5, atmosphere);
   };
 
   return (
@@ -257,6 +261,32 @@ export const AulaTimer = ({
             >
               Applica
             </button>
+          </div>
+        )}
+
+        {/* Selettore atmosfera per la schermata di pausa Aula */}
+        {onRequestAulaPause && (
+          <div className="mt-3 pt-3 border-t border-border/40">
+            <p className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground/70 mb-1.5">
+              Atmosfera pausa
+            </p>
+            <div className="grid grid-cols-4 gap-1">
+              {PAUSE_ATMOSPHERES.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => setAtmosphere(a.id)}
+                  className={`text-[9px] font-mono py-1 rounded-sm transition-colors ${
+                    atmosphere === a.id
+                      ? "bg-primary/15 text-primary"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  }`}
+                  title={a.label}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

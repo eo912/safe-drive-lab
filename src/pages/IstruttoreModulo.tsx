@@ -198,12 +198,13 @@ const IstruttoreModulo = () => {
 
   const aulaPaused = liveState?.paused === true;
 
-  const pauseAula = (minutes = 5) => {
+  const pauseAula = (minutes = 5, atmosphere?: import("@/lib/pauseAtmosphere").PauseAtmosphere) => {
     publish({
       blocco: previewState.blocco,
       step: previewState.step,
       paused: true,
       pauseMinutes: minutes,
+      ...(atmosphere ? { pauseAtmosphere: atmosphere } : {}),
     });
   };
 
