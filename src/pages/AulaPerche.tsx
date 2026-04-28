@@ -118,7 +118,7 @@ const AulaPerche = () => {
   const navigateSection = useCallback((delta: number) => {
     const scroller = scrollerRef.current;
     if (!scroller || isAnimatingRef.current) return;
-    const sections = Array.from(
+    const sections: HTMLElement[] = Array.from(
       scroller.querySelectorAll<HTMLElement>("section"),
     );
     if (sections.length === 0) return;
