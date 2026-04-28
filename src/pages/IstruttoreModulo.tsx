@@ -154,6 +154,15 @@ const IstruttoreModulo = () => {
   // Stato live (in Aula)
   const liveBlockId = liveState?.blocco ?? null;
   const liveStep = liveState?.step ?? null;
+  const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
+
+  // Tempo per slide: previsto (config + override locale) + cronometro live.
+  const { getExpected, setExpected, resetExpected } = useSlideTimes(slug);
+  const aulaPaused = liveState?.paused === true;
+  // Il cronometro si resetta quando cambia la slide live; resta a 0 in pausa o senza live.
+  const liveKey = liveBlock && !aulaPaused ? `${liveBlock.id}:${liveStep}` : null;
+  const liveSeconds = useLiveSlideTimer(liveKey);
+  const liveExpected = getExpected(liveBlock);
 
   // Stato preview vs live: stesso blocco+step → "in aula"
   const isLive =
