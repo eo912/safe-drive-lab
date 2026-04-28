@@ -5,6 +5,11 @@ import { getAtmosphere, type PauseAtmosphere } from "@/lib/pauseAtmosphere";
 type Props = {
   atmosphere?: PauseAtmosphere | null;
   pauseMinutes?: number | null;
+  /**
+   * Quando true: niente animazioni (vapore, respirazione, particelle pioggia/neve).
+   * Usato dai mini-stage della regia istruttore per ridurre il carico CPU/GPU.
+   */
+  simplified?: boolean;
 };
 
 /**
@@ -14,15 +19,18 @@ type Props = {
  * - Leggera "respirazione" continua (scala 100% -> 101%)
  * - Fade-in lento all'apertura
  * - Nessun timer, nessun countdown visibile
+ *
+ * In modalità `simplified`: rendering statico (no vapore, no particelle, no breathe).
  */
-export const AulaPauseScreen = ({ atmosphere, pauseMinutes }: Props) => {
+export const AulaPauseScreen = ({ atmosphere, pauseMinutes, simplified = false }: Props) => {
   const atm = getAtmosphere(atmosphere);
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(simplified);
 
   useEffect(() => {
+    if (simplified) return;
     const id = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(id);
-  }, []);
+  }, [simplified]);
 
   return (
     <div
