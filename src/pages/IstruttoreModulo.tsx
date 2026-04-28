@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -7,6 +7,7 @@ import {
   BookOpen,
   ExternalLink,
   ChevronRight,
+  ChevronLeft,
   StickyNote,
   Radio,
   ListOrdered,
@@ -33,8 +34,11 @@ import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { Resource } from "@/lib/instructorTypes";
+import { buildLinearSequence, findPositionIndex } from "@/lib/courseSequence";
 
-type Mode = "guidata" | "libera";
+// "lineare" = tipo slide, telecomando + auto-publish in Aula.
+// "regia"   = controllo manuale, preview separata da live (Invia in Aula).
+type Mode = "lineare" | "regia";
 
 const KindLabel: Record<ModuleBlock["kind"], string> = {
   intro: "Intro",
