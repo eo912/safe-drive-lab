@@ -17,6 +17,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "hero",
     index: 1,
+    expectedSeconds: 90,
     title: "La realtà della strada",
     kind: "intro",
     hasExplanation: true,
@@ -26,6 +27,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "numeri",
     index: 2,
+    expectedSeconds: 180,
     title: "I numeri reali",
     kind: "dati",
     hasExplanation: true,
@@ -36,6 +38,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "strada-conosciuta",
     index: 3,
+    expectedSeconds: 150,
     title: "Una strada che conosci",
     kind: "riflessione",
     hasScenario: true,
@@ -46,6 +49,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "abitudine",
     index: 4,
+    expectedSeconds: 120,
     title: "Non è esperienza. È abitudine.",
     kind: "riflessione",
     hasExplanation: true,
@@ -55,6 +59,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "incidente-non-numero",
     index: 5,
+    expectedSeconds: 180,
     title: "Un incidente non è solo un numero",
     kind: "riflessione",
     hasOutcomes: true,
@@ -65,6 +70,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "guidare-lavoro",
     index: 6,
+    expectedSeconds: 150,
     title: "Guidare è lavoro",
     kind: "riflessione",
     hasExplanation: true,
@@ -75,6 +81,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "distrazione",
     index: 7,
+    expectedSeconds: 120,
     title: "Bastano pochi secondi",
     kind: "scenario",
     hasScenario: true,
@@ -86,6 +93,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "video-pov",
     index: 8,
+    expectedSeconds: 240,
     title: "Scenario POV — Distrazione",
     kind: "video",
     hasOutcomes: true,
@@ -96,6 +104,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "chiusura",
     index: 9,
+    expectedSeconds: 120,
     title: "Se il problema è umano…",
     kind: "chiusura",
     notes:
@@ -104,6 +113,7 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "cta",
     index: 10,
+    expectedSeconds: 90,
     title: "Verso il modulo successivo",
     kind: "cta",
     notes:
