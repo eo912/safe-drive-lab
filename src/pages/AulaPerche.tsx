@@ -112,16 +112,48 @@ const AulaPerche = () => {
   const navigate = useNavigate();
   const [showExit, setShowExit] = useState(false);
   const aulaState = useAulaSubscriber("perche-la-guida-sicura", "hero");
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const isAnimatingRef = useRef(false);
+
+  const navigateSection = useCallback((delta: number) => {
+    const scroller = scrollerRef.current;
+    if (!scroller || isAnimatingRef.current) return;
+    const sections = Array.from(
+      scroller.querySelectorAll<HTMLElement>("section"),
+    );
+    if (sections.length === 0) return;
+    const top = scroller.scrollTop;
+    let currentIdx = 0;
+    let bestDist = Infinity;
+    sections.forEach((s, i) => {
+      const d = Math.abs(s.offsetTop - top);
+      if (d < bestDist) {
+        bestDist = d;
+        currentIdx = i;
+      }
+    });
+    const nextIdx = Math.max(0, Math.min(sections.length - 1, currentIdx + delta));
+    if (nextIdx === currentIdx) return;
+    isAnimatingRef.current = true;
+    sections[nextIdx].scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => {
+      isAnimatingRef.current = false;
+    }, 600);
+  }, []);
 
   // Scroll automatico al blocco indicato dall'istruttore
   useEffect(() => {
     if (!aulaState.blocco) return;
-    if (aulaState.paused) return; // durante la pausa non scrolliamo
+    if (aulaState.paused) return;
     const el = document.querySelector<HTMLElement>(
       `[data-block="${aulaState.blocco}"]`,
     );
     if (el) {
+      isAnimatingRef.current = true;
       el.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => {
+        isAnimatingRef.current = false;
+      }, 600);
     }
   }, [aulaState.blocco, aulaState.step, aulaState.ts, aulaState.paused]);
 
@@ -137,16 +169,54 @@ const AulaPerche = () => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         navigate("/istruttore/perche-la-guida-sicura");
+        return;
+      }
+      if (aulaState.paused) return;
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+        e.preventDefault();
+        navigateSection(1);
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        navigateSection(-1);
       }
     };
 
+    let wheelLock = 0;
+    const handleWheel = (e: WheelEvent) => {
+      if (aulaState.paused) return;
+      e.preventDefault();
+      const now = Date.now();
+      if (isAnimatingRef.current || now - wheelLock < 700) return;
+      if (Math.abs(e.deltaY) < 10) return;
+      wheelLock = now;
+      navigateSection(e.deltaY > 0 ? 1 : -1);
+    };
+
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (aulaState.paused) return;
+      const dy = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) < 40) return;
+      navigateSection(dy > 0 ? 1 : -1);
+    };
+
+    const scroller = scrollerRef.current;
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("keydown", handleKey);
+    scroller?.addEventListener("wheel", handleWheel, { passive: false });
+    scroller?.addEventListener("touchstart", handleTouchStart, { passive: true });
+    scroller?.addEventListener("touchend", handleTouchEnd, { passive: true });
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("keydown", handleKey);
+      scroller?.removeEventListener("wheel", handleWheel);
+      scroller?.removeEventListener("touchstart", handleTouchStart);
+      scroller?.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [navigate]);
+  }, [navigate, navigateSection, aulaState.paused]);
 
   return (
     <div className="bg-background text-foreground">
