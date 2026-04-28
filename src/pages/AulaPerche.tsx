@@ -342,6 +342,9 @@ const AulaPerche = () => {
         <AulaMediaOverlay media={aulaState.media} />
       )}
 
+      {/* DEBUG SYNC — solo dev, mai in embed */}
+      {!embedMode && <SyncDebugOverlay side="aula" live={aulaState} />}
+
       {/* Uscita aula — invisibile durante la lezione, mai in embed */}
       {!embedMode && (
         <Link
