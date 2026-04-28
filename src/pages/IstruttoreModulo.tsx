@@ -780,7 +780,7 @@ const IstruttoreModulo = () => {
           <div className="p-4 border-b border-border/60">
             <AulaTimer
               compact
-              onRequestAulaPause={(m, atm) => testPauseAula(atm) || pauseAula(m, atm)}
+              onRequestAulaPause={(_m, atm) => testPauseAula(atm)}
               onRequestAulaResume={resumeAula}
               aulaPaused={aulaPaused}
             />
