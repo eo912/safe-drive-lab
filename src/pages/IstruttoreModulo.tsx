@@ -647,15 +647,30 @@ const IstruttoreModulo = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
               <SlidePreview
                 variant="live"
-                block={liveState ? blocks.find((b) => b.id === liveBlockId) ?? null : null}
+                modulo={slug}
+                block={liveBlock}
                 step={(liveStep ?? "intro") as AulaStep}
+                paused={aulaPaused}
                 onOpenWindow={launchAula}
                 empty={!liveState}
               />
               <SlidePreview
                 variant="preview"
+                modulo={slug}
                 block={active}
                 step={previewState.step}
+                onSend={mode === "regia" && !isLive ? sendToAula : undefined}
+              />
+            </div>
+
+            {/* INDICATORE TEMPO PER SLIDE LIVE */}
+            <div className="mt-4">
+              <SlideTimeIndicator
+                expectedSeconds={liveExpected}
+                liveSeconds={liveSeconds}
+                isLive={Boolean(liveBlock) && !aulaPaused}
+                onChange={(s) => liveBlock && setExpected(liveBlock.id, s)}
+                onReset={() => liveBlock && resetExpected(liveBlock.id)}
               />
             </div>
 
