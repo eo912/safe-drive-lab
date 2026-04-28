@@ -98,6 +98,11 @@ const IstruttoreModulo = () => {
         setArchiveOpen((v) => !v);
         return;
       }
+      if (import.meta.env.DEV && (e.key === "p" || e.key === "P")) {
+        e.preventDefault();
+        pauseRemoteRef.current?.();
+        return;
+      }
 
       if (
         e.key === "ArrowRight" ||
@@ -121,6 +126,7 @@ const IstruttoreModulo = () => {
 
   // Ref aggiornata sotto: contiene la callback "telecomando" stabile rispetto a stato.
   const stepRemoteRef = useRef<((dir: 1 | -1) => void) | null>(null);
+  const pauseRemoteRef = useRef<(() => void) | null>(null);
 
   if (!module || blocks.length === 0) {
     return (
@@ -207,6 +213,9 @@ const IstruttoreModulo = () => {
       ...(atmosphere ? { pauseAtmosphere: atmosphere } : {}),
     });
   };
+
+  // Aggancia lo shortcut "P" (dev) alla pausa aula
+  pauseRemoteRef.current = () => pauseAula(5);
 
   const resumeAula = () => {
     publish({

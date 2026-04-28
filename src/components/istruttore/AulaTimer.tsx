@@ -306,6 +306,19 @@ export const AulaTimer = ({
             {aulaPaused ? "Aula in pausa" : "Pausa aula"}
           </button>
         )}
+
+        {/* DEV: Test Pausa — visibile solo in sviluppo */}
+        {onRequestAulaPause && import.meta.env.DEV && (
+          <button
+            type="button"
+            onClick={() => onRequestAulaPause(5, atmosphere)}
+            className="mt-1.5 w-full inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-sm border border-dashed border-amber-500/40 text-amber-500/80 text-[10px] font-mono uppercase tracking-wider hover:bg-amber-500/10 transition-colors"
+            title="Solo sviluppo — attiva pausa aula immediata (shortcut: P)"
+          >
+            <Coffee className="w-3 h-3" />
+            Test pausa (dev)
+          </button>
+        )}
       </div>
 
       {/* POPUP WARNING -30s */}
