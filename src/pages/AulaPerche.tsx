@@ -161,7 +161,7 @@ const AulaPerche = () => {
         isAnimatingRef.current = false;
       }, 600);
     }
-  }, [aulaState.blocco, aulaState.step, aulaState.ts, aulaState.paused]);
+  }, [aulaState.blocco, aulaState.step, aulaState.ts, isPaused]);
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -222,7 +222,7 @@ const AulaPerche = () => {
       scroller?.removeEventListener("touchstart", handleTouchStart);
       scroller?.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [navigate, navigateSection, aulaState.paused]);
+  }, [navigate, navigateSection, isPaused]);
 
   return (
     <div
