@@ -61,11 +61,18 @@ const IstruttoreModulo = () => {
     slug,
     blocks[0]?.id ?? "",
   );
-  const [mode, setMode] = useState<Mode>("guidata");
+  const [mode, setMode] = useState<Mode>("regia");
+  const modeRef = useRef<Mode>(mode);
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
+
+  // Sequenza lineare predefinita del corso (intro di ogni blocco + scenari/video).
+  const sequence = useMemo(() => buildLinearSequence(blocks), [blocks]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
