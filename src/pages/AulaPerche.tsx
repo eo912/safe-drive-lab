@@ -515,7 +515,7 @@ const AulaPerche = () => {
       <Slide bg="black" blockId="video-pov">
         <video
           src={povVideo.url}
-          autoPlay
+          autoPlay={!embedMode}
           muted
           loop
           playsInline
