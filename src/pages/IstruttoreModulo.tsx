@@ -35,6 +35,8 @@ import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { Resource } from "@/lib/instructorTypes";
 import { buildLinearSequence, findPositionIndex } from "@/lib/courseSequence";
+import { useSlideTimes, useLiveSlideTimer } from "@/lib/slideTiming";
+import { SlideTimeIndicator } from "@/components/istruttore/SlideTimeIndicator";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
 // "regia"   = controllo manuale, preview separata da live (Invia in Aula).
