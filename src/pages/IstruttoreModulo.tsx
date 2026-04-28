@@ -213,7 +213,7 @@ const IstruttoreModulo = () => {
     });
   };
 
-  const aulaPaused = liveState?.paused === true;
+  // (aulaPaused calcolato sopra insieme ai derivati live)
 
   const pauseAula = (minutes = 5, atmosphere?: import("@/lib/pauseAtmosphere").PauseAtmosphere) => {
     publish({
