@@ -78,17 +78,49 @@ const IstruttoreModulo = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Scorciatoie tastiera per istruttore: N = note, A = archivio
+  // Scorciatoie tastiera istruttore: N = note, A = archivio.
+  // Telecomando (lineare + regia): ←/PageUp = indietro, →/PageDown/Space = avanti.
+  // L'attuale gestione drawers e telecomando vive nello stesso listener per evitare conflitti.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if (e.key === "n" || e.key === "N") setNotesOpen((v) => !v);
-      if (e.key === "a" || e.key === "A") setArchiveOpen((v) => !v);
+      const isEditing =
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        (e.target as HTMLElement | null)?.isContentEditable;
+      if (isEditing) return;
+
+      if (e.key === "n" || e.key === "N") {
+        setNotesOpen((v) => !v);
+        return;
+      }
+      if (e.key === "a" || e.key === "A") {
+        setArchiveOpen((v) => !v);
+        return;
+      }
+
+      if (
+        e.key === "ArrowRight" ||
+        e.key === "PageDown" ||
+        e.key === " " ||
+        e.key === "Spacebar"
+      ) {
+        e.preventDefault();
+        stepRemoteRef.current?.(1);
+        return;
+      }
+      if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        stepRemoteRef.current?.(-1);
+        return;
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Ref aggiornata sotto: contiene la callback "telecomando" stabile rispetto a stato.
+  const stepRemoteRef = useRef<((dir: 1 | -1) => void) | null>(null);
 
   if (!module || blocks.length === 0) {
     return (
