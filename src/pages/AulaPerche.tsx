@@ -158,26 +158,33 @@ const AulaPerche = () => {
     }, 600);
   }, []);
 
-  // Scroll automatico al blocco indicato dall'istruttore
+  // Scroll automatico al blocco indicato dall'istruttore (sync) o dall'URL (embed)
   useEffect(() => {
-    if (!aulaState.blocco) return;
-    if (isPaused) return;
+    const target = embedMode ? embedBlocco : aulaState.blocco;
+    if (!target) return;
+    if (!embedMode && isPaused) return;
     const el = document.querySelector<HTMLElement>(
-      `[data-block="${aulaState.blocco}"]`,
+      `[data-block="${target}"]`,
     );
-    if (el) {
-      isAnimatingRef.current = true;
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      window.setTimeout(() => {
-        isAnimatingRef.current = false;
-      }, 600);
+    if (!el) return;
+    if (embedMode) {
+      // In embed jump istantaneo, niente animazione
+      el.scrollIntoView({ behavior: "auto", block: "start" });
+      return;
     }
-  }, [aulaState.blocco, aulaState.step, aulaState.ts, isPaused]);
+    isAnimatingRef.current = true;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => {
+      isAnimatingRef.current = false;
+    }, 600);
+  }, [embedMode, embedBlocco, aulaState.blocco, aulaState.step, aulaState.ts, isPaused]);
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
+    // In embed: zero listener — la regia non interagisce con il mini-stage.
+    if (embedMode) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       setShowExit(e.clientX < 80 && e.clientY < 80);
