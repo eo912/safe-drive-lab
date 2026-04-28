@@ -7,6 +7,8 @@ export type ModuleBlock = {
   hasOutcomes?: boolean;
   hasExplanation?: boolean;
   hasDeepDive?: boolean;
+  /** Tempo previsto della slide in secondi. Configurabile, override locale lato istruttore. */
+  expectedSeconds?: number;
   notes: string;
 };
 
