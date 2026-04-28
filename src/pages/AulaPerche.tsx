@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion, type MotionProps } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
@@ -32,6 +32,51 @@ const fadeQuick = {
   viewport: { once: true, margin: "-15%" },
   transition: { duration: 0.25, delay: 0.5 },
 };
+
+/**
+ * Livello di rendering della pagina Aula:
+ * - "full":    rendering completo (modalità Aula reale)
+ * - "live":    semplificato — niente animazioni motion, niente video autoplay,
+ *              schermata pausa senza vapore/particelle
+ * - "preview": minimo — niente animazioni, niente video, niente immagini bg pesanti
+ */
+type RenderLevel = "full" | "live" | "preview";
+
+// Context "leggero" via prop drilling tramite componenti Slide/Free.
+// Per evitare passare la prop ovunque, definiamo helper m() che decide
+// se usare motion.* o l'equivalente HTML statico.
+
+type MotionTag = "p" | "h1" | "h2" | "div";
+
+/**
+ * In rendering "full" usa motion.* con le props animate; altrimenti
+ * il tag HTML statico, ignorando le props di animazione (zero overhead).
+ */
+const Anim = ({
+  as = "p",
+  level,
+  className,
+  children,
+  ...motionProps
+}: {
+  as?: MotionTag;
+  level: RenderLevel;
+  className?: string;
+  children: React.ReactNode;
+} & MotionProps) => {
+  if (level === "full") {
+    const M = motion[as] as typeof motion.p;
+    return (
+      <M className={className} {...motionProps}>
+        {children}
+      </M>
+    );
+  }
+  // Statico: stesso tag, nessuna animazione, opacità piena.
+  const Tag = as as keyof JSX.IntrinsicElements;
+  return <Tag className={className}>{children}</Tag>;
+};
+
 
 /* =========================================================
    Slide: full-screen, impatto.
