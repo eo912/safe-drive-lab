@@ -219,7 +219,11 @@ const AulaPerche = () => {
   }, [navigate, navigateSection, aulaState.paused]);
 
   return (
-    <div className="bg-background text-foreground">
+    <div
+      ref={scrollerRef}
+      className="bg-background text-foreground fixed inset-0 overflow-y-auto snap-y snap-mandatory overscroll-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      style={{ scrollBehavior: "smooth" }}
+    >
       {/* Blocco orientamento: aula = solo landscape su schermi piccoli */}
       <div
         className="fixed inset-0 z-[100] bg-background flex-col items-center justify-center text-center px-8 hidden portrait:flex landscape:hidden md:portrait:hidden"
