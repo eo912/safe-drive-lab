@@ -161,16 +161,20 @@ const AulaPerche = () => {
   const isAnimatingRef = useRef(false);
 
   // Parametri URL:
-  // - ?state=pausa  → forza schermata pausa per test
-  // - ?embed=mini   → modalità "stage" usata dalla regia istruttore (live/anteprima):
-  //   nessun listener, nessun overlay tecnico, nessuna sincronizzazione,
-  //   posizione frozen sui parametri ?blocco e ?pausa.
+  // - ?state=pausa     → forza schermata pausa per test
+  // - ?embed=mini      → "stage" Live in regia: rendering semplificato
+  // - ?embed=preview   → "stage" Anteprima in regia: rendering minimo
+  // In embed: nessun listener, nessun overlay tecnico, nessuna sync,
+  // posizione frozen sui parametri ?blocco e ?pausa.
   const urlParams =
     typeof window !== "undefined"
       ? new URLSearchParams(window.location.search)
       : null;
   const forcePauseFromUrl = urlParams?.get("state") === "pausa";
-  const embedMode = urlParams?.get("embed") === "mini";
+  const embedParam = urlParams?.get("embed");
+  const embedMode = embedParam === "mini" || embedParam === "preview";
+  const renderLevel: RenderLevel =
+    embedParam === "preview" ? "preview" : embedParam === "mini" ? "live" : "full";
   const embedBlocco = urlParams?.get("blocco") ?? "hero";
   const embedPaused = urlParams?.get("pausa") === "1";
   const isPaused = embedMode
