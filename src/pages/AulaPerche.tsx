@@ -115,6 +115,12 @@ const AulaPerche = () => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
 
+  // Override via URL: /aula?state=pausa attiva la schermata pausa per test
+  const forcePauseFromUrl =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("state") === "pausa";
+  const isPaused = aulaState.paused || forcePauseFromUrl;
+
   const navigateSection = useCallback((delta: number) => {
     const scroller = scrollerRef.current;
     if (!scroller || isAnimatingRef.current) return;
