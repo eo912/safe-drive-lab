@@ -294,11 +294,28 @@ const AulaPerche = () => {
   return (
     <div
       ref={scrollerRef}
+      data-render-level={renderLevel}
       className={`bg-background text-foreground fixed inset-0 overflow-y-auto snap-y snap-mandatory overscroll-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
         embedMode ? "pointer-events-none" : ""
       }`}
       style={{ scrollBehavior: embedMode ? "auto" : "smooth" }}
     >
+      {/* OTTIMIZZAZIONE RENDERING: in embed disabilitiamo le animazioni
+          framer-motion via CSS senza modificare ogni nodo motion. */}
+      {embedMode && (
+        <style>{`
+          [data-render-level="preview"] *,
+          [data-render-level="live"] * {
+            animation-duration: 0s !important;
+            animation-delay: 0s !important;
+            transition-duration: 0s !important;
+          }
+          [data-render-level="preview"] [style*="opacity: 0"],
+          [data-render-level="live"] [style*="opacity: 0"] {
+            opacity: 1 !important;
+          }
+        `}</style>
+      )}
       {/* Blocco orientamento: aula = solo landscape su schermi piccoli (no embed) */}
       {!embedMode && (
         <div
