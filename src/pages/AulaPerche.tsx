@@ -82,9 +82,9 @@ const Free = ({
 }) => (
   <section
     data-block={blockId}
-    className={`relative w-full py-32 md:py-44 px-6 ${className}`}
+    className={`relative w-full h-screen flex items-center justify-center px-6 snap-start snap-always ${className}`}
   >
-    <div className="max-w-2xl mx-auto">{children}</div>
+    <div className="max-w-2xl mx-auto w-full">{children}</div>
   </section>
 );
 
