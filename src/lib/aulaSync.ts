@@ -111,7 +111,8 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
   useEffect(() => {
     const apply = (incoming: AulaState) => {
       if (incoming.modulo !== modulo) return;
-      if (incoming.ts <= lastTsRef.current) return;
+      // Tolleriamo ts uguale (clock low-res): scartiamo solo i veri "vecchi".
+      if (incoming.ts < lastTsRef.current) return;
       lastTsRef.current = incoming.ts;
       writeToUrl(incoming);
       setState(incoming);
