@@ -240,67 +240,73 @@ const AulaPerche = () => {
       scroller?.removeEventListener("touchstart", handleTouchStart);
       scroller?.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [navigate, navigateSection, isPaused]);
+  }, [navigate, navigateSection, isPaused, embedMode]);
 
   return (
     <div
       ref={scrollerRef}
-      className="bg-background text-foreground fixed inset-0 overflow-y-auto snap-y snap-mandatory overscroll-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      style={{ scrollBehavior: "smooth" }}
+      className={`bg-background text-foreground fixed inset-0 overflow-y-auto snap-y snap-mandatory overscroll-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+        embedMode ? "pointer-events-none" : ""
+      }`}
+      style={{ scrollBehavior: embedMode ? "auto" : "smooth" }}
     >
-      {/* Blocco orientamento: aula = solo landscape su schermi piccoli */}
-      <div
-        className="fixed inset-0 z-[100] bg-background flex-col items-center justify-center text-center px-8 hidden portrait:flex landscape:hidden md:portrait:hidden"
-        role="alert"
-      >
-        <div className="w-12 h-12 rounded-md border border-border flex items-center justify-center mb-6">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            className="w-6 h-6 text-primary"
-          >
-            <rect x="3" y="6" width="18" height="12" rx="2" />
-            <path d="M7 21h10" strokeLinecap="round" />
-          </svg>
+      {/* Blocco orientamento: aula = solo landscape su schermi piccoli (no embed) */}
+      {!embedMode && (
+        <div
+          className="fixed inset-0 z-[100] bg-background flex-col items-center justify-center text-center px-8 hidden portrait:flex landscape:hidden md:portrait:hidden"
+          role="alert"
+        >
+          <div className="w-12 h-12 rounded-md border border-border flex items-center justify-center mb-6">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="w-6 h-6 text-primary"
+            >
+              <rect x="3" y="6" width="18" height="12" rx="2" />
+              <path d="M7 21h10" strokeLinecap="round" />
+            </svg>
+          </div>
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-3">
+            Modalità Aula
+          </p>
+          <p className="text-lg font-semibold text-foreground mb-2">
+            Ruota il dispositivo in orizzontale
+          </p>
+          <p className="text-sm text-muted-foreground max-w-xs">
+            L'aula è progettata per schermi orizzontali e proiettori.
+          </p>
         </div>
-        <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-3">
-          Modalità Aula
-        </p>
-        <p className="text-lg font-semibold text-foreground mb-2">
-          Ruota il dispositivo in orizzontale
-        </p>
-        <p className="text-sm text-muted-foreground max-w-xs">
-          L'aula è progettata per schermi orizzontali e proiettori.
-        </p>
-      </div>
+      )}
 
       {/* OVERLAY PAUSA AULA — controllato solo dall'istruttore */}
       {isPaused && (
         <AulaPauseScreen
-          atmosphere={aulaState.pauseAtmosphere}
-          pauseMinutes={aulaState.pauseMinutes}
+          atmosphere={embedMode ? "sun" : aulaState.pauseAtmosphere}
+          pauseMinutes={embedMode ? undefined : aulaState.pauseMinutes}
         />
       )}
 
-      {/* OVERLAY MEDIA AULA — controllato solo dall'istruttore. Niente autoplay. */}
-      {!isPaused && aulaState.media && (
+      {/* OVERLAY MEDIA AULA — solo modalità live, mai in embed */}
+      {!embedMode && !isPaused && aulaState.media && (
         <AulaMediaOverlay media={aulaState.media} />
       )}
 
-      {/* Uscita aula — invisibile durante la lezione */}
-      <Link
-        to="/istruttore/perche-la-guida-sicura"
-        aria-label="Esci dalla modalità aula"
-        className={`fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-background/70 backdrop-blur border border-border/40 text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-border transition-opacity duration-300 ${
-          showExit ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-      >
-        <ArrowLeft className="w-3.5 h-3.5" />
-        Esci
-      </Link>
+      {/* Uscita aula — invisibile durante la lezione, mai in embed */}
+      {!embedMode && (
+        <Link
+          to="/istruttore/perche-la-guida-sicura"
+          aria-label="Esci dalla modalità aula"
+          className={`fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-background/70 backdrop-blur border border-border/40 text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-border transition-opacity duration-300 ${
+            showExit ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Esci
+        </Link>
+      )}
 
       {/* ============================================================
           BLOCCO 1 — APERTURA
