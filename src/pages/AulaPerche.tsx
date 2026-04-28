@@ -362,7 +362,7 @@ const AulaPerche = () => {
 
       {/* SLIDE IMPATTO: Apertura */}
       <Slide blockId="hero">
-        <ImgBg src={heroBg} alt="Strada reale" opacity="opacity-40" />
+        <ImgBg src={heroBg} alt="Strada reale" opacity="opacity-40" level={renderLevel} />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.p
             initial={{ opacity: 0 }}
@@ -464,7 +464,7 @@ const AulaPerche = () => {
 
       {/* SLIDE IMPATTO */}
       <Slide blockId="strada-conosciuta">
-        <ImgBg src={familiarRoad} alt="Strada familiare" opacity="opacity-25" />
+        <ImgBg src={familiarRoad} alt="Strada familiare" opacity="opacity-25" level={renderLevel} />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
             {...fade}
@@ -488,7 +488,7 @@ const AulaPerche = () => {
 
       {/* SLIDE TENSIONE */}
       <Slide bg="darker">
-        <ImgBg src={routineDriving} alt="Guida di routine" opacity="opacity-15" />
+        <ImgBg src={routineDriving} alt="Guida di routine" opacity="opacity-15" level={renderLevel} />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
             {...fade}
@@ -519,7 +519,7 @@ const AulaPerche = () => {
           ============================================================ */}
 
       <Slide blockId="guidare-lavoro">
-        <ImgBg src={workDriving} alt="Veicolo aziendale" opacity="opacity-20" />
+        <ImgBg src={workDriving} alt="Veicolo aziendale" opacity="opacity-20" level={renderLevel} />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
             {...fade}
@@ -547,7 +547,7 @@ const AulaPerche = () => {
 
       {/* SLIDE SCENARIO */}
       <Slide bg="darker" blockId="distrazione">
-        <ImgBg src={phoneDriving} alt="Telefono al volante" opacity="opacity-25" />
+        <ImgBg src={phoneDriving} alt="Telefono al volante" opacity="opacity-25" level={renderLevel} />
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
             {...fade}
