@@ -151,11 +151,42 @@ const IstruttoreModulo = () => {
   const isLive =
     liveBlockId === previewState.blocco && liveStep === previewState.step;
 
+  // Aggiornamento posizione: in modalità "lineare" pubblica subito in Aula
+  // (preview e live coincidono); in "regia" aggiorna solo l'anteprima.
+  const applyPosition = useCallback(
+    (patch: { blocco: string; step: AulaStep }) => {
+      if (modeRef.current === "lineare") {
+        publish({ ...patch, paused: false });
+      } else {
+        setPreview(patch);
+      }
+    },
+    [publish, setPreview],
+  );
+
   const goToBlock = (id: string) => {
-    setPreview({ blocco: id, step: "intro" });
+    applyPosition({ blocco: id, step: "intro" });
     setTimelineOpen(false);
   };
-  const setStep = (step: AulaStep) => setPreview({ step });
+  const setStep = (step: AulaStep) =>
+    applyPosition({ blocco: previewState.blocco, step });
+
+  // Telecomando: muove la posizione corrente lungo la sequenza lineare.
+  // In "regia" si parte dalla preview, in "lineare" si parte dal live (che coincide).
+  useEffect(() => {
+    stepRemoteRef.current = (dir: 1 | -1) => {
+      if (sequence.length === 0) return;
+      const cur = findPositionIndex(
+        sequence,
+        previewState.blocco,
+        previewState.step,
+      );
+      const safe = cur === -1 ? 0 : cur;
+      const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
+      if (next === safe && cur !== -1) return;
+      applyPosition(sequence[next]);
+    };
+  }, [sequence, previewState.blocco, previewState.step, applyPosition]);
 
   const sendToAula = () => {
     publish({
