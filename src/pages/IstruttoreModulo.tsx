@@ -276,7 +276,7 @@ const IstruttoreModulo = () => {
       {blocks.map((b, i) => {
         const isSelected = b.id === active.id;
         const isLiveBlock = b.id === liveBlockId;
-        const isNext = mode === "guidata" && b.id === nextBlock?.id;
+        const isNext = mode === "regia" && b.id === nextBlock?.id;
         const isPast = i < previewIndex;
         return (
           <button
@@ -424,26 +424,48 @@ const IstruttoreModulo = () => {
             <span className="hidden sm:inline">Archivio</span>
           </button>
 
-          {/* Mode switch — solo desktop */}
+          {/* Telecomando on-screen — sempre visibile, funziona in entrambe le modalità */}
+          <div className="hidden md:flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => stepRemoteRef.current?.(-1)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              aria-label="Posizione precedente (←)"
+              title="Indietro (← / PageUp)"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => stepRemoteRef.current?.(1)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              aria-label="Posizione successiva (→)"
+              title="Avanti (→ / PageDown / Spazio)"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Mode switch — Lineare (slide + auto-publish) | Regia (preview + Invia in Aula) */}
           <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md border border-border">
             <span
               className={`text-xs font-mono uppercase tracking-wider transition-colors ${
-                mode === "guidata" ? "text-primary" : "text-muted-foreground"
+                mode === "lineare" ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              Guidata
+              Lineare
             </span>
             <Switch
-              checked={mode === "libera"}
-              onCheckedChange={(v) => setMode(v ? "libera" : "guidata")}
-              aria-label="Modalità guidata o libera"
+              checked={mode === "regia"}
+              onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
+              aria-label="Modalità lineare o regia"
             />
             <span
               className={`text-xs font-mono uppercase tracking-wider transition-colors ${
-                mode === "libera" ? "text-primary" : "text-muted-foreground"
+                mode === "regia" ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              Libera
+              Regia
             </span>
           </div>
 
@@ -458,26 +480,46 @@ const IstruttoreModulo = () => {
           </button>
         </div>
 
-        {/* Mode switch — sotto lg */}
-        <div className="lg:hidden flex items-center justify-center gap-3 px-4 pb-2">
-          <span
-            className={`text-[10px] font-mono uppercase tracking-wider ${
-              mode === "guidata" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            Guidata
-          </span>
-          <Switch
-            checked={mode === "libera"}
-            onCheckedChange={(v) => setMode(v ? "libera" : "guidata")}
-          />
-          <span
-            className={`text-[10px] font-mono uppercase tracking-wider ${
-              mode === "libera" ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            Libera
-          </span>
+        {/* Mode switch + telecomando — sotto lg */}
+        <div className="lg:hidden flex items-center justify-center gap-4 px-4 pb-2">
+          <div className="flex items-center gap-1 md:hidden">
+            <button
+              type="button"
+              onClick={() => stepRemoteRef.current?.(-1)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground"
+              aria-label="Indietro"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => stepRemoteRef.current?.(1)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground"
+              aria-label="Avanti"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <span
+              className={`text-[10px] font-mono uppercase tracking-wider ${
+                mode === "lineare" ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              Lineare
+            </span>
+            <Switch
+              checked={mode === "regia"}
+              onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
+            />
+            <span
+              className={`text-[10px] font-mono uppercase tracking-wider ${
+                mode === "regia" ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              Regia
+            </span>
+          </div>
         </div>
       </header>
 
