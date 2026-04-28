@@ -24,12 +24,15 @@ const fmt = (s: number) => {
 const fmtClock = (d: Date) =>
   `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
 
+import { PAUSE_ATMOSPHERES, type PauseAtmosphere } from "@/lib/pauseAtmosphere";
+
 type Props = {
   compact?: boolean;
   /**
-   * Callback per attivare la pausa Aula. Riceve i minuti consigliati di pausa.
+   * Callback per attivare la pausa Aula. Riceve i minuti consigliati di pausa
+   * e l'atmosfera scelta dall'istruttore.
    */
-  onRequestAulaPause?: (minutes: number) => void;
+  onRequestAulaPause?: (minutes: number, atmosphere: PauseAtmosphere) => void;
   /**
    * True se l'Aula e' attualmente in modalita' pausa.
    */
@@ -41,6 +44,7 @@ export const AulaTimer = ({
   onRequestAulaPause,
   aulaPaused = false,
 }: Props) => {
+  const [atmosphere, setAtmosphere] = useState<PauseAtmosphere>("sun");
   const [totalSec, setTotalSec] = useState(DEFAULT_TOTAL);
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
@@ -132,7 +136,7 @@ export const AulaTimer = ({
   const triggerPause = () => {
     setRunning(false);
     setShowWarn(false);
-    onRequestAulaPause?.(5);
+    onRequestAulaPause?.(5, atmosphere);
   };
 
   return (
