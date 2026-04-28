@@ -638,7 +638,7 @@ const IstruttoreModulo = () => {
               />
             </div>
 
-            {/* INVIA IN AULA */}
+            {/* INVIA IN AULA — solo in modalità Regia. In Lineare la sincronizzazione è automatica. */}
             <div className="mt-4 flex items-center justify-between gap-3">
               <div className="text-[11px] text-muted-foreground">
                 {liveState ? (
@@ -652,31 +652,38 @@ const IstruttoreModulo = () => {
                   <span className="font-mono">Aula in attesa</span>
                 )}
               </div>
-              <button
-                type="button"
-                onClick={sendToAula}
-                disabled={isLive}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
-                  isLive
-                    ? "bg-emerald-500/15 text-emerald-500 cursor-default"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90"
-                }`}
-              >
-                {isLive ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    In Aula
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    Invia in Aula
-                  </>
-                )}
-              </button>
+              {mode === "regia" ? (
+                <button
+                  type="button"
+                  onClick={sendToAula}
+                  disabled={isLive}
+                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
+                    isLive
+                      ? "bg-emerald-500/15 text-emerald-500 cursor-default"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                  }`}
+                >
+                  {isLive ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      In Aula
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Invia in Aula
+                    </>
+                  )}
+                </button>
+              ) : (
+                <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider">
+                  <Radio className="w-3 h-3" />
+                  Sync automatica
+                </span>
+              )}
             </div>
 
-            {mode === "guidata" && nextBlock && (
+            {mode === "regia" && nextBlock && (
               <div className="mt-6 flex items-center justify-between gap-4 p-4 rounded-md border border-primary/30 bg-primary/5">
                 <div className="min-w-0">
                   <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
