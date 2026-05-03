@@ -112,6 +112,10 @@ const IstruttoreModulo = () => {
         setContentDrawerOpen((v) => !v);
         return;
       }
+      if (e.key === "f" || e.key === "F") {
+        setFormatOpen((v) => !v);
+        return;
+      }
       if (import.meta.env.DEV && (e.key === "p" || e.key === "P")) {
         e.preventDefault();
         pauseRemoteRef.current?.();
