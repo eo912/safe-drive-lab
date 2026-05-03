@@ -499,6 +499,18 @@ const IstruttoreModulo = () => {
             <span className="hidden sm:inline">Cassetto</span>
           </button>
 
+          {/* Formato corso — drawer (anche da tasto F) */}
+          <button
+            type="button"
+            onClick={() => setFormatOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
+            aria-label="Apri formato corso"
+            title="Formato corso (F)"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Formato</span>
+          </button>
+
           {/* Telecomando on-screen — sempre visibile, funziona in entrambe le modalità */}
           <div className="hidden md:flex items-center gap-1 shrink-0">
             <button
