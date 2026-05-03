@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Resource } from "./instructorTypes";
 import type { PauseAtmosphere } from "./pauseAtmosphere";
+import type { EmbedPayload } from "./sceneMedia";
 
 /**
  * Stato condiviso tra Istruttore e Aula.
@@ -18,6 +19,8 @@ export type AulaState = {
   pauseAtmosphere?: PauseAtmosphere;
   // Media attualmente proiettato in Aula (immagine/video/pdf/link). null = nessuno.
   media?: Resource | null;
+  // Media embedded inline nella scena (più di uno consentito).
+  embeds?: EmbedPayload[];
   ts: number;
 };
 
