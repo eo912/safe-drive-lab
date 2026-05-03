@@ -41,6 +41,8 @@ import { buildLinearSequence, findPositionIndex } from "@/lib/courseSequence";
 import { useSlideTimes, useLiveSlideTimer } from "@/lib/slideTiming";
 import { SlideTimeIndicator } from "@/components/istruttore/SlideTimeIndicator";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
+import { CourseFormatPanel } from "@/components/istruttore/CourseFormatPanel";
+import { useCourseFormat } from "@/lib/courseFormat";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
 // "regia"   = controllo manuale, preview separata da live (Invia in Aula).
