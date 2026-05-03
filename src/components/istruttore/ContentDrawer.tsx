@@ -22,6 +22,12 @@ import {
   SCENE_TEMPLATE,
 } from "@/lib/sceneFormat";
 import {
+  extractFileText,
+  parseAnyContent,
+  sceneToImportedDraft,
+  detectKind,
+} from "@/lib/fileImport";
+import {
   Sheet,
   SheetContent,
   SheetHeader,
