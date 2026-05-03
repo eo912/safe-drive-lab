@@ -15,6 +15,7 @@ import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
 import { useAulaSubscriber } from "@/lib/aulaSync";
 import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
+import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 
@@ -340,6 +341,11 @@ const AulaPerche = () => {
       {/* OVERLAY MEDIA AULA — solo modalità live, mai in embed */}
       {!embedMode && !isPaused && aulaState.media && (
         <AulaMediaOverlay media={aulaState.media} />
+      )}
+
+      {/* EMBED INLINE — media inline trasmessi dalla regia */}
+      {!embedMode && !isPaused && aulaState.embeds && aulaState.embeds.length > 0 && (
+        <AulaEmbedLayer embeds={aulaState.embeds} />
       )}
 
       {/* DEBUG SYNC — solo dev, mai in embed */}
