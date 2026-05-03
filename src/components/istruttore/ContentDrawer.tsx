@@ -109,6 +109,11 @@ export const ContentDrawer = ({
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState(SCENE_TEMPLATE);
 
+  // file upload
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadInfo, setUploadInfo] = useState<string | null>(null);
+
   const editing = forModule.find((d) => d.id === editingId) ?? null;
 
   const openWizard = (id: string) => {
@@ -131,6 +136,47 @@ export const ContentDrawer = ({
     }
     setImportOpen(false);
     if (lastId) openWizard(lastId);
+  };
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || !files.length) return;
+    setUploading(true);
+    setUploadError(null);
+    setUploadInfo(null);
+    try {
+      let totalScenes = 0;
+      let lastId: string | null = null;
+      for (const file of Array.from(files)) {
+        if (!detectKind(file)) {
+          throw new Error(`Formato non supportato: ${file.name}`);
+        }
+        const text = await extractFileText(file);
+        const scenes = parseAnyContent(text);
+        if (!scenes.length) {
+          // nessuna struttura: crea un'unica bozza grezza
+          const created = add({
+            moduloSlug,
+            rawTitle: file.name.replace(/\.[^.]+$/, ""),
+            rawText: text.slice(0, 4000),
+            rawKind: "text",
+          });
+          lastId = created.id;
+          totalScenes += 1;
+          continue;
+        }
+        for (const s of scenes) {
+          const created = add(sceneToImportedDraft(s, moduloSlug));
+          lastId = created.id;
+          totalScenes += 1;
+        }
+      }
+      setUploadInfo(`${totalScenes} bozza/e create. Revisiona prima di confermare.`);
+      if (lastId && totalScenes === 1) openWizard(lastId);
+    } catch (e) {
+      setUploadError(e instanceof Error ? e.message : "Errore di importazione");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const closeWizard = () => {
