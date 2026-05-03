@@ -35,7 +35,9 @@ import { NotesDrawer } from "@/components/istruttore/NotesDrawer";
 import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
 import { ContentDrawer } from "@/components/istruttore/ContentDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
+import { SceneMediaPanel } from "@/components/istruttore/SceneMediaPanel";
 import { useLinkedContent } from "@/lib/instructorStorage";
+import type { EmbedPayload } from "@/lib/sceneMedia";
 import type { Resource } from "@/lib/instructorTypes";
 import { buildLinearSequence, findPositionIndex } from "@/lib/courseSequence";
 import { useSlideTimes, useLiveSlideTimer } from "@/lib/slideTiming";
@@ -295,6 +297,15 @@ const IstruttoreModulo = () => {
       blocco: liveState?.blocco ?? previewState.blocco,
       step: (liveState?.step ?? previewState.step) as AulaStep,
       media: null,
+    });
+  };
+
+  // Publish degli embed inline calcolati dal SceneMediaPanel.
+  const publishEmbeds = (embeds: EmbedPayload[]) => {
+    publish({
+      blocco: previewState.blocco,
+      step: previewState.step,
+      embeds,
     });
   };
 
@@ -814,6 +825,15 @@ const IstruttoreModulo = () => {
               onProject={projectMedia}
               onHide={hideMedia}
               onOpenArchive={() => setArchiveOpen(true)}
+            />
+
+            {/* REGIA MEDIA: modalità (inline/overlay/link), drag, visibilità */}
+            <SceneMediaPanel
+              modulo={slug}
+              blocco={previewState.blocco}
+              step={previewState.step}
+              onPublishEmbeds={publishEmbeds}
+              onProjectOverlay={projectMedia}
             />
           </div>
         </main>
