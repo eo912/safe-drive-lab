@@ -49,6 +49,11 @@ import { useArchive } from "@/lib/instructorStorage";
 import type { ResourceKind } from "@/lib/instructorTypes";
 import { buildScenesFromBlocks } from "@/lib/scene";
 import type { ModuleBlock } from "@/lib/moduleBlocks";
+import {
+  validateDraft,
+  STATUS_META as VAL_STATUS_META,
+  type ValidationResult,
+} from "@/lib/sceneValidation";
 
 const rawKindMeta: Record<
   DraftContent["rawKind"],
@@ -372,6 +377,8 @@ const DraftRow = ({
   const RawIcon = rawKindMeta[draft.rawKind].icon;
   const status = deriveStatus(draft);
   const meta = statusMeta[status];
+  const validation = validateDraft(draft);
+  const valMeta = VAL_STATUS_META[validation.status];
 
   return (
     <div className="group border border-border rounded-md bg-card/40 hover:bg-card/70 transition-colors flex items-center gap-2 pr-2">
@@ -386,6 +393,13 @@ const DraftRow = ({
             {draft.rawTitle || "Senza titolo"}
           </p>
           <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+            <span
+              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm border text-[9px] font-mono uppercase tracking-wider ${valMeta.cls}`}
+              title={`Validazione: ${valMeta.label} · ${validation.score}/100`}
+            >
+              <span aria-hidden>{valMeta.dot}</span>
+              {valMeta.label}
+            </span>
             <span
               className={`inline-flex items-center px-1.5 py-0.5 rounded-sm border text-[9px] font-mono uppercase tracking-wider ${meta.cls}`}
             >
@@ -438,6 +452,7 @@ const Wizard = ({
   onRemove: () => void;
 }) => {
   const stepLabel = step === 1 ? "Base" : step === 2 ? "Trasforma" : "Conferma";
+  const validation = validateDraft(draft);
 
   const toggleMedia = (id: string) => {
     const has = draft.mediaResourceIds.includes(id);
@@ -492,6 +507,7 @@ const Wizard = ({
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <ValidationCard validation={validation} compact={step !== 3} />
         {step === 1 && (
           <>
             <Section title="Titolo">
@@ -969,3 +985,68 @@ const NumberField = ({
     />
   </div>
 );
+
+// ----------------------------------------------------------------
+// VALIDATION CARD
+// ----------------------------------------------------------------
+
+const ValidationCard = ({
+  validation,
+  compact,
+}: {
+  validation: ValidationResult;
+  compact?: boolean;
+}) => {
+  const meta = VAL_STATUS_META[validation.status];
+  const errors = validation.issues.filter((i) => i.level === "error");
+  const warnings = validation.issues.filter((i) => i.level === "warning");
+  const infos = validation.issues.filter((i) => i.level === "info");
+  const visible = compact ? [...errors, ...warnings].slice(0, 3) : validation.issues;
+
+  return (
+    <div className={`rounded-md border p-3 space-y-2 ${meta.cls}`}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span aria-hidden>{meta.dot}</span>
+          <p className="text-[11px] font-mono uppercase tracking-wider">
+            Validazione · {meta.label}
+          </p>
+        </div>
+        <p className="text-[10px] font-mono opacity-80">
+          {validation.score}/100 · {errors.length}E {warnings.length}W
+          {infos.length > 0 && ` ${infos.length}i`}
+        </p>
+      </div>
+      {visible.length > 0 ? (
+        <ul className="space-y-1">
+          {visible.map((i) => (
+            <li key={i.id} className="text-[11px] leading-snug">
+              <span className="font-medium">
+                {i.level === "error" ? "● " : i.level === "warning" ? "▲ " : "· "}
+                {i.message}
+              </span>
+              {i.suggestion && (
+                <span className="block text-foreground/70 ml-3 mt-0.5">
+                  → {i.suggestion}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-[11px] opacity-80">
+          Nessun suggerimento. La scena rispetta i criteri minimi di qualità.
+        </p>
+      )}
+      {compact && validation.issues.length > visible.length && (
+        <p className="text-[10px] opacity-70">
+          +{validation.issues.length - visible.length} altri suggerimenti in
+          Conferma.
+        </p>
+      )}
+      <p className="text-[10px] opacity-60 italic">
+        Suggerimenti, non vincoli. Puoi salvare e usare comunque.
+      </p>
+    </div>
+  );
+};
