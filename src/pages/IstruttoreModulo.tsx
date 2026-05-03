@@ -858,6 +858,32 @@ const IstruttoreModulo = () => {
         blocks={blocks}
       />
 
+      {/* FORMATO CORSO — Flash / Standard / Full + override scene */}
+      <Sheet open={formatOpen} onOpenChange={setFormatOpen}>
+        <SheetContent side="right" className="p-0 w-[360px] sm:w-[420px] flex flex-col">
+          <SheetHeader className="p-4 border-b border-border/60 text-left">
+            <div className="flex items-center gap-2">
+              <Layers className="w-3.5 h-3.5 text-primary" />
+              <SheetTitle className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground font-normal">
+                Formato corso
+              </SheetTitle>
+            </div>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto p-4">
+            <CourseFormatPanel
+              format={courseFormat.format}
+              setFormat={courseFormat.setFormat}
+              plan={courseFormat.plan}
+              totalSeconds={courseFormat.totalSeconds}
+              targetSeconds={courseFormat.targetSeconds}
+              deltaSeconds={courseFormat.deltaSeconds}
+              setBlockPriority={courseFormat.setBlockPriority}
+              setBlockEnabled={courseFormat.setBlockEnabled}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <SyncDebugOverlay
         side="istruttore"
         live={liveState}
