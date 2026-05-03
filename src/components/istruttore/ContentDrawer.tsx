@@ -230,30 +230,70 @@ export const ContentDrawer = ({
             )}
           </div>
           {!editing && importOpen && (
-            <div className="mt-3 space-y-2 border border-dashed border-primary/40 rounded-md p-2 bg-primary/5">
-              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-primary">
-                Formato standard · una SCENA: per blocco
-              </p>
-              <Textarea
-                value={importText}
-                onChange={(e) => setImportText(e.target.value)}
-                className="min-h-[160px] font-mono text-[11px] leading-relaxed"
-              />
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setImportText(SCENE_TEMPLATE)}
-                  className="text-[10px] text-muted-foreground hover:text-foreground"
-                >
-                  Reset template
-                </button>
-                <button
-                  type="button"
-                  onClick={handleImport}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90"
-                >
-                  Crea bozze
-                </button>
+            <div className="mt-3 space-y-3 border border-dashed border-primary/40 rounded-md p-2 bg-primary/5">
+              {/* Upload file */}
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-primary">
+                  Da file · PDF / DOCX / TXT
+                </p>
+                <label className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-md border border-border bg-background/60 cursor-pointer hover:bg-background transition-colors">
+                  <span className="text-[11px] text-muted-foreground">
+                    {uploading ? "Estrazione in corso…" : "Scegli file…"}
+                  </span>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-primary">
+                    Upload
+                  </span>
+                  <input
+                    type="file"
+                    accept=".pdf,.docx,.doc,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                    multiple
+                    className="hidden"
+                    disabled={uploading}
+                    onChange={(e) => {
+                      handleFiles(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                {uploadError && (
+                  <p className="text-[10px] text-destructive">{uploadError}</p>
+                )}
+                {uploadInfo && (
+                  <p className="text-[10px] text-emerald-500">{uploadInfo}</p>
+                )}
+                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                  Riconosce MODULO, SCENA, PRIORITÀ, 🎯 Obiettivo, 🎮 Azione,
+                  📋 Note, 🎬 Media. Tempo: 2m base, +1m se azione, +1m se media.
+                  Le bozze restano sempre da revisionare.
+                </p>
+              </div>
+
+              {/* Da testo */}
+              <div className="space-y-1.5 pt-2 border-t border-border/40">
+                <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-primary">
+                  Da testo · una SCENA: per blocco
+                </p>
+                <Textarea
+                  value={importText}
+                  onChange={(e) => setImportText(e.target.value)}
+                  className="min-h-[140px] font-mono text-[11px] leading-relaxed"
+                />
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setImportText(SCENE_TEMPLATE)}
+                    className="text-[10px] text-muted-foreground hover:text-foreground"
+                  >
+                    Reset template
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleImport}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90"
+                  >
+                    Crea bozze
+                  </button>
+                </div>
               </div>
             </div>
           )}
