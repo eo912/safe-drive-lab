@@ -180,6 +180,9 @@ const IstruttoreModulo = () => {
   const liveSeconds = useLiveSlideTimer(liveKey);
   const liveExpected = getExpected(liveBlock);
 
+  // Formato corso (Flash/Standard/Full) + override priorità/abilitazione blocchi.
+  const courseFormat = useCourseFormat(slug, blocks, getExpected);
+
   // Stato preview vs live: stesso blocco+step → "in aula"
   const isLive =
     liveBlockId === previewState.blocco && liveStep === previewState.step;
