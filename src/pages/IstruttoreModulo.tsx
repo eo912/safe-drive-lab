@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Coffee,
   Archive,
+  Inbox,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -31,6 +32,7 @@ import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
 import { NotesDrawer } from "@/components/istruttore/NotesDrawer";
 import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
+import { ContentDrawer } from "@/components/istruttore/ContentDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { Resource } from "@/lib/instructorTypes";
@@ -72,6 +74,7 @@ const IstruttoreModulo = () => {
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
+  const [contentDrawerOpen, setContentDrawerOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
   // Sequenza lineare predefinita del corso (intro di ogni blocco + scenari/video).
