@@ -72,10 +72,24 @@ export const ContentDrawer = ({
   const scenes = useMemo(() => buildScenesFromBlocks(blocks), [blocks]);
 
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState(SCENE_TEMPLATE);
 
   const handleAdd = () => {
     const created = add({ moduloSlug });
     setExpanded(created.id);
+  };
+
+  const handleImport = () => {
+    const doc = parseSceneDocument(importText);
+    if (!doc.scene.length) return;
+    let lastId: string | null = null;
+    for (const s of doc.scene) {
+      const created = add(parsedSceneToDraft(s, moduloSlug));
+      lastId = created.id;
+    }
+    setImportOpen(false);
+    if (lastId) setExpanded(lastId);
   };
 
   return (
