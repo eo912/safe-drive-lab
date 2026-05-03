@@ -394,6 +394,13 @@ const DraftRow = ({
           </p>
           <div className="mt-1 flex items-center gap-1.5 flex-wrap">
             <span
+              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm border text-[9px] font-mono uppercase tracking-wider ${valMeta.cls}`}
+              title={`Validazione: ${valMeta.label} · ${validation.score}/100`}
+            >
+              <span aria-hidden>{valMeta.dot}</span>
+              {valMeta.label}
+            </span>
+            <span
               className={`inline-flex items-center px-1.5 py-0.5 rounded-sm border text-[9px] font-mono uppercase tracking-wider ${meta.cls}`}
             >
               {meta.label}
