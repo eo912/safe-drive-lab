@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Coffee,
   Archive,
+  Inbox,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -31,6 +32,7 @@ import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
 import { NotesDrawer } from "@/components/istruttore/NotesDrawer";
 import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
+import { ContentDrawer } from "@/components/istruttore/ContentDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { Resource } from "@/lib/instructorTypes";
@@ -72,6 +74,7 @@ const IstruttoreModulo = () => {
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
+  const [contentDrawerOpen, setContentDrawerOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
   // Sequenza lineare predefinita del corso (intro di ogni blocco + scenari/video).
@@ -99,6 +102,10 @@ const IstruttoreModulo = () => {
       }
       if (e.key === "a" || e.key === "A") {
         setArchiveOpen((v) => !v);
+        return;
+      }
+      if (e.key === "c" || e.key === "C") {
+        setContentDrawerOpen((v) => !v);
         return;
       }
       if (import.meta.env.DEV && (e.key === "p" || e.key === "P")) {
@@ -469,6 +476,18 @@ const IstruttoreModulo = () => {
             <span className="hidden sm:inline">Archivio</span>
           </button>
 
+          {/* Cassetto contenuti — drawer richiamabile (anche da tasto C) */}
+          <button
+            type="button"
+            onClick={() => setContentDrawerOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
+            aria-label="Apri cassetto contenuti"
+            title="Cassetto contenuti (C)"
+          >
+            <Inbox className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Cassetto</span>
+          </button>
+
           {/* Telecomando on-screen — sempre visibile, funziona in entrambe le modalità */}
           <div className="hidden md:flex items-center gap-1 shrink-0">
             <button
@@ -808,6 +827,12 @@ const IstruttoreModulo = () => {
         open={archiveOpen}
         onOpenChange={setArchiveOpen}
         onAttachToSlide={handleAttachFromArchive}
+      />
+      <ContentDrawer
+        open={contentDrawerOpen}
+        onOpenChange={setContentDrawerOpen}
+        moduloSlug={slug}
+        blocks={blocks}
       />
 
       <SyncDebugOverlay
