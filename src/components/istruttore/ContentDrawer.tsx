@@ -377,6 +377,8 @@ const DraftRow = ({
   const RawIcon = rawKindMeta[draft.rawKind].icon;
   const status = deriveStatus(draft);
   const meta = statusMeta[status];
+  const validation = validateDraft(draft);
+  const valMeta = VAL_STATUS_META[validation.status];
 
   return (
     <div className="group border border-border rounded-md bg-card/40 hover:bg-card/70 transition-colors flex items-center gap-2 pr-2">
