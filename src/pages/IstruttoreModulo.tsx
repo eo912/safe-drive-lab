@@ -78,6 +78,7 @@ const IstruttoreModulo = () => {
   const [notesOpen, setNotesOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [contentDrawerOpen, setContentDrawerOpen] = useState(false);
+  const [formatOpen, setFormatOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
   // Sequenza lineare predefinita del corso (intro di ogni blocco + scenari/video).
