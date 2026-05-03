@@ -12,7 +12,13 @@ import {
   Image as ImageIcon,
   FileType,
   CheckCircle2,
+  FileInput,
 } from "lucide-react";
+import {
+  parseSceneDocument,
+  parsedSceneToDraft,
+  SCENE_TEMPLATE,
+} from "@/lib/sceneFormat";
 import {
   Sheet,
   SheetContent,
@@ -66,10 +72,24 @@ export const ContentDrawer = ({
   const scenes = useMemo(() => buildScenesFromBlocks(blocks), [blocks]);
 
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState(SCENE_TEMPLATE);
 
   const handleAdd = () => {
     const created = add({ moduloSlug });
     setExpanded(created.id);
+  };
+
+  const handleImport = () => {
+    const doc = parseSceneDocument(importText);
+    if (!doc.scene.length) return;
+    let lastId: string | null = null;
+    for (const s of doc.scene) {
+      const created = add(parsedSceneToDraft(s, moduloSlug));
+      lastId = created.id;
+    }
+    setImportOpen(false);
+    if (lastId) setExpanded(lastId);
   };
 
   return (
@@ -86,19 +106,58 @@ export const ContentDrawer = ({
                 Cassetto contenuti · {forModule.length}
               </SheetTitle>
             </div>
-            <button
-              type="button"
-              onClick={handleAdd}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Nuovo contenuto
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setImportOpen((v) => !v)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-muted-foreground hover:text-foreground text-xs font-medium transition-colors"
+                title="Importa scene da formato standard"
+              >
+                <FileInput className="w-3.5 h-3.5" />
+                Importa
+              </button>
+              <button
+                type="button"
+                onClick={handleAdd}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Nuovo
+              </button>
+            </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
             Importa materiale grezzo e trasformalo in scena (Obiettivo · Stimolo
             · Azione · Chiusura). Nulla compare in Aula finché non lo invii dalla regia.
           </p>
+          {importOpen && (
+            <div className="mt-3 space-y-2 border border-dashed border-primary/40 rounded-md p-2 bg-primary/5">
+              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-primary">
+                Formato standard · una SCENA: per blocco
+              </p>
+              <Textarea
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                className="min-h-[180px] font-mono text-[11px] leading-relaxed"
+              />
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setImportText(SCENE_TEMPLATE)}
+                  className="text-[10px] text-muted-foreground hover:text-foreground"
+                >
+                  Reset template
+                </button>
+                <button
+                  type="button"
+                  onClick={handleImport}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90"
+                >
+                  Crea bozze
+                </button>
+              </div>
+            </div>
+          )}
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
