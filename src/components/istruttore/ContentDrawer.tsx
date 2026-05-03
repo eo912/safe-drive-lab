@@ -49,6 +49,11 @@ import { useArchive } from "@/lib/instructorStorage";
 import type { ResourceKind } from "@/lib/instructorTypes";
 import { buildScenesFromBlocks } from "@/lib/scene";
 import type { ModuleBlock } from "@/lib/moduleBlocks";
+import {
+  validateDraft,
+  STATUS_META as VAL_STATUS_META,
+  type ValidationResult,
+} from "@/lib/sceneValidation";
 
 const rawKindMeta: Record<
   DraftContent["rawKind"],
