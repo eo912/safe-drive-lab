@@ -16,6 +16,7 @@ import {
   Coffee,
   Archive,
   Inbox,
+  Layers,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -40,6 +41,8 @@ import { buildLinearSequence, findPositionIndex } from "@/lib/courseSequence";
 import { useSlideTimes, useLiveSlideTimer } from "@/lib/slideTiming";
 import { SlideTimeIndicator } from "@/components/istruttore/SlideTimeIndicator";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
+import { CourseFormatPanel } from "@/components/istruttore/CourseFormatPanel";
+import { useCourseFormat } from "@/lib/courseFormat";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
 // "regia"   = controllo manuale, preview separata da live (Invia in Aula).
@@ -75,6 +78,7 @@ const IstruttoreModulo = () => {
   const [notesOpen, setNotesOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [contentDrawerOpen, setContentDrawerOpen] = useState(false);
+  const [formatOpen, setFormatOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
   // Sequenza lineare predefinita del corso (intro di ogni blocco + scenari/video).
@@ -106,6 +110,10 @@ const IstruttoreModulo = () => {
       }
       if (e.key === "c" || e.key === "C") {
         setContentDrawerOpen((v) => !v);
+        return;
+      }
+      if (e.key === "f" || e.key === "F") {
+        setFormatOpen((v) => !v);
         return;
       }
       if (import.meta.env.DEV && (e.key === "p" || e.key === "P")) {
@@ -171,6 +179,9 @@ const IstruttoreModulo = () => {
   const liveKey = liveBlock && !aulaPaused ? `${liveBlock.id}:${liveStep}` : null;
   const liveSeconds = useLiveSlideTimer(liveKey);
   const liveExpected = getExpected(liveBlock);
+
+  // Formato corso (Flash/Standard/Full) + override priorità/abilitazione blocchi.
+  const courseFormat = useCourseFormat(slug, blocks, getExpected);
 
   // Stato preview vs live: stesso blocco+step → "in aula"
   const isLive =
@@ -486,6 +497,18 @@ const IstruttoreModulo = () => {
           >
             <Inbox className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Cassetto</span>
+          </button>
+
+          {/* Formato corso — drawer (anche da tasto F) */}
+          <button
+            type="button"
+            onClick={() => setFormatOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
+            aria-label="Apri formato corso"
+            title="Formato corso (F)"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Formato</span>
           </button>
 
           {/* Telecomando on-screen — sempre visibile, funziona in entrambe le modalità */}
@@ -834,6 +857,32 @@ const IstruttoreModulo = () => {
         moduloSlug={slug}
         blocks={blocks}
       />
+
+      {/* FORMATO CORSO — Flash / Standard / Full + override scene */}
+      <Sheet open={formatOpen} onOpenChange={setFormatOpen}>
+        <SheetContent side="right" className="p-0 w-[360px] sm:w-[420px] flex flex-col">
+          <SheetHeader className="p-4 border-b border-border/60 text-left">
+            <div className="flex items-center gap-2">
+              <Layers className="w-3.5 h-3.5 text-primary" />
+              <SheetTitle className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground font-normal">
+                Formato corso
+              </SheetTitle>
+            </div>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto p-4">
+            <CourseFormatPanel
+              format={courseFormat.format}
+              setFormat={courseFormat.setFormat}
+              plan={courseFormat.plan}
+              totalSeconds={courseFormat.totalSeconds}
+              targetSeconds={courseFormat.targetSeconds}
+              deltaSeconds={courseFormat.deltaSeconds}
+              setBlockPriority={courseFormat.setBlockPriority}
+              setBlockEnabled={courseFormat.setBlockEnabled}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <SyncDebugOverlay
         side="istruttore"
