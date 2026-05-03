@@ -3,8 +3,6 @@ import {
   Inbox,
   Plus,
   Trash2,
-  ChevronDown,
-  ChevronRight,
   Sparkles,
   Link as LinkIcon,
   FileText,
@@ -13,6 +11,10 @@ import {
   FileType,
   CheckCircle2,
   FileInput,
+  ChevronLeft,
+  ChevronRight,
+  Wand2,
+  X,
 } from "lucide-react";
 import {
   parseSceneDocument,
@@ -29,10 +31,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useContentDrawer,
+  autofillFromRaw,
+  deriveStatus,
   type DraftContent,
   type ScenePriority,
   type SceneFormat,
   type ContentTarget,
+  type DerivedStatus,
 } from "@/lib/contentDrawer";
 import { useArchive } from "@/lib/instructorStorage";
 import type { ResourceKind } from "@/lib/instructorTypes";
@@ -54,6 +59,24 @@ const rawKindMeta: Record<
 const priorities: ScenePriority[] = ["CORE", "STANDARD", "FULL"];
 const formats: SceneFormat[] = ["FLASH", "STANDARD", "FULL"];
 
+const statusMeta: Record<
+  DerivedStatus,
+  { label: string; cls: string }
+> = {
+  bozza: {
+    label: "Bozza",
+    cls: "bg-muted text-muted-foreground border-border",
+  },
+  pronto: {
+    label: "Pronto",
+    cls: "bg-primary/10 text-primary border-primary/40",
+  },
+  collegato: {
+    label: "Collegato",
+    cls: "bg-emerald-500/10 text-emerald-500 border-emerald-500/40",
+  },
+};
+
 type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -67,17 +90,29 @@ export const ContentDrawer = ({
   moduloSlug,
   blocks,
 }: Props) => {
-  const { forModule, add, update, remove, promote } = useContentDrawer(moduloSlug);
+  const { forModule, add, update, remove, promote } =
+    useContentDrawer(moduloSlug);
   const { items: archive } = useArchive();
   const scenes = useMemo(() => buildScenesFromBlocks(blocks), [blocks]);
 
-  const [expanded, setExpanded] = useState<string | null>(null);
+  // wizard
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  // import box
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState(SCENE_TEMPLATE);
 
-  const handleAdd = () => {
+  const editing = forModule.find((d) => d.id === editingId) ?? null;
+
+  const openWizard = (id: string) => {
+    setEditingId(id);
+    setStep(1);
+  };
+
+  const handleNew = () => {
     const created = add({ moduloSlug });
-    setExpanded(created.id);
+    openWizard(created.id);
   };
 
   const handleImport = () => {
@@ -89,14 +124,19 @@ export const ContentDrawer = ({
       lastId = created.id;
     }
     setImportOpen(false);
-    if (lastId) setExpanded(lastId);
+    if (lastId) openWizard(lastId);
+  };
+
+  const closeWizard = () => {
+    setEditingId(null);
+    setStep(1);
   };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="p-0 w-[420px] sm:w-[560px] flex flex-col"
+        className="p-0 w-[420px] sm:w-[600px] flex flex-col"
       >
         <SheetHeader className="p-4 border-b border-border/60 text-left">
           <div className="flex items-center justify-between gap-2">
@@ -106,31 +146,38 @@ export const ContentDrawer = ({
                 Cassetto contenuti · {forModule.length}
               </SheetTitle>
             </div>
-            <div className="flex items-center gap-1.5">
+            {!editing && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setImportOpen((v) => !v)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-muted-foreground hover:text-foreground text-xs font-medium transition-colors"
+                >
+                  <FileInput className="w-3.5 h-3.5" />
+                  Importa
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNew}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Nuovo contenuto
+                </button>
+              </div>
+            )}
+            {editing && (
               <button
                 type="button"
-                onClick={() => setImportOpen((v) => !v)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-border text-muted-foreground hover:text-foreground text-xs font-medium transition-colors"
-                title="Importa scene da formato standard"
+                onClick={closeWizard}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs text-muted-foreground hover:text-foreground"
               >
-                <FileInput className="w-3.5 h-3.5" />
-                Importa
+                <X className="w-3.5 h-3.5" />
+                Chiudi
               </button>
-              <button
-                type="button"
-                onClick={handleAdd}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Nuovo
-              </button>
-            </div>
+            )}
           </div>
-          <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
-            Importa materiale grezzo e trasformalo in scena (Obiettivo · Stimolo
-            · Azione · Chiusura). Nulla compare in Aula finché non lo invii dalla regia.
-          </p>
-          {importOpen && (
+          {!editing && importOpen && (
             <div className="mt-3 space-y-2 border border-dashed border-primary/40 rounded-md p-2 bg-primary/5">
               <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-primary">
                 Formato standard · una SCENA: per blocco
@@ -138,7 +185,7 @@ export const ContentDrawer = ({
               <Textarea
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
-                className="min-h-[180px] font-mono text-[11px] leading-relaxed"
+                className="min-h-[160px] font-mono text-[11px] leading-relaxed"
               />
               <div className="flex items-center justify-end gap-2">
                 <button
@@ -158,59 +205,147 @@ export const ContentDrawer = ({
               </div>
             </div>
           )}
+          {!editing && (
+            <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
+              Inserisci materiale, trasformalo in scena, conferma. Niente arriva
+              in Aula senza il tuo invio dalla regia.
+            </p>
+          )}
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
-          {forModule.length === 0 ? (
-            <p className="text-center text-xs text-muted-foreground py-12">
-              Nessun contenuto nel cassetto. Aggiungine uno per iniziare.
-            </p>
-          ) : (
-            forModule.map((d) => (
-              <DraftCard
-                key={d.id}
-                draft={d}
-                expanded={expanded === d.id}
-                onToggle={() =>
-                  setExpanded((e) => (e === d.id ? null : d.id))
-                }
-                onChange={(patch) => update(d.id, patch)}
-                onRemove={() => remove(d.id)}
-                onPromote={() => promote(d.id)}
-                scenes={scenes.map((s) => ({ id: s.id, title: s.title }))}
-                archive={archive}
-              />
-            ))
-          )}
-        </div>
+        {/* LISTA */}
+        {!editing && (
+          <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+            {forModule.length === 0 ? (
+              <p className="text-center text-xs text-muted-foreground py-12">
+                Nessun contenuto. Clicca «Nuovo contenuto» per iniziare.
+              </p>
+            ) : (
+              forModule.map((d) => (
+                <DraftRow
+                  key={d.id}
+                  draft={d}
+                  onOpen={() => openWizard(d.id)}
+                  onRemove={() => remove(d.id)}
+                />
+              ))
+            )}
+          </div>
+        )}
+
+        {/* WIZARD */}
+        {editing && (
+          <Wizard
+            draft={editing}
+            step={step}
+            setStep={setStep}
+            scenes={scenes.map((s) => ({ id: s.id, title: s.title }))}
+            archive={archive}
+            moduloSlug={moduloSlug}
+            onChange={(patch) => update(editing.id, patch)}
+            onSaveDraft={() => {
+              update(editing.id, { status: "draft" });
+              closeWizard();
+            }}
+            onConfirm={() => {
+              promote(editing.id);
+              update(editing.id, { status: "ready" });
+              closeWizard();
+            }}
+            onCancel={closeWizard}
+            onRemove={() => {
+              remove(editing.id);
+              closeWizard();
+            }}
+          />
+        )}
       </SheetContent>
     </Sheet>
   );
 };
 
 // ----------------------------------------------------------------
+// LISTA
+// ----------------------------------------------------------------
 
-const DraftCard = ({
+const DraftRow = ({
   draft,
-  expanded,
-  onToggle,
-  onChange,
+  onOpen,
   onRemove,
-  onPromote,
-  scenes,
-  archive,
 }: {
   draft: DraftContent;
-  expanded: boolean;
-  onToggle: () => void;
-  onChange: (patch: Partial<DraftContent>) => void;
+  onOpen: () => void;
   onRemove: () => void;
-  onPromote: () => void;
-  scenes: { id: string; title: string }[];
-  archive: { id: string; title: string; kind: ResourceKind }[];
 }) => {
   const RawIcon = rawKindMeta[draft.rawKind].icon;
-  const isScene = draft.status === "scene";
+  const status = deriveStatus(draft);
+  const meta = statusMeta[status];
+
+  return (
+    <div className="group border border-border rounded-md bg-card/40 hover:bg-card/70 transition-colors flex items-center gap-2 pr-2">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="flex-1 flex items-center gap-2 p-3 text-left min-w-0"
+      >
+        <RawIcon className="w-3.5 h-3.5 text-primary shrink-0" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-foreground/90 leading-tight truncate">
+            {draft.rawTitle || "Senza titolo"}
+          </p>
+          <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+            <span
+              className={`inline-flex items-center px-1.5 py-0.5 rounded-sm border text-[9px] font-mono uppercase tracking-wider ${meta.cls}`}
+            >
+              {meta.label}
+            </span>
+            <Tag>{draft.priority}</Tag>
+            <Tag>{Math.round(draft.expectedSeconds / 60)}m</Tag>
+          </div>
+        </div>
+      </button>
+      <button
+        type="button"
+        onClick={onRemove}
+        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all p-1"
+        title="Elimina"
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+};
+
+// ----------------------------------------------------------------
+// WIZARD
+// ----------------------------------------------------------------
+
+const Wizard = ({
+  draft,
+  step,
+  setStep,
+  scenes,
+  archive,
+  moduloSlug,
+  onChange,
+  onSaveDraft,
+  onConfirm,
+  onCancel,
+  onRemove,
+}: {
+  draft: DraftContent;
+  step: 1 | 2 | 3;
+  setStep: (s: 1 | 2 | 3) => void;
+  scenes: { id: string; title: string }[];
+  archive: { id: string; title: string; kind: ResourceKind }[];
+  moduloSlug: string;
+  onChange: (patch: Partial<DraftContent>) => void;
+  onSaveDraft: () => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+  onRemove: () => void;
+}) => {
+  const stepLabel = step === 1 ? "Base" : step === 2 ? "Trasforma" : "Conferma";
 
   const toggleMedia = (id: string) => {
     const has = draft.mediaResourceIds.includes(id);
@@ -221,105 +356,208 @@ const DraftCard = ({
     });
   };
 
+  const handleAutofill = () => {
+    const f = autofillFromRaw({
+      title: draft.rawTitle,
+      text: draft.rawText,
+      url: draft.rawUrl,
+    });
+    onChange({
+      obiettivo: draft.obiettivo || f.obiettivo,
+      stimolo: draft.stimolo || f.stimolo,
+      azione: draft.azione || f.azione,
+      chiusura: draft.chiusura || f.chiusura,
+      mediaResourceIds: draft.mediaResourceIds,
+    });
+  };
+
   return (
-    <div
-      className={`border rounded-md bg-card/40 transition-colors ${
-        isScene
-          ? "border-emerald-500/40"
-          : "border-border hover:bg-card/70"
-      }`}
-    >
-      {/* Header riga */}
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-start gap-2 p-3 text-left"
-      >
-        {expanded ? (
-          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
-        ) : (
-          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
-        )}
-        <RawIcon className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-foreground/90 leading-tight truncate">
-            {draft.rawTitle || "Senza titolo"}
-          </p>
-          <div className="mt-1 flex items-center gap-2 flex-wrap">
-            <Tag>{draft.priority}</Tag>
-            <Tag>{draft.format}</Tag>
-            <Tag>{draft.target === "aula" ? "Aula" : "Note regia"}</Tag>
-            {isScene && (
-              <span className="inline-flex items-center gap-1 text-[9px] font-mono uppercase tracking-wider text-emerald-500">
-                <CheckCircle2 className="w-3 h-3" /> scena
-              </span>
-            )}
-          </div>
-        </div>
-      </button>
+    <div className="flex-1 flex flex-col min-h-0">
+      {/* Stepper */}
+      <div className="px-4 py-3 border-b border-border/60 flex items-center gap-3 text-[10px] font-mono uppercase tracking-[0.2em]">
+        {([1, 2, 3] as const).map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setStep(n)}
+            className={`flex items-center gap-1.5 ${
+              step === n ? "text-primary" : "text-muted-foreground"
+            }`}
+          >
+            <span
+              className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${
+                step === n
+                  ? "border-primary bg-primary/10"
+                  : "border-border"
+              }`}
+            >
+              {n}
+            </span>
+            {n === 1 ? "Base" : n === 2 ? "Trasforma" : "Conferma"}
+          </button>
+        ))}
+        <span className="ml-auto text-muted-foreground/60">{stepLabel}</span>
+      </div>
 
-      {expanded && (
-        <div className="px-3 pb-3 space-y-3 border-t border-border/60 pt-3">
-          {/* Materiale grezzo */}
-          <Section title="Materiale grezzo">
-            <div className="flex flex-wrap gap-1.5">
-              {(Object.keys(rawKindMeta) as DraftContent["rawKind"][]).map(
-                (k) => {
-                  const M = rawKindMeta[k];
-                  const active = draft.rawKind === k;
-                  const Icon = M.icon;
-                  return (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => onChange({ rawKind: k })}
-                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-md border text-[11px] transition-colors ${
-                        active
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <Icon className="w-3 h-3" />
-                      {M.label}
-                    </button>
-                  );
-                },
-              )}
-            </div>
-            <Input
-              placeholder="Titolo"
-              value={draft.rawTitle}
-              onChange={(e) => onChange({ rawTitle: e.target.value })}
-            />
-            {draft.rawKind !== "text" && (
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {step === 1 && (
+          <>
+            <Section title="Titolo">
               <Input
-                placeholder="URL"
-                value={draft.rawUrl ?? ""}
-                onChange={(e) => onChange({ rawUrl: e.target.value })}
+                placeholder="Titolo contenuto"
+                value={draft.rawTitle}
+                onChange={(e) => onChange({ rawTitle: e.target.value })}
               />
-            )}
-            <Textarea
-              placeholder="Testo / appunti grezzi"
-              value={draft.rawText ?? ""}
-              onChange={(e) => onChange({ rawText: e.target.value })}
-              className="min-h-[60px] text-sm"
-            />
-          </Section>
+            </Section>
 
-          {/* Struttura scena */}
-          <Section title="Trasforma in scena">
+            <Section title="Tipo">
+              <div className="flex flex-wrap gap-1.5">
+                {(Object.keys(rawKindMeta) as DraftContent["rawKind"][]).map(
+                  (k) => {
+                    const M = rawKindMeta[k];
+                    const active = draft.rawKind === k;
+                    const Icon = M.icon;
+                    return (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => onChange({ rawKind: k })}
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-md border text-[11px] transition-colors ${
+                          active
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <Icon className="w-3 h-3" />
+                        {M.label}
+                      </button>
+                    );
+                  },
+                )}
+              </div>
+            </Section>
+
+            <Section title="Modulo · Scena">
+              <Input
+                placeholder="Modulo"
+                value={draft.moduloSlug ?? moduloSlug}
+                onChange={(e) => onChange({ moduloSlug: e.target.value })}
+              />
+              <Select
+                label="Scena (collega a esistente o nuova)"
+                value={draft.linkedSceneId ?? ""}
+                onChange={(v) =>
+                  onChange({ linkedSceneId: v === "" ? undefined : v })
+                }
+                options={[
+                  { value: "", label: "Nuova scena" },
+                  ...scenes.map((s) => ({ value: s.id, label: s.title })),
+                ]}
+              />
+            </Section>
+
+            <Section title="Priorità · Formato · Tempo">
+              <div className="grid grid-cols-2 gap-2">
+                <PillGroup<ScenePriority>
+                  label="Priorità"
+                  options={priorities}
+                  value={draft.priority}
+                  onChange={(v) => onChange({ priority: v })}
+                />
+                <PillGroup<SceneFormat>
+                  label="Formato"
+                  options={formats}
+                  value={draft.format}
+                  onChange={(v) => onChange({ format: v })}
+                />
+              </div>
+              <NumberField
+                label="Tempo (sec)"
+                value={draft.expectedSeconds}
+                onChange={(v) => onChange({ expectedSeconds: v })}
+              />
+            </Section>
+
+            <Section title="Contenuto grezzo">
+              {draft.rawKind !== "text" && (
+                <Input
+                  placeholder="URL"
+                  value={draft.rawUrl ?? ""}
+                  onChange={(e) => onChange({ rawUrl: e.target.value })}
+                />
+              )}
+              <Textarea
+                placeholder="Testo / appunti / trascrizione…"
+                value={draft.rawText ?? ""}
+                onChange={(e) => onChange({ rawText: e.target.value })}
+                className="min-h-[120px] text-sm"
+              />
+            </Section>
+
+            <Section title="Media (dall'archivio)">
+              {archive.length === 0 ? (
+                <p className="text-[11px] text-muted-foreground">
+                  Archivio vuoto.
+                </p>
+              ) : (
+                <div className="space-y-1">
+                  {archive.map((r) => {
+                    const checked = draft.mediaResourceIds.includes(r.id);
+                    return (
+                      <label
+                        key={r.id}
+                        className="flex items-center gap-2 text-xs cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleMedia(r.id)}
+                          className="accent-primary"
+                        />
+                        <span className="text-foreground/80 truncate">
+                          {r.title}
+                        </span>
+                        <span className="ml-auto text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                          {r.kind}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </Section>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
+                Trasforma in scena
+              </p>
+              <button
+                type="button"
+                onClick={handleAutofill}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-primary/40 text-primary text-[11px] hover:bg-primary/10"
+                title="Precompila dai campi grezzi"
+              >
+                <Wand2 className="w-3 h-3" />
+                Precompila da grezzo
+              </button>
+            </div>
+
             <LabeledArea
               label="Obiettivo"
               value={draft.obiettivo}
               onChange={(v) => onChange({ obiettivo: v })}
             />
             <LabeledArea
-              label="Stimolo"
+              label="Stimolo (Aula)"
               value={draft.stimolo}
               onChange={(v) => onChange({ stimolo: v })}
             />
             <LabeledArea
-              label="Azione"
+              label="Azione (interazione)"
               value={draft.azione}
               onChange={(v) => onChange({ azione: v })}
             />
@@ -328,124 +566,187 @@ const DraftCard = ({
               value={draft.chiusura}
               onChange={(v) => onChange({ chiusura: v })}
             />
-          </Section>
-
-          {/* Assegnazione */}
-          <Section title="Assegnazione scena">
-            <Select
-              label="Collega a scena esistente"
-              value={draft.linkedSceneId ?? ""}
-              onChange={(v) =>
-                onChange({ linkedSceneId: v === "" ? undefined : v })
-              }
-              options={[
-                { value: "", label: "Nuova scena" },
-                ...scenes.map((s) => ({ value: s.id, label: s.title })),
-              ]}
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <PillGroup<ScenePriority>
-                label="Priorità"
-                options={priorities}
-                value={draft.priority}
-                onChange={(v) => onChange({ priority: v })}
-              />
-              <PillGroup<SceneFormat>
-                label="Formato"
-                options={formats}
-                value={draft.format}
-                onChange={(v) => onChange({ format: v })}
-              />
-            </div>
-            <PillGroup<ContentTarget>
-              label="Destinazione"
-              options={["aula", "regia-notes"]}
-              value={draft.target}
-              onChange={(v) => onChange({ target: v })}
-              renderLabel={(v) => (v === "aula" ? "Aula" : "Note regia")}
-            />
-            <NumberField
-              label="Tempo previsto (sec)"
-              value={draft.expectedSeconds}
-              onChange={(v) => onChange({ expectedSeconds: v })}
-            />
-          </Section>
-
-          {/* Media collegati */}
-          <Section title="Media collegati (dall'archivio)">
-            {archive.length === 0 ? (
-              <p className="text-[11px] text-muted-foreground">
-                Archivio vuoto. Aggiungi prima dei materiali nell'archivio.
-              </p>
-            ) : (
-              <div className="space-y-1">
-                {archive.map((r) => {
-                  const checked = draft.mediaResourceIds.includes(r.id);
-                  return (
-                    <label
-                      key={r.id}
-                      className="flex items-center gap-2 text-xs cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleMedia(r.id)}
-                        className="accent-primary"
-                      />
-                      <span className="text-foreground/80 truncate">
-                        {r.title}
-                      </span>
-                      <span className="ml-auto text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                        {r.kind}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            )}
-          </Section>
-
-          {/* Note regia */}
-          <Section title="Note regia (mai visibili in Aula)">
-            <Textarea
-              placeholder="Suggerimenti per condurre la scena"
+            <LabeledArea
+              label="Note regia (mai in Aula)"
               value={draft.notesRegia}
-              onChange={(e) => onChange({ notesRegia: e.target.value })}
-              className="min-h-[60px] text-sm"
+              onChange={(v) => onChange({ notesRegia: v })}
             />
-          </Section>
 
-          {/* Azioni */}
-          <div className="flex items-center justify-between gap-2 pt-1">
+            <Section title="Destinazione · Tempo">
+              <PillGroup<ContentTarget>
+                label="Destinazione"
+                options={["aula", "regia-notes"]}
+                value={draft.target}
+                onChange={(v) => onChange({ target: v })}
+                renderLabel={(v) => (v === "aula" ? "Aula" : "Note regia")}
+              />
+              <NumberField
+                label="Tempo previsto (sec)"
+                value={draft.expectedSeconds}
+                onChange={(v) => onChange({ expectedSeconds: v })}
+              />
+            </Section>
+          </>
+        )}
+
+        {step === 3 && (
+          <Summary draft={draft} scenes={scenes} archive={archive} />
+        )}
+      </div>
+
+      {/* footer */}
+      <div className="border-t border-border/60 p-3 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onRemove}
+          className="text-[11px] text-muted-foreground hover:text-destructive inline-flex items-center gap-1"
+        >
+          <Trash2 className="w-3 h-3" />
+          Elimina
+        </button>
+
+        <div className="ml-auto flex items-center gap-2">
+          {step > 1 && (
             <button
               type="button"
-              onClick={onRemove}
-              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-sm text-[11px] text-muted-foreground hover:text-destructive transition-colors"
+              onClick={() => setStep((step - 1) as 1 | 2 | 3)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-border text-xs text-muted-foreground hover:text-foreground"
             >
-              <Trash2 className="w-3 h-3" />
-              Elimina
+              <ChevronLeft className="w-3.5 h-3.5" />
+              Indietro
             </button>
+          )}
+
+          {step < 3 && (
             <button
               type="button"
-              onClick={onPromote}
-              disabled={isScene}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                isScene
-                  ? "bg-emerald-500/15 text-emerald-500 cursor-default"
-                  : "bg-primary text-primary-foreground hover:bg-primary/90"
-              }`}
+              onClick={() => setStep((step + 1) as 1 | 2 | 3)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              {isScene ? "Già scena" : "Promuovi a scena"}
+              Avanti
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
-          </div>
+          )}
+
+          {step === 3 && (
+            <>
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-2.5 py-1.5 rounded-md border border-border text-xs text-muted-foreground hover:text-foreground"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                onClick={onSaveDraft}
+                className="px-2.5 py-1.5 rounded-md border border-border text-xs font-medium hover:bg-card/70"
+              >
+                Salva bozza
+              </button>
+              <button
+                type="button"
+                onClick={onConfirm}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Conferma scena
+              </button>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-// ---- micro UI ----
+// ----------------------------------------------------------------
+// SUMMARY
+// ----------------------------------------------------------------
+
+const Summary = ({
+  draft,
+  scenes,
+  archive,
+}: {
+  draft: DraftContent;
+  scenes: { id: string; title: string }[];
+  archive: { id: string; title: string; kind: ResourceKind }[];
+}) => {
+  const sceneTitle = draft.linkedSceneId
+    ? scenes.find((s) => s.id === draft.linkedSceneId)?.title ?? "—"
+    : "Nuova scena";
+  const linkedMedia = archive.filter((r) =>
+    draft.mediaResourceIds.includes(r.id),
+  );
+
+  return (
+    <div className="space-y-3">
+      <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
+        Riepilogo prima del salvataggio
+      </p>
+
+      <SummaryRow label="Titolo scena" value={draft.rawTitle || "—"} />
+      <SummaryRow label="Modulo" value={draft.moduloSlug ?? "—"} />
+      <SummaryRow label="Scena" value={sceneTitle} />
+      <SummaryRow label="Priorità" value={draft.priority} />
+      <SummaryRow label="Formato" value={draft.format} />
+      <SummaryRow
+        label="Tempo"
+        value={`${Math.round(draft.expectedSeconds / 60)} min`}
+      />
+      <SummaryRow
+        label="Destinazione"
+        value={draft.target === "aula" ? "Aula" : "Note regia"}
+      />
+      <SummaryRow
+        label="Media"
+        value={
+          linkedMedia.length
+            ? linkedMedia.map((r) => r.title).join(" · ")
+            : "Nessuno"
+        }
+      />
+
+      <div className="border-t border-border/60 pt-3 space-y-2 text-xs">
+        <Field label="Obiettivo" value={draft.obiettivo} />
+        <Field label="Stimolo" value={draft.stimolo} />
+        <Field label="Azione" value={draft.azione} />
+        <Field label="Chiusura" value={draft.chiusura} />
+        {draft.notesRegia && (
+          <Field label="Note regia" value={draft.notesRegia} />
+        )}
+      </div>
+
+      <p className="text-[10px] text-muted-foreground italic pt-2">
+        Conferma scena = pronta in regia. Niente viene mostrato in Aula finché
+        non la invii dalla regia.
+      </p>
+    </div>
+  );
+};
+
+const SummaryRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-baseline gap-3 text-xs">
+    <span className="w-28 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+      {label}
+    </span>
+    <span className="flex-1 text-foreground/90">{value}</span>
+  </div>
+);
+
+const Field = ({ label, value }: { label: string; value: string }) => (
+  <div>
+    <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+      {label}
+    </p>
+    <p className="text-foreground/85 whitespace-pre-wrap">{value || "—"}</p>
+  </div>
+);
+
+// ----------------------------------------------------------------
+// micro UI
+// ----------------------------------------------------------------
 
 const Tag = ({ children }: { children: React.ReactNode }) => (
   <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm bg-secondary text-[9px] font-mono uppercase tracking-wider text-muted-foreground">
@@ -478,11 +779,13 @@ const LabeledArea = ({
   onChange: (v: string) => void;
 }) => (
   <div>
-    <p className="text-[10px] text-muted-foreground mb-1">{label}</p>
+    <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+      {label}
+    </p>
     <Textarea
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="min-h-[44px] text-sm"
+      className="min-h-[60px] text-sm"
     />
   </div>
 );
