@@ -507,6 +507,7 @@ const Wizard = ({
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <ValidationCard validation={validation} compact={step !== 3} />
         {step === 1 && (
           <>
             <Section title="Titolo">
