@@ -51,10 +51,10 @@ export const detectKind = (file: File): SupportedFile | null => {
 
 const extractPdf = async (file: File): Promise<string> => {
   const pdfjs = await import("pdfjs-dist");
-  // worker
-  // @ts-expect-error vite worker import
-  const worker = await import("pdfjs-dist/build/pdf.worker.mjs?url");
-  pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+  const worker = await import(
+    /* @vite-ignore */ "pdfjs-dist/build/pdf.worker.mjs?url"
+  );
+  (pdfjs as { GlobalWorkerOptions: { workerSrc: string } }).GlobalWorkerOptions.workerSrc = (worker as { default: string }).default;
 
   const buf = await file.arrayBuffer();
   const doc = await pdfjs.getDocument({ data: buf }).promise;
