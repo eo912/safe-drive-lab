@@ -30,7 +30,44 @@ export type SceneFormat = "FLASH" | "STANDARD" | "FULL";
  */
 export type ContentTarget = "aula" | "regia-notes";
 
-export type ContentStatus = "draft" | "scene";
+/**
+ * Stato del contenuto:
+ *  - draft  → bozza in lavorazione
+ *  - ready  → scena pronta, confermata dall'istruttore
+ *  - scene  → alias di ready (compatibilita' precedente)
+ *  Lo stato "collegato" viene derivato a runtime da `linkedSceneId`.
+ */
+export type ContentStatus = "draft" | "ready" | "scene";
+
+export type DerivedStatus = "bozza" | "pronto" | "collegato";
+
+export const deriveStatus = (c: {
+  status: ContentStatus;
+  linkedSceneId?: string;
+}): DerivedStatus => {
+  if (c.linkedSceneId) return "collegato";
+  if (c.status === "ready" || c.status === "scene") return "pronto";
+  return "bozza";
+};
+
+/** Precompila i campi scena da un testo grezzo, in modo deterministico. */
+export const autofillFromRaw = (raw: {
+  title?: string;
+  text?: string;
+  url?: string;
+}) => {
+  const text = (raw.text ?? "").trim();
+  const lines = text.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  const first = lines[0] ?? raw.title ?? "";
+  const rest = lines.slice(1).join(" ");
+  const last = lines[lines.length - 1] ?? "";
+  return {
+    obiettivo: raw.title || first,
+    stimolo: first,
+    azione: rest || (raw.url ? `Mostra: ${raw.url}` : ""),
+    chiusura: lines.length > 1 ? last : "",
+  };
+};
 
 export type DraftContent = {
   id: string;
