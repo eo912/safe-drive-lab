@@ -12,7 +12,13 @@ import {
   Image as ImageIcon,
   FileType,
   CheckCircle2,
+  FileInput,
 } from "lucide-react";
+import {
+  parseSceneDocument,
+  parsedSceneToDraft,
+  SCENE_TEMPLATE,
+} from "@/lib/sceneFormat";
 import {
   Sheet,
   SheetContent,
