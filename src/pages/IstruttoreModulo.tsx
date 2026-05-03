@@ -16,6 +16,7 @@ import {
   Coffee,
   Archive,
   Inbox,
+  Layers,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
