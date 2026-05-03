@@ -452,6 +452,7 @@ const Wizard = ({
   onRemove: () => void;
 }) => {
   const stepLabel = step === 1 ? "Base" : step === 2 ? "Trasforma" : "Conferma";
+  const validation = validateDraft(draft);
 
   const toggleMedia = (id: string) => {
     const has = draft.mediaResourceIds.includes(id);
