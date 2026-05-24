@@ -24,6 +24,8 @@ type Props = {
   step: AulaStep;
   /** Solo per live: stato pausa Aula. */
   paused?: boolean;
+  /** Atmosfera pausa selezionata (passata all'iframe per coerenza preview). */
+  pauseAtmosphere?: PauseAtmosphere | null;
   onOpenWindow?: () => void;
   onSend?: () => void;
   empty?: boolean;
