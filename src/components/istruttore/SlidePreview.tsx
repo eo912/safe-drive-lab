@@ -150,8 +150,8 @@ export const SlidePreview = ({
             {/* Mini riproduzione della schermata pausa via iframe (atmosphere default) */}
             {block && (
               <iframe
-                key={`pause-${block.id}`}
-                src={`/aula/${modulo}?embed=mini&blocco=${block.id}&step=${step}&pausa=1`}
+                key={`pause-${block.id}-${pauseAtmosphere ?? "sun"}`}
+                src={`/aula/${modulo}?embed=mini&blocco=${block.id}&step=${step}&pausa=1&atm=${pauseAtmosphere ?? "sun"}`}
                 title="Aula in pausa"
                 aria-hidden="true"
                 tabIndex={-1}
