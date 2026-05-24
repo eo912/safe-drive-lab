@@ -20,7 +20,6 @@ import {
   Send,
   CheckCircle2,
   Coffee,
-  Archive,
   Inbox,
   Layers,
 } from "lucide-react";
