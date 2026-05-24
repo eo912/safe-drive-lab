@@ -617,254 +617,381 @@ const IstruttoreModulo = () => {
         </div>
       </header>
 
-      {/* LAYOUT: 3 colonne su lg+, singola colonna sotto */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[260px_1fr_300px] xl:grid-cols-[280px_1fr_320px]">
-        {/* SINISTRA — TIMELINE (solo desktop) */}
-        <aside className="hidden lg:block lg:border-r border-border bg-card/40">
-          <div className="p-4 border-b border-border/60">
-            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
-              Timeline
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {blocks.length} blocchi
-            </p>
-          </div>
-          {TimelineContent}
-        </aside>
+      {/* Rail mobile (sopra il contenuto) */}
+      <IstruttoreNavMobile view={view} onChange={setView} />
 
-        {/* CENTRO — CONTENUTO (sempre visibile) */}
-        <main className="p-4 sm:p-6 md:p-10 min-w-0">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
-                Blocco {String(active.index).padStart(2, "0")}
-              </span>
-              <span className="text-muted-foreground text-xs">•</span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                {KindLabel[active.kind]}
-              </span>
-              <span className="text-muted-foreground text-xs">•</span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                Step: <span className="text-foreground/80">{previewState.step}</span>
-              </span>
-            </div>
+      {/* SHELL: rail laterale + area attiva */}
+      <div className="flex-1 flex min-h-0">
+        <IstruttoreNav view={view} onChange={setView} />
 
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6">
-              {active.title}
-            </h2>
-
-            <div className="flex flex-wrap gap-2 mb-6">
-              {active.hasScenario && (
-                <ActionButton
-                  icon={Play}
-                  label="Avvia scenario"
-                  primary
-                  active={previewState.step === "scenario"}
-                  live={isLive && liveStep === "scenario"}
-                  onClick={() => setStep("scenario")}
-                />
-              )}
-              {active.hasOutcomes && (
-                <ActionButton
-                  icon={ListChecks}
-                  label="Mostra esiti"
-                  active={previewState.step === "esiti"}
-                  live={isLive && liveStep === "esiti"}
-                  onClick={() => setStep("esiti")}
-                />
-              )}
-              {active.hasExplanation && (
-                <ActionButton
-                  icon={BookOpen}
-                  label="Mostra spiegazione"
-                  active={previewState.step === "spiegazione"}
-                  live={isLive && liveStep === "spiegazione"}
-                  onClick={() => setStep("spiegazione")}
-                />
-              )}
-              {active.hasDeepDive && (
-                <ActionButton
-                  icon={ExternalLink}
-                  label="Apri approfondimento"
-                  active={previewState.step === "approfondimento"}
-                  live={isLive && liveStep === "approfondimento"}
-                  onClick={() => setStep("approfondimento")}
-                />
-              )}
-            </div>
-
-            {/* BANNER PAUSA AULA */}
-            {aulaPaused && (
-              <div className="mb-4 flex items-center justify-between gap-3 p-3 rounded-md border border-amber-500/40 bg-amber-500/5">
-                <div className="flex items-center gap-2 min-w-0">
-                  <Coffee className="w-4 h-4 text-amber-500 shrink-0" />
-                  <p className="text-sm text-foreground/90 truncate">
-                    Aula in pausa
-                    {liveState?.pauseMinutes
-                      ? ` · ${liveState.pauseMinutes} min`
-                      : ""}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* ============== VISTA LIVE ============== */}
+          {view === "live" && (
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[260px_1fr_300px] xl:grid-cols-[280px_1fr_320px]">
+              <aside className="hidden lg:block lg:border-r border-border bg-card/40">
+                <div className="p-4 border-b border-border/60">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
+                    Scaletta
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {blocks.length} blocchi
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={resumeAula}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-amber-500/15 text-amber-500 text-xs font-mono uppercase tracking-wider hover:bg-amber-500/25 transition-colors shrink-0"
-                >
-                  <Play className="w-3 h-3" />
-                  Riprendi
-                </button>
-              </div>
-            )}
+                {TimelineContent}
+              </aside>
 
-            {/* DUAL VIEW broadcast: LIVE dominante (2/3), ANTEPRIMA secondaria (1/3).
-                In pausa la live espande full width (preview focus). */}
-            <div
-              className={`grid grid-cols-1 gap-4 md:gap-5 transition-[grid-template-columns] duration-300 ${
-                aulaPaused ? "" : "md:grid-cols-3"
-              }`}
-            >
-              <div className={aulaPaused ? "" : "md:col-span-2"}>
-                <SlidePreview
-                  variant="live"
-                  modulo={slug}
-                  block={liveBlock}
-                  step={(liveStep ?? "intro") as AulaStep}
-                  paused={aulaPaused}
-                  pauseAtmosphere={liveState?.pauseAtmosphere ?? null}
-                  onOpenWindow={launchAula}
-                  empty={!liveState}
-                />
-              </div>
-              {!aulaPaused && (
-                <div className="md:col-span-1 transition-opacity duration-300">
-                  <SlidePreview
-                    variant="preview"
-                    modulo={slug}
-                    block={active}
-                    step={previewState.step}
-                    onSend={mode === "regia" && !isLive ? sendToAula : undefined}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* INDICATORE TEMPO PER SLIDE LIVE */}
-            <div className="mt-4">
-              <SlideTimeIndicator
-                expectedSeconds={liveExpected}
-                liveSeconds={liveSeconds}
-                isLive={Boolean(liveBlock) && !aulaPaused}
-                onChange={(s) => liveBlock && setExpected(liveBlock.id, s)}
-                onReset={() => liveBlock && resetExpected(liveBlock.id)}
-              />
-            </div>
-
-            {/* INVIA IN AULA — solo in modalità Regia. In Lineare la sincronizzazione è automatica. */}
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <div className="text-[11px] text-muted-foreground">
-                {liveState ? (
-                  <>
-                    In Aula:{" "}
-                    <span className="text-foreground/80 font-mono">
-                      {blocks.find((b) => b.id === liveBlockId)?.title ?? "—"} · {liveStep}
+              <main className="p-4 sm:p-6 md:p-10 min-w-0">
+                <div className="max-w-3xl mx-auto">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
+                      Blocco {String(active.index).padStart(2, "0")}
                     </span>
-                  </>
-                ) : (
-                  <span className="font-mono">Aula in attesa</span>
-                )}
-              </div>
-              {mode === "regia" ? (
-                <button
-                  type="button"
-                  onClick={sendToAula}
-                  disabled={isLive}
-                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
-                    isLive
-                      ? "bg-emerald-500/15 text-emerald-500 cursor-default"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90"
-                  }`}
-                >
-                  {isLive ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      In Aula
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      Invia in Aula
-                    </>
-                  )}
-                </button>
-              ) : (
-                <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider">
-                  <Radio className="w-3 h-3" />
-                  Sync automatica
-                </span>
-              )}
-            </div>
+                    <span className="text-muted-foreground text-xs">•</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                      {KindLabel[active.kind]}
+                    </span>
+                    <span className="text-muted-foreground text-xs">•</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                      Step:{" "}
+                      <span className="text-foreground/80">
+                        {previewState.step}
+                      </span>
+                    </span>
+                  </div>
 
-            {mode === "regia" && nextBlock && (
-              <div className="mt-6 flex items-center justify-between gap-4 p-4 rounded-md border border-primary/30 bg-primary/5">
-                <div className="min-w-0">
-                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
-                    Prossimo passo
-                  </p>
-                  <p className="text-sm text-foreground/90 truncate">
-                    {nextBlock.title}
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6">
+                    {active.title}
+                  </h2>
+
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {active.hasScenario && (
+                      <ActionButton
+                        icon={Play}
+                        label="Avvia scenario"
+                        primary
+                        active={previewState.step === "scenario"}
+                        live={isLive && liveStep === "scenario"}
+                        onClick={() => setStep("scenario")}
+                      />
+                    )}
+                    {active.hasOutcomes && (
+                      <ActionButton
+                        icon={ListChecks}
+                        label="Mostra esiti"
+                        active={previewState.step === "esiti"}
+                        live={isLive && liveStep === "esiti"}
+                        onClick={() => setStep("esiti")}
+                      />
+                    )}
+                    {active.hasExplanation && (
+                      <ActionButton
+                        icon={BookOpen}
+                        label="Mostra spiegazione"
+                        active={previewState.step === "spiegazione"}
+                        live={isLive && liveStep === "spiegazione"}
+                        onClick={() => setStep("spiegazione")}
+                      />
+                    )}
+                    {active.hasDeepDive && (
+                      <ActionButton
+                        icon={ExternalLink}
+                        label="Apri approfondimento"
+                        active={previewState.step === "approfondimento"}
+                        live={isLive && liveStep === "approfondimento"}
+                        onClick={() => setStep("approfondimento")}
+                      />
+                    )}
+                  </div>
+
+                  {aulaPaused && (
+                    <div className="mb-4 flex items-center justify-between gap-3 p-3 rounded-md border border-amber-500/40 bg-amber-500/5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Coffee className="w-4 h-4 text-amber-500 shrink-0" />
+                        <p className="text-sm text-foreground/90 truncate">
+                          Aula in pausa
+                          {liveState?.pauseMinutes
+                            ? ` · ${liveState.pauseMinutes} min`
+                            : ""}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={resumeAula}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-amber-500/15 text-amber-500 text-xs font-mono uppercase tracking-wider hover:bg-amber-500/25 transition-colors shrink-0"
+                      >
+                        <Play className="w-3 h-3" />
+                        Riprendi
+                      </button>
+                    </div>
+                  )}
+
+                  <div
+                    className={`grid grid-cols-1 gap-4 md:gap-5 transition-[grid-template-columns] duration-300 ${
+                      aulaPaused ? "" : "md:grid-cols-3"
+                    }`}
+                  >
+                    <div className={aulaPaused ? "" : "md:col-span-2"}>
+                      <SlidePreview
+                        variant="live"
+                        modulo={slug}
+                        block={liveBlock}
+                        step={(liveStep ?? "intro") as AulaStep}
+                        paused={aulaPaused}
+                        pauseAtmosphere={liveState?.pauseAtmosphere ?? null}
+                        onOpenWindow={launchAula}
+                        empty={!liveState}
+                      />
+                    </div>
+                    {!aulaPaused && (
+                      <div className="md:col-span-1 transition-opacity duration-300">
+                        <SlidePreview
+                          variant="preview"
+                          modulo={slug}
+                          block={active}
+                          step={previewState.step}
+                          onSend={
+                            mode === "regia" && !isLive ? sendToAula : undefined
+                          }
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4">
+                    <SlideTimeIndicator
+                      expectedSeconds={liveExpected}
+                      liveSeconds={liveSeconds}
+                      isLive={Boolean(liveBlock) && !aulaPaused}
+                      onChange={(s) =>
+                        liveBlock && setExpected(liveBlock.id, s)
+                      }
+                      onReset={() => liveBlock && resetExpected(liveBlock.id)}
+                    />
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <div className="text-[11px] text-muted-foreground">
+                      {liveState ? (
+                        <>
+                          In Aula:{" "}
+                          <span className="text-foreground/80 font-mono">
+                            {blocks.find((b) => b.id === liveBlockId)?.title ??
+                              "—"}{" "}
+                            · {liveStep}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-mono">Aula in attesa</span>
+                      )}
+                    </div>
+                    {mode === "regia" ? (
+                      <button
+                        type="button"
+                        onClick={sendToAula}
+                        disabled={isLive}
+                        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
+                          isLive
+                            ? "bg-emerald-500/15 text-emerald-500 cursor-default"
+                            : "bg-primary text-primary-foreground hover:bg-primary/90"
+                        }`}
+                      >
+                        {isLive ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4" />
+                            In Aula
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4" />
+                            Invia in Aula
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider">
+                        <Radio className="w-3 h-3" />
+                        Sync automatica
+                      </span>
+                    )}
+                  </div>
+
+                  {mode === "regia" && nextBlock && (
+                    <div className="mt-6 flex items-center justify-between gap-4 p-4 rounded-md border border-primary/30 bg-primary/5">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
+                          Prossimo passo
+                        </p>
+                        <p className="text-sm text-foreground/90 truncate">
+                          {nextBlock.title}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => goToBlock(nextBlock.id)}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary/10 text-primary text-xs font-medium uppercase tracking-wider hover:bg-primary/20 transition-colors shrink-0"
+                      >
+                        Avanti
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </main>
+
+              <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
+                <div className="p-4 border-b border-border/60 flex items-center gap-2">
+                  <BookOpen className="w-3.5 h-3.5 text-primary" />
+                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
+                    Suggerimenti didattici
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => goToBlock(nextBlock.id)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary/10 text-primary text-xs font-medium uppercase tracking-wider hover:bg-primary/20 transition-colors shrink-0"
-                >
-                  Avanti
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
+                {TeachingNotes}
+              </aside>
+            </div>
+          )}
+
+          {/* ============== VISTA STUDIO ============== */}
+          {view === "studio" && (
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[280px_1fr]">
+              <aside className="lg:border-r border-border bg-card/40">
+                <div className="p-4 border-b border-border/60">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
+                    Scene del corso
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {blocks.length} blocchi
+                  </p>
+                </div>
+                {TimelineContent}
+              </aside>
+
+              <main className="p-4 sm:p-6 md:p-8 min-w-0 overflow-y-auto">
+                <div className="max-w-3xl mx-auto space-y-6">
+                  <div>
+                    <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
+                      Studio · costruzione corso
+                    </p>
+                    <h2 className="text-xl sm:text-2xl font-bold">
+                      {active.title}
+                    </h2>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Prepara la scena: media, contenuti, tempi previsti.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setContentDrawerOpen(true)}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors"
+                  >
+                    <Inbox className="w-3.5 h-3.5" />
+                    Apri cassetto contenuti
+                  </button>
+
+                  <SlideContentsPanel
+                    modulo={slug}
+                    blocco={previewState.blocco}
+                    liveMediaId={liveMediaId}
+                    onProject={projectMedia}
+                    onHide={hideMedia}
+                    onOpenArchive={() => setView("archivio")}
+                  />
+
+                  <SceneMediaPanel
+                    modulo={slug}
+                    blocco={previewState.blocco}
+                    step={previewState.step}
+                    onPublishEmbeds={publishEmbeds}
+                    onProjectOverlay={projectMedia}
+                  />
+
+                  <div className="rounded-md border border-border p-4 bg-card/40">
+                    <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground mb-3">
+                      Tempo previsto · slide attiva
+                    </p>
+                    <SlideTimeIndicator
+                      expectedSeconds={liveExpected}
+                      liveSeconds={0}
+                      isLive={false}
+                      onChange={(s) => active && setExpected(active.id, s)}
+                      onReset={() => active && resetExpected(active.id)}
+                    />
+                  </div>
+                </div>
+              </main>
+            </div>
+          )}
+
+          {/* ============== VISTA ARCHIVIO ============== */}
+          {view === "archivio" && (
+            <main className="flex-1 p-4 sm:p-6 md:p-8 min-w-0 overflow-y-auto">
+              <div className="max-w-6xl mx-auto">
+                <div className="mb-6">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
+                    Archivio · biblioteca materiali
+                  </p>
+                  <h2 className="text-xl sm:text-2xl font-bold">
+                    Risorse riutilizzabili
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Immagini, video, documenti, link e scenari. Allega alla
+                    slide attiva con un click.
+                  </p>
+                </div>
+                <ArchivePanel
+                  onAttachToSlide={handleAttachFromArchive}
+                  attachLabel="Allega alla slide"
+                />
               </div>
-            )}
+            </main>
+          )}
 
-            {/* CONTENUTI COLLEGATI alla slide attiva + controlli media */}
-            <SlideContentsPanel
-              modulo={slug}
-              blocco={previewState.blocco}
-              liveMediaId={liveMediaId}
-              onProject={projectMedia}
-              onHide={hideMedia}
-              onOpenArchive={() => setArchiveOpen(true)}
-            />
+          {/* ============== VISTA SESSIONE ============== */}
+          {view === "sessione" && (
+            <main className="flex-1 p-4 sm:p-6 md:p-8 min-w-0 overflow-y-auto">
+              <div className="max-w-4xl mx-auto space-y-6">
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
+                    Sessione · ritmo & pause
+                  </p>
+                  <h2 className="text-xl sm:text-2xl font-bold">
+                    Gestione lezione
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Formato corso, timer, pause atmosferiche, sincronizzazione
+                    Aula.
+                  </p>
+                </div>
 
-            {/* REGIA MEDIA: modalità (inline/overlay/link), drag, visibilità */}
-            <SceneMediaPanel
-              modulo={slug}
-              blocco={previewState.blocco}
-              step={previewState.step}
-              onPublishEmbeds={publishEmbeds}
-              onProjectOverlay={projectMedia}
-            />
-          </div>
-        </main>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-md border border-border p-4 bg-card/40">
+                    <CourseFormatPanel
+                      format={courseFormat.format}
+                      setFormat={courseFormat.setFormat}
+                      plan={courseFormat.plan}
+                      totalSeconds={courseFormat.totalSeconds}
+                      targetSeconds={courseFormat.targetSeconds}
+                      deltaSeconds={courseFormat.deltaSeconds}
+                      setBlockPriority={courseFormat.setBlockPriority}
+                      setBlockEnabled={courseFormat.setBlockEnabled}
+                    />
+                  </div>
 
-        {/* DESTRA — TIMER + SUGGERIMENTI DIDATTICI (solo desktop) */}
-        <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
-          <div className="p-4 border-b border-border/60">
-            <AulaTimer
-              compact
-              onRequestAulaPause={(_m, atm) => testPauseAula(atm)}
-              onRequestAulaResume={resumeAula}
-              aulaPaused={aulaPaused}
-            />
-          </div>
-          <div className="p-4 border-b border-border/60 flex items-center gap-2">
-            <BookOpen className="w-3.5 h-3.5 text-primary" />
-            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
-              Suggerimenti didattici
-            </p>
-          </div>
-          {TeachingNotes}
-        </aside>
+                  <div className="rounded-md border border-border p-4 bg-card/40">
+                    <AulaTimer
+                      compact
+                      onRequestAulaPause={(_m, atm) => testPauseAula(atm)}
+                      onRequestAulaResume={resumeAula}
+                      aulaPaused={aulaPaused}
+                    />
+                  </div>
+                </div>
+              </div>
+            </main>
+          )}
+        </div>
       </div>
+
 
       {/* DRAWERS richiamabili — note istruttore (N) e archivio (A) */}
       <NotesDrawer
