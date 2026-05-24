@@ -47,6 +47,7 @@ export const SlidePreview = ({
   block,
   step,
   paused = false,
+  pauseAtmosphere = null,
   onOpenWindow,
   onSend,
   empty = false,
