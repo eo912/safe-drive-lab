@@ -13,7 +13,7 @@ import routineDriving from "@/assets/routine-driving.jpg";
 import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
-import { useAulaSubscriber } from "@/lib/aulaSync";
+import { useAulaSubscriber, useAulaHeartbeat } from "@/lib/aulaSync";
 import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
