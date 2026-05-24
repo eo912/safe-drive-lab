@@ -720,8 +720,9 @@ const IstruttoreModulo = () => {
               </div>
             )}
 
-            {/* DUAL VIEW: In Aula (live) | Anteprima (preview) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+            {/* DUAL VIEW: In Aula (live) | Anteprima (preview).
+                In pausa, la live espande a tutta larghezza (preview focus). */}
+            <div className={`grid grid-cols-1 gap-4 md:gap-5 ${aulaPaused ? "" : "md:grid-cols-2"}`}>
               <SlidePreview
                 variant="live"
                 modulo={slug}
@@ -732,13 +733,15 @@ const IstruttoreModulo = () => {
                 onOpenWindow={launchAula}
                 empty={!liveState}
               />
-              <SlidePreview
-                variant="preview"
-                modulo={slug}
-                block={active}
-                step={previewState.step}
-                onSend={mode === "regia" && !isLive ? sendToAula : undefined}
-              />
+              {!aulaPaused && (
+                <SlidePreview
+                  variant="preview"
+                  modulo={slug}
+                  block={active}
+                  step={previewState.step}
+                  onSend={mode === "regia" && !isLive ? sendToAula : undefined}
+                />
+              )}
             </div>
 
             {/* INDICATORE TEMPO PER SLIDE LIVE */}
