@@ -90,6 +90,23 @@ const IstruttoreModulo = () => {
   const [formatOpen, setFormatOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
+  // View attiva (LIVE / STUDIO / ARCHIVIO / SESSIONE) sincronizzata con la URL.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawView = searchParams.get("view");
+  const view: RegiaView =
+    rawView === "studio" || rawView === "archivio" || rawView === "sessione"
+      ? rawView
+      : "live";
+  const setView = useCallback(
+    (v: RegiaView) => {
+      const next = new URLSearchParams(searchParams);
+      if (v === "live") next.delete("view");
+      else next.set("view", v);
+      setSearchParams(next, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
+
   // Sequenza lineare predefinita del corso (intro di ogni blocco + scenari/video).
   const sequence = useMemo(() => buildLinearSequence(blocks), [blocks]);
 
