@@ -26,6 +26,23 @@ export type AulaState = {
 
 const CHANNEL_NAME = "safedrivelab-aula";
 const STORAGE_KEY = "safedrivelab-aula-state";
+const HEARTBEAT_CHANNEL = "safedrivelab-aula-heartbeat";
+const HEARTBEAT_STORAGE = "safedrivelab-aula-heartbeat";
+
+/** Heartbeat inviato dall'Aula reale alla Regia. */
+export type AulaHeartbeat = {
+  modulo: string;
+  blocco: string;
+  step: AulaStep;
+  paused: boolean;
+  pauseAtmosphere?: PauseAtmosphere;
+  ts: number;
+};
+
+const heartbeatChannel: BroadcastChannel | null =
+  typeof window !== "undefined" && "BroadcastChannel" in window
+    ? new BroadcastChannel(HEARTBEAT_CHANNEL)
+    : null;
 
 const channel: BroadcastChannel | null =
   typeof window !== "undefined" && "BroadcastChannel" in window
