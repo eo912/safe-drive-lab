@@ -158,6 +158,7 @@ const AulaPerche = () => {
     embedParam === "preview" ? "preview" : embedParam === "mini" ? "live" : "full";
   const embedBlocco = urlParams?.get("blocco") ?? "hero";
   const embedPaused = urlParams?.get("pausa") === "1";
+  const embedAtm = (urlParams?.get("atm") as import("@/lib/pauseAtmosphere").PauseAtmosphere | null) ?? null;
   const isPaused = embedMode
     ? embedPaused
     : aulaState.paused || forcePauseFromUrl;
