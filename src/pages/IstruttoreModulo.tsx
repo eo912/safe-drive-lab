@@ -616,46 +616,24 @@ const IstruttoreModulo = () => {
           </div>
         )}
 
-        {/* Mode switch + telecomando — sotto lg */}
-        <div className="lg:hidden flex items-center justify-center gap-4 px-4 pb-2">
-          <div className="flex items-center gap-1 md:hidden">
-            <button
-              type="button"
-              onClick={() => stepRemoteRef.current?.(-1)}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground"
-              aria-label="Indietro"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => stepRemoteRef.current?.(1)}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground"
-              aria-label="Avanti"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-          <div className="flex items-center gap-3">
-            <span
-              className={`text-[10px] font-mono uppercase tracking-wider ${
-                mode === "lineare" ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              Lineare
-            </span>
-            <Switch
-              checked={mode === "regia"}
-              onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
-            />
-            <span
-              className={`text-[10px] font-mono uppercase tracking-wider ${
-                mode === "regia" ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              Regia
-            </span>
-          </div>
+        {/* Telecomando mobile — sotto md */}
+        <div className="md:hidden flex items-center justify-center gap-2 px-4 pb-2">
+          <button
+            type="button"
+            onClick={() => stepRemoteRef.current?.(-1)}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground"
+            aria-label="Indietro"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => stepRemoteRef.current?.(1)}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground"
+            aria-label="Avanti"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </header>
 
