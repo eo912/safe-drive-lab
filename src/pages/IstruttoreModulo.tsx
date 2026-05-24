@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  IstruttoreNav,
+  IstruttoreNavMobile,
+  type RegiaView,
+} from "@/components/istruttore/IstruttoreNav";
+import { ArchivePanel } from "@/components/istruttore/ArchivePanel";
 import {
   ArrowLeft,
   Play,
