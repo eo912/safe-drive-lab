@@ -36,6 +36,7 @@ import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
 import { ContentDrawer } from "@/components/istruttore/ContentDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { SceneMediaPanel } from "@/components/istruttore/SceneMediaPanel";
+import { AulaStatusBadge } from "@/components/istruttore/AulaStatusBadge";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { EmbedPayload } from "@/lib/sceneMedia";
 import type { Resource } from "@/lib/instructorTypes";
@@ -451,6 +452,9 @@ const IstruttoreModulo = () => {
             </p>
             <h1 className="text-sm font-semibold truncate">{module.title}</h1>
           </div>
+
+          <AulaStatusBadge modulo={slug} blocks={blocks} />
+
 
           {/* Drawer triggers — solo sotto lg */}
           <Sheet open={timelineOpen} onOpenChange={setTimelineOpen}>

@@ -13,7 +13,7 @@ import routineDriving from "@/assets/routine-driving.jpg";
 import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
-import { useAulaSubscriber } from "@/lib/aulaSync";
+import { useAulaSubscriber, useAulaHeartbeat } from "@/lib/aulaSync";
 import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
@@ -162,6 +162,16 @@ const AulaPerche = () => {
   const isPaused = embedMode
     ? embedPaused
     : aulaState.paused || forcePauseFromUrl;
+
+  // HEARTBEAT: solo Aula reale (non embed mini/preview).
+  // Invia ogni 1.5s la posizione corrente alla Regia.
+  useAulaHeartbeat(!embedMode, {
+    modulo: "perche-la-guida-sicura",
+    blocco: aulaState.blocco,
+    step: aulaState.step,
+    paused: Boolean(isPaused),
+    pauseAtmosphere: aulaState.pauseAtmosphere,
+  });
 
   const navigateSection = useCallback((delta: number) => {
     const scroller = scrollerRef.current;

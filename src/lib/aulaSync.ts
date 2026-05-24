@@ -26,6 +26,23 @@ export type AulaState = {
 
 const CHANNEL_NAME = "safedrivelab-aula";
 const STORAGE_KEY = "safedrivelab-aula-state";
+const HEARTBEAT_CHANNEL = "safedrivelab-aula-heartbeat";
+const HEARTBEAT_STORAGE = "safedrivelab-aula-heartbeat";
+
+/** Heartbeat inviato dall'Aula reale alla Regia. */
+export type AulaHeartbeat = {
+  modulo: string;
+  blocco: string;
+  step: AulaStep;
+  paused: boolean;
+  pauseAtmosphere?: PauseAtmosphere;
+  ts: number;
+};
+
+const heartbeatChannel: BroadcastChannel | null =
+  typeof window !== "undefined" && "BroadcastChannel" in window
+    ? new BroadcastChannel(HEARTBEAT_CHANNEL)
+    : null;
 
 const channel: BroadcastChannel | null =
   typeof window !== "undefined" && "BroadcastChannel" in window
@@ -150,3 +167,86 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
 
   return state;
 };
+
+/**
+ * Hook lato Aula: invia un heartbeat ogni `intervalMs` (default 1500ms)
+ * con la posizione corrente. Sistema leggero: nessun fetch, nessun polling
+ * di rete, solo BroadcastChannel + localStorage (stesso pattern dello stato).
+ *
+ * NON deve essere chiamato in modalità embed (mini-stage della regia).
+ */
+export const useAulaHeartbeat = (
+  enabled: boolean,
+  payload: Omit<AulaHeartbeat, "ts">,
+  intervalMs = 1500,
+) => {
+  const ref = useRef(payload);
+  ref.current = payload;
+
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") return;
+    const send = () => {
+      const beat: AulaHeartbeat = { ...ref.current, ts: Date.now() };
+      try {
+        localStorage.setItem(HEARTBEAT_STORAGE, JSON.stringify(beat));
+      } catch {
+        /* ignore */
+      }
+      heartbeatChannel?.postMessage(beat);
+    };
+    send();
+    const id = window.setInterval(send, intervalMs);
+    return () => window.clearInterval(id);
+  }, [enabled, intervalMs]);
+};
+
+/**
+ * Hook lato Regia: riceve gli heartbeat dall'Aula e calcola lo stato
+ * online/offline. Aula è considerata offline se non riceviamo heartbeat
+ * per più di `offlineAfterMs` (default 4000ms).
+ */
+export const useAulaHeartbeatMonitor = (
+  modulo: string,
+  offlineAfterMs = 4000,
+) => {
+  const [last, setLast] = useState<AulaHeartbeat | null>(null);
+  const [now, setNow] = useState<number>(() => Date.now());
+
+  useEffect(() => {
+    const apply = (b: AulaHeartbeat) => {
+      if (b.modulo !== modulo) return;
+      setLast((prev) => (prev && prev.ts > b.ts ? prev : b));
+    };
+    const onMsg = (e: MessageEvent<AulaHeartbeat>) => apply(e.data);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== HEARTBEAT_STORAGE || !e.newValue) return;
+      try {
+        apply(JSON.parse(e.newValue) as AulaHeartbeat);
+      } catch {
+        /* ignore */
+      }
+    };
+    heartbeatChannel?.addEventListener("message", onMsg);
+    window.addEventListener("storage", onStorage);
+
+    // Lettura iniziale (se Aula sta già trasmettendo)
+    try {
+      const raw = localStorage.getItem(HEARTBEAT_STORAGE);
+      if (raw) apply(JSON.parse(raw) as AulaHeartbeat);
+    } catch {
+      /* ignore */
+    }
+
+    const tick = window.setInterval(() => setNow(Date.now()), 500);
+    return () => {
+      heartbeatChannel?.removeEventListener("message", onMsg);
+      window.removeEventListener("storage", onStorage);
+      window.clearInterval(tick);
+    };
+  }, [modulo]);
+
+  const sinceMs = last ? now - last.ts : Infinity;
+  const online = last !== null && sinceMs < offlineAfterMs;
+  return { heartbeat: last, online, sinceMs };
+};
+
