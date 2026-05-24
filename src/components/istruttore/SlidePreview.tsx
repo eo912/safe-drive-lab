@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Radio, Eye, Maximize2, Hourglass, Coffee, Send } from "lucide-react";
 import type { ModuleBlock } from "@/lib/moduleBlocks";
 import type { AulaStep } from "@/lib/aulaSync";
+import type { PauseAtmosphere } from "@/lib/pauseAtmosphere";
 
 const KindLabel: Record<ModuleBlock["kind"], string> = {
   intro: "Intro",
