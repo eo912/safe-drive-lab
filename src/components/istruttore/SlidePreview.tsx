@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Radio, Eye, Maximize2, Hourglass, Coffee, Send } from "lucide-react";
 import type { ModuleBlock } from "@/lib/moduleBlocks";
 import type { AulaStep } from "@/lib/aulaSync";
+import type { PauseAtmosphere } from "@/lib/pauseAtmosphere";
 
 const KindLabel: Record<ModuleBlock["kind"], string> = {
   intro: "Intro",
@@ -23,6 +24,8 @@ type Props = {
   step: AulaStep;
   /** Solo per live: stato pausa Aula. */
   paused?: boolean;
+  /** Atmosfera pausa selezionata (passata all'iframe per coerenza preview). */
+  pauseAtmosphere?: PauseAtmosphere | null;
   onOpenWindow?: () => void;
   onSend?: () => void;
   empty?: boolean;
@@ -44,6 +47,7 @@ export const SlidePreview = ({
   block,
   step,
   paused = false,
+  pauseAtmosphere = null,
   onOpenWindow,
   onSend,
   empty = false,
@@ -146,8 +150,8 @@ export const SlidePreview = ({
             {/* Mini riproduzione della schermata pausa via iframe (atmosphere default) */}
             {block && (
               <iframe
-                key={`pause-${block.id}`}
-                src={`/aula/${modulo}?embed=mini&blocco=${block.id}&step=${step}&pausa=1`}
+                key={`pause-${block.id}-${pauseAtmosphere ?? "sun"}`}
+                src={`/aula/${modulo}?embed=mini&blocco=${block.id}&step=${step}&pausa=1&atm=${pauseAtmosphere ?? "sun"}`}
                 title="Aula in pausa"
                 aria-hidden="true"
                 tabIndex={-1}

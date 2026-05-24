@@ -158,6 +158,7 @@ const AulaPerche = () => {
     embedParam === "preview" ? "preview" : embedParam === "mini" ? "live" : "full";
   const embedBlocco = urlParams?.get("blocco") ?? "hero";
   const embedPaused = urlParams?.get("pausa") === "1";
+  const embedAtm = (urlParams?.get("atm") as import("@/lib/pauseAtmosphere").PauseAtmosphere | null) ?? null;
   const isPaused = embedMode
     ? embedPaused
     : aulaState.paused || forcePauseFromUrl;
@@ -332,7 +333,7 @@ const AulaPerche = () => {
           In embed la schermata pausa è semplificata (no vapore/particelle/breathe). */}
       {isPaused && (
         <AulaPauseScreen
-          atmosphere={embedMode ? "sun" : aulaState.pauseAtmosphere}
+          atmosphere={embedMode ? (embedAtm ?? "sun") : aulaState.pauseAtmosphere}
           pauseMinutes={embedMode ? undefined : aulaState.pauseMinutes}
           simplified={embedMode}
         />
