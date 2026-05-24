@@ -507,24 +507,7 @@ const IstruttoreModulo = () => {
             </SheetContent>
           </Sheet>
 
-          {/* Note istruttore — drawer richiamabile (anche da tasto N) */}
-          <button
-            type="button"
-            onClick={() => setNotesOpen(true)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
-            aria-label="Apri note istruttore"
-            title="Note (N)"
-          >
-            <StickyNote className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Note</span>
-          </button>
-
-          {/* Archivio / Cassetto / Formato non sono piu' nell'header:
-              vivono nelle aree dedicate (Archivio, Studio, Sessione)
-              raggiungibili dalla rail laterale. Restano gli shortcut A/C/F
-              come scorciatoie tastiera per aprire i drawer rapidi. */}
-
-          {/* Telecomando on-screen — sempre visibile, funziona in entrambe le modalità */}
+          {/* Telecomando on-screen — sempre visibile */}
           <div className="hidden md:flex items-center gap-1 shrink-0">
             <button
               type="button"
@@ -546,28 +529,55 @@ const IstruttoreModulo = () => {
             </button>
           </div>
 
-          {/* Mode switch — Lineare (slide + auto-publish) | Regia (preview + Invia in Aula) */}
-          <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md border border-border">
-            <span
-              className={`text-xs font-mono uppercase tracking-wider transition-colors ${
-                mode === "lineare" ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              Lineare
-            </span>
-            <Switch
-              checked={mode === "regia"}
-              onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
-              aria-label="Modalità lineare o regia"
-            />
-            <span
-              className={`text-xs font-mono uppercase tracking-wider transition-colors ${
-                mode === "regia" ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              Regia
-            </span>
-          </div>
+          {/* PAUSA / RIPRENDI — sempre visibile in LIVE, immediato */}
+          {view === "live" && (
+            aulaPaused ? (
+              <button
+                type="button"
+                onClick={resumeAula}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md bg-amber-500 text-background text-xs font-semibold uppercase tracking-wider hover:bg-amber-500/90 transition-colors shrink-0"
+                title="Riprendi"
+              >
+                <Play className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Riprendi</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => testPauseAula()}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md border border-amber-500/50 bg-amber-500/10 text-amber-500 text-xs font-semibold uppercase tracking-wider hover:bg-amber-500/20 transition-colors shrink-0"
+                title="Pausa Aula"
+              >
+                <Pause className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Pausa</span>
+              </button>
+            )
+          )}
+
+          {/* Mode switch — non in LIVE per ridurre rumore (config in SESSIONE) */}
+          {view !== "live" && (
+            <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md border border-border">
+              <span
+                className={`text-xs font-mono uppercase tracking-wider transition-colors ${
+                  mode === "lineare" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Lineare
+              </span>
+              <Switch
+                checked={mode === "regia"}
+                onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
+                aria-label="Modalità lineare o regia"
+              />
+              <span
+                className={`text-xs font-mono uppercase tracking-wider transition-colors ${
+                  mode === "regia" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Regia
+              </span>
+            </div>
+          )}
 
           <button
             type="button"
@@ -579,6 +589,32 @@ const IstruttoreModulo = () => {
             <span className="sm:hidden">Aula</span>
           </button>
         </div>
+
+        {/* Mode switch sotto lg — solo fuori dal LIVE */}
+        {view !== "live" && (
+          <div className="lg:hidden flex items-center justify-center gap-4 px-4 pb-2">
+            <div className="flex items-center gap-3">
+              <span
+                className={`text-[10px] font-mono uppercase tracking-wider ${
+                  mode === "lineare" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Lineare
+              </span>
+              <Switch
+                checked={mode === "regia"}
+                onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
+              />
+              <span
+                className={`text-[10px] font-mono uppercase tracking-wider ${
+                  mode === "regia" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Regia
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Mode switch + telecomando — sotto lg */}
         <div className="lg:hidden flex items-center justify-center gap-4 px-4 pb-2">
