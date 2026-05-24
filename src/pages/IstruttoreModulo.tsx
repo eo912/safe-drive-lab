@@ -728,6 +728,7 @@ const IstruttoreModulo = () => {
                 block={liveBlock}
                 step={(liveStep ?? "intro") as AulaStep}
                 paused={aulaPaused}
+                pauseAtmosphere={liveState?.pauseAtmosphere ?? null}
                 onOpenWindow={launchAula}
                 empty={!liveState}
               />
