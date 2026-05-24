@@ -91,6 +91,9 @@ const IstruttoreModulo = () => {
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [contentDrawerOpen, setContentDrawerOpen] = useState(false);
   const [formatOpen, setFormatOpen] = useState(false);
+  // LIVE: scaletta e suggerimenti collassabili (default chiusi durante conduzione)
+  const [liveTimelineOpen, setLiveTimelineOpen] = useState(false);
+  const [liveTipsOpen, setLiveTipsOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
   // View attiva (LIVE / STUDIO / ARCHIVIO / SESSIONE) sincronizzata con la URL.
