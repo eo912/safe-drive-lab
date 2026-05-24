@@ -14,7 +14,6 @@ import {
   ExternalLink,
   ChevronRight,
   ChevronLeft,
-  StickyNote,
   Radio,
   ListOrdered,
   Send,
@@ -22,6 +21,10 @@ import {
   Coffee,
   Inbox,
   Layers,
+  PanelLeft,
+  PanelRight,
+  Pause,
+  Clock,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -87,6 +90,9 @@ const IstruttoreModulo = () => {
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [contentDrawerOpen, setContentDrawerOpen] = useState(false);
   const [formatOpen, setFormatOpen] = useState(false);
+  // LIVE: scaletta e suggerimenti collassabili (default chiusi durante conduzione)
+  const [liveTimelineOpen, setLiveTimelineOpen] = useState(false);
+  const [liveTipsOpen, setLiveTipsOpen] = useState(false);
   const aulaWindowRef = useRef<Window | null>(null);
 
   // View attiva (LIVE / STUDIO / ARCHIVIO / SESSIONE) sincronizzata con la URL.
@@ -500,24 +506,7 @@ const IstruttoreModulo = () => {
             </SheetContent>
           </Sheet>
 
-          {/* Note istruttore — drawer richiamabile (anche da tasto N) */}
-          <button
-            type="button"
-            onClick={() => setNotesOpen(true)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
-            aria-label="Apri note istruttore"
-            title="Note (N)"
-          >
-            <StickyNote className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Note</span>
-          </button>
-
-          {/* Archivio / Cassetto / Formato non sono piu' nell'header:
-              vivono nelle aree dedicate (Archivio, Studio, Sessione)
-              raggiungibili dalla rail laterale. Restano gli shortcut A/C/F
-              come scorciatoie tastiera per aprire i drawer rapidi. */}
-
-          {/* Telecomando on-screen — sempre visibile, funziona in entrambe le modalità */}
+          {/* Telecomando on-screen — sempre visibile */}
           <div className="hidden md:flex items-center gap-1 shrink-0">
             <button
               type="button"
@@ -539,28 +528,55 @@ const IstruttoreModulo = () => {
             </button>
           </div>
 
-          {/* Mode switch — Lineare (slide + auto-publish) | Regia (preview + Invia in Aula) */}
-          <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md border border-border">
-            <span
-              className={`text-xs font-mono uppercase tracking-wider transition-colors ${
-                mode === "lineare" ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              Lineare
-            </span>
-            <Switch
-              checked={mode === "regia"}
-              onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
-              aria-label="Modalità lineare o regia"
-            />
-            <span
-              className={`text-xs font-mono uppercase tracking-wider transition-colors ${
-                mode === "regia" ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              Regia
-            </span>
-          </div>
+          {/* PAUSA / RIPRENDI — sempre visibile in LIVE, immediato */}
+          {view === "live" && (
+            aulaPaused ? (
+              <button
+                type="button"
+                onClick={resumeAula}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md bg-amber-500 text-background text-xs font-semibold uppercase tracking-wider hover:bg-amber-500/90 transition-colors shrink-0"
+                title="Riprendi"
+              >
+                <Play className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Riprendi</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => testPauseAula()}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md border border-amber-500/50 bg-amber-500/10 text-amber-500 text-xs font-semibold uppercase tracking-wider hover:bg-amber-500/20 transition-colors shrink-0"
+                title="Pausa Aula"
+              >
+                <Pause className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Pausa</span>
+              </button>
+            )
+          )}
+
+          {/* Mode switch — non in LIVE per ridurre rumore (config in SESSIONE) */}
+          {view !== "live" && (
+            <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-md border border-border">
+              <span
+                className={`text-xs font-mono uppercase tracking-wider transition-colors ${
+                  mode === "lineare" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Lineare
+              </span>
+              <Switch
+                checked={mode === "regia"}
+                onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
+                aria-label="Modalità lineare o regia"
+              />
+              <span
+                className={`text-xs font-mono uppercase tracking-wider transition-colors ${
+                  mode === "regia" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Regia
+              </span>
+            </div>
+          )}
 
           <button
             type="button"
@@ -573,46 +589,50 @@ const IstruttoreModulo = () => {
           </button>
         </div>
 
-        {/* Mode switch + telecomando — sotto lg */}
-        <div className="lg:hidden flex items-center justify-center gap-4 px-4 pb-2">
-          <div className="flex items-center gap-1 md:hidden">
-            <button
-              type="button"
-              onClick={() => stepRemoteRef.current?.(-1)}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground"
-              aria-label="Indietro"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => stepRemoteRef.current?.(1)}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground"
-              aria-label="Avanti"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+        {/* Mode switch sotto lg — solo fuori dal LIVE */}
+        {view !== "live" && (
+          <div className="lg:hidden flex items-center justify-center gap-4 px-4 pb-2">
+            <div className="flex items-center gap-3">
+              <span
+                className={`text-[10px] font-mono uppercase tracking-wider ${
+                  mode === "lineare" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Lineare
+              </span>
+              <Switch
+                checked={mode === "regia"}
+                onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
+              />
+              <span
+                className={`text-[10px] font-mono uppercase tracking-wider ${
+                  mode === "regia" ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                Regia
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span
-              className={`text-[10px] font-mono uppercase tracking-wider ${
-                mode === "lineare" ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              Lineare
-            </span>
-            <Switch
-              checked={mode === "regia"}
-              onCheckedChange={(v) => setMode(v ? "regia" : "lineare")}
-            />
-            <span
-              className={`text-[10px] font-mono uppercase tracking-wider ${
-                mode === "regia" ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              Regia
-            </span>
-          </div>
+        )}
+
+        {/* Telecomando mobile — sotto md */}
+        <div className="md:hidden flex items-center justify-center gap-2 px-4 pb-2">
+          <button
+            type="button"
+            onClick={() => stepRemoteRef.current?.(-1)}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground"
+            aria-label="Indietro"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => stepRemoteRef.current?.(1)}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground"
+            aria-label="Avanti"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </header>
 
@@ -626,17 +646,59 @@ const IstruttoreModulo = () => {
         <div className="flex-1 min-w-0 flex flex-col">
           {/* ============== VISTA LIVE ============== */}
           {view === "live" && (
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[260px_1fr_300px] xl:grid-cols-[280px_1fr_320px]">
-              <aside className="hidden lg:block lg:border-r border-border bg-card/40">
-                <div className="p-4 border-b border-border/60">
-                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
-                    Scaletta
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {blocks.length} blocchi
-                  </p>
-                </div>
-                {TimelineContent}
+            <div
+              className={`flex-1 grid grid-cols-1 transition-[grid-template-columns] duration-300 ${
+                liveTimelineOpen && liveTipsOpen
+                  ? "lg:grid-cols-[260px_1fr_300px] xl:grid-cols-[280px_1fr_320px]"
+                  : liveTimelineOpen
+                    ? "lg:grid-cols-[260px_1fr_44px] xl:grid-cols-[280px_1fr_44px]"
+                    : liveTipsOpen
+                      ? "lg:grid-cols-[44px_1fr_300px] xl:grid-cols-[44px_1fr_320px]"
+                      : "lg:grid-cols-[44px_1fr_44px]"
+              }`}
+            >
+              {/* SIDE LEFT — scaletta collassabile */}
+              <aside className="hidden lg:flex flex-col lg:border-r border-border bg-card/40 min-h-0">
+                {liveTimelineOpen ? (
+                  <>
+                    <div className="p-3 border-b border-border/60 flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
+                          Scaletta
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                          {blocks.length} blocchi
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setLiveTimelineOpen(false)}
+                        className="w-7 h-7 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                        aria-label="Chiudi scaletta"
+                        title="Chiudi scaletta"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">{TimelineContent}</div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setLiveTimelineOpen(true)}
+                    className="flex-1 w-full flex flex-col items-center gap-3 py-3 text-muted-foreground hover:text-foreground hover:bg-secondary/40 transition-colors"
+                    aria-label="Apri scaletta"
+                    title="Apri scaletta"
+                  >
+                    <PanelLeft className="w-4 h-4" />
+                    <span
+                      className="text-[10px] font-mono uppercase tracking-[0.25em]"
+                      style={{ writingMode: "vertical-rl" }}
+                    >
+                      Scaletta
+                    </span>
+                  </button>
+                )}
               </aside>
 
               <main className="p-4 sm:p-6 md:p-10 min-w-0">
@@ -656,6 +718,14 @@ const IstruttoreModulo = () => {
                         {previewState.step}
                       </span>
                     </span>
+
+                    {/* Timer compatto inline — solo info essenziali */}
+                    {liveBlock && !aulaPaused && (
+                      <LiveTimerBadge
+                        liveSeconds={liveSeconds}
+                        expectedSeconds={liveExpected}
+                      />
+                    )}
                   </div>
 
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6">
@@ -702,28 +772,6 @@ const IstruttoreModulo = () => {
                     )}
                   </div>
 
-                  {aulaPaused && (
-                    <div className="mb-4 flex items-center justify-between gap-3 p-3 rounded-md border border-amber-500/40 bg-amber-500/5">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Coffee className="w-4 h-4 text-amber-500 shrink-0" />
-                        <p className="text-sm text-foreground/90 truncate">
-                          Aula in pausa
-                          {liveState?.pauseMinutes
-                            ? ` · ${liveState.pauseMinutes} min`
-                            : ""}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={resumeAula}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-amber-500/15 text-amber-500 text-xs font-mono uppercase tracking-wider hover:bg-amber-500/25 transition-colors shrink-0"
-                      >
-                        <Play className="w-3 h-3" />
-                        Riprendi
-                      </button>
-                    </div>
-                  )}
-
                   <div
                     className={`grid grid-cols-1 gap-4 md:gap-5 transition-[grid-template-columns] duration-300 ${
                       aulaPaused ? "" : "md:grid-cols-3"
@@ -756,20 +804,8 @@ const IstruttoreModulo = () => {
                     )}
                   </div>
 
-                  <div className="mt-4">
-                    <SlideTimeIndicator
-                      expectedSeconds={liveExpected}
-                      liveSeconds={liveSeconds}
-                      isLive={Boolean(liveBlock) && !aulaPaused}
-                      onChange={(s) =>
-                        liveBlock && setExpected(liveBlock.id, s)
-                      }
-                      onReset={() => liveBlock && resetExpected(liveBlock.id)}
-                    />
-                  </div>
-
                   <div className="mt-4 flex items-center justify-between gap-3">
-                    <div className="text-[11px] text-muted-foreground">
+                    <div className="text-[11px] text-muted-foreground min-w-0 truncate">
                       {liveState ? (
                         <>
                           In Aula:{" "}
@@ -788,7 +824,7 @@ const IstruttoreModulo = () => {
                         type="button"
                         onClick={sendToAula}
                         disabled={isLive}
-                        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
+                        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors shrink-0 ${
                           isLive
                             ? "bg-emerald-500/15 text-emerald-500 cursor-default"
                             : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -807,7 +843,7 @@ const IstruttoreModulo = () => {
                         )}
                       </button>
                     ) : (
-                      <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider">
+                      <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider shrink-0">
                         <Radio className="w-3 h-3" />
                         Sync automatica
                       </span>
@@ -837,14 +873,46 @@ const IstruttoreModulo = () => {
                 </div>
               </main>
 
-              <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
-                <div className="p-4 border-b border-border/60 flex items-center gap-2">
-                  <BookOpen className="w-3.5 h-3.5 text-primary" />
-                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
-                    Suggerimenti didattici
-                  </p>
-                </div>
-                {TeachingNotes}
+              {/* SIDE RIGHT — suggerimenti didattici collassabili */}
+              <aside className="hidden lg:flex flex-col lg:border-l border-border bg-card/40 min-h-0">
+                {liveTipsOpen ? (
+                  <>
+                    <div className="p-3 border-b border-border/60 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground truncate">
+                          Suggerimenti
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setLiveTipsOpen(false)}
+                        className="w-7 h-7 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                        aria-label="Chiudi suggerimenti"
+                        title="Chiudi suggerimenti"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">{TeachingNotes}</div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setLiveTipsOpen(true)}
+                    className="flex-1 w-full flex flex-col items-center gap-3 py-3 text-muted-foreground hover:text-foreground hover:bg-secondary/40 transition-colors"
+                    aria-label="Apri suggerimenti didattici"
+                    title="Apri suggerimenti"
+                  >
+                    <PanelRight className="w-4 h-4" />
+                    <span
+                      className="text-[10px] font-mono uppercase tracking-[0.25em]"
+                      style={{ writingMode: "vertical-rl" }}
+                    >
+                      Suggerimenti
+                    </span>
+                  </button>
+                )}
               </aside>
             </div>
           )}
@@ -1086,5 +1154,37 @@ const ActionButton = ({
     )}
   </button>
 );
+
+/**
+ * Badge timer compatto per il LIVE: mostra solo tempo trascorso e
+ * stato semplice (in tempo / fuori tempo). La regolazione fine vive in STUDIO.
+ */
+const LiveTimerBadge = ({
+  liveSeconds,
+  expectedSeconds,
+}: {
+  liveSeconds: number;
+  expectedSeconds: number;
+}) => {
+  const over = liveSeconds > expectedSeconds;
+  const remaining = Math.max(0, expectedSeconds - liveSeconds);
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  const overM = Math.floor((liveSeconds - expectedSeconds) / 60);
+  const overS = (liveSeconds - expectedSeconds) % 60;
+  return (
+    <span
+      className={`inline-flex items-center gap-1 font-mono text-[10px] tabular-nums uppercase tracking-wider ${
+        over ? "text-amber-500" : "text-emerald-500"
+      }`}
+      title={over ? "Fuori tempo" : "In tempo"}
+    >
+      <Clock className="w-3 h-3" />
+      {over
+        ? `+${String(overM).padStart(2, "0")}:${String(overS).padStart(2, "0")}`
+        : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`}
+    </span>
+  );
+};
 
 export default IstruttoreModulo;
