@@ -22,6 +22,10 @@ import {
   Coffee,
   Inbox,
   Layers,
+  PanelLeft,
+  PanelRight,
+  Pause,
+  Clock,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
