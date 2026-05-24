@@ -163,6 +163,16 @@ const AulaPerche = () => {
     ? embedPaused
     : aulaState.paused || forcePauseFromUrl;
 
+  // HEARTBEAT: solo Aula reale (non embed mini/preview).
+  // Invia ogni 1.5s la posizione corrente alla Regia.
+  useAulaHeartbeat(!embedMode, {
+    modulo: "perche-la-guida-sicura",
+    blocco: aulaState.blocco,
+    step: aulaState.step,
+    paused: Boolean(isPaused),
+    pauseAtmosphere: aulaState.pauseAtmosphere,
+  });
+
   const navigateSection = useCallback((delta: number) => {
     const scroller = scrollerRef.current;
     if (!scroller || isAnimatingRef.current) return;
