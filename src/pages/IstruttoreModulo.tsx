@@ -513,41 +513,10 @@ const IstruttoreModulo = () => {
             <span className="hidden sm:inline">Note</span>
           </button>
 
-          {/* Archivio — drawer richiamabile (anche da tasto A) */}
-          <button
-            type="button"
-            onClick={() => setArchiveOpen(true)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
-            aria-label="Apri archivio"
-            title="Archivio (A)"
-          >
-            <Archive className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Archivio</span>
-          </button>
-
-          {/* Cassetto contenuti — drawer richiamabile (anche da tasto C) */}
-          <button
-            type="button"
-            onClick={() => setContentDrawerOpen(true)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
-            aria-label="Apri cassetto contenuti"
-            title="Cassetto contenuti (C)"
-          >
-            <Inbox className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Cassetto</span>
-          </button>
-
-          {/* Formato corso — drawer (anche da tasto F) */}
-          <button
-            type="button"
-            onClick={() => setFormatOpen(true)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors shrink-0"
-            aria-label="Apri formato corso"
-            title="Formato corso (F)"
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Formato</span>
-          </button>
+          {/* Archivio / Cassetto / Formato non sono piu' nell'header:
+              vivono nelle aree dedicate (Archivio, Studio, Sessione)
+              raggiungibili dalla rail laterale. Restano gli shortcut A/C/F
+              come scorciatoie tastiera per aprire i drawer rapidi. */}
 
           {/* Telecomando on-screen — sempre visibile, funziona in entrambe le modalità */}
           <div className="hidden md:flex items-center gap-1 shrink-0">
