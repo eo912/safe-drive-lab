@@ -720,27 +720,35 @@ const IstruttoreModulo = () => {
               </div>
             )}
 
-            {/* DUAL VIEW: In Aula (live) | Anteprima (preview).
-                In pausa, la live espande a tutta larghezza (preview focus). */}
-            <div className={`grid grid-cols-1 gap-4 md:gap-5 ${aulaPaused ? "" : "md:grid-cols-2"}`}>
-              <SlidePreview
-                variant="live"
-                modulo={slug}
-                block={liveBlock}
-                step={(liveStep ?? "intro") as AulaStep}
-                paused={aulaPaused}
-                pauseAtmosphere={liveState?.pauseAtmosphere ?? null}
-                onOpenWindow={launchAula}
-                empty={!liveState}
-              />
-              {!aulaPaused && (
+            {/* DUAL VIEW broadcast: LIVE dominante (2/3), ANTEPRIMA secondaria (1/3).
+                In pausa la live espande full width (preview focus). */}
+            <div
+              className={`grid grid-cols-1 gap-4 md:gap-5 transition-[grid-template-columns] duration-300 ${
+                aulaPaused ? "" : "md:grid-cols-3"
+              }`}
+            >
+              <div className={aulaPaused ? "" : "md:col-span-2"}>
                 <SlidePreview
-                  variant="preview"
+                  variant="live"
                   modulo={slug}
-                  block={active}
-                  step={previewState.step}
-                  onSend={mode === "regia" && !isLive ? sendToAula : undefined}
+                  block={liveBlock}
+                  step={(liveStep ?? "intro") as AulaStep}
+                  paused={aulaPaused}
+                  pauseAtmosphere={liveState?.pauseAtmosphere ?? null}
+                  onOpenWindow={launchAula}
+                  empty={!liveState}
                 />
+              </div>
+              {!aulaPaused && (
+                <div className="md:col-span-1 transition-opacity duration-300">
+                  <SlidePreview
+                    variant="preview"
+                    modulo={slug}
+                    block={active}
+                    step={previewState.step}
+                    onSend={mode === "regia" && !isLive ? sendToAula : undefined}
+                  />
+                </div>
               )}
             </div>
 
