@@ -144,31 +144,28 @@ export const SlidePreview = ({
         ref={containerRef}
         className={`relative rounded-lg border-2 bg-card aspect-video overflow-hidden transition-colors ${borderClass}`}
       >
-        {/* PAUSA: solo nel riquadro live */}
-        {isLive && paused && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-amber-950/40 via-background to-background">
-            {/* Mini riproduzione della schermata pausa via iframe (atmosphere default) */}
-            {block && (
-              <iframe
-                key={`pause-${block.id}-${pauseAtmosphere ?? "sun"}`}
-                src={`/aula/${modulo}?embed=mini&blocco=${block.id}&step=${step}&pausa=1&atm=${pauseAtmosphere ?? "sun"}`}
-                title="Aula in pausa"
-                aria-hidden="true"
-                tabIndex={-1}
-                className="border-0 origin-top-left"
-                style={{
-                  width: STAGE_W,
-                  height: STAGE_H,
-                  transform: `scale(${scale})`,
-                  pointerEvents: "none",
-                }}
-              />
-            )}
-            <div className="absolute top-2 left-2 inline-flex items-center gap-1.5 px-2 py-1 rounded-sm bg-amber-500/20 backdrop-blur text-[9px] font-mono uppercase tracking-wider text-amber-400">
+        {/* PAUSA: solo nel riquadro live — iframe pieno, badge minimale */}
+        {isLive && paused && block && (
+          <>
+            <iframe
+              key={`pause-${block.id}-${pauseAtmosphere ?? "sun"}`}
+              src={`/aula/${modulo}?embed=mini&blocco=${block.id}&step=${step}&pausa=1&atm=${pauseAtmosphere ?? "sun"}`}
+              title="Aula in pausa"
+              aria-hidden="true"
+              tabIndex={-1}
+              className="border-0 origin-top-left"
+              style={{
+                width: STAGE_W,
+                height: STAGE_H,
+                transform: `scale(${scale})`,
+                pointerEvents: "none",
+              }}
+            />
+            <div className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm bg-background/60 backdrop-blur-sm text-[9px] font-mono uppercase tracking-wider text-amber-400">
               <Coffee className="w-2.5 h-2.5" />
-              Pausa attiva
+              Pausa
             </div>
-          </div>
+          </>
         )}
 
         {/* STAGE NORMALE */}
