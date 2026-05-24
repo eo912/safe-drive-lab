@@ -453,6 +453,9 @@ const IstruttoreModulo = () => {
             <h1 className="text-sm font-semibold truncate">{module.title}</h1>
           </div>
 
+          <AulaStatusBadge modulo={slug} blocks={blocks} />
+
+
           {/* Drawer triggers — solo sotto lg */}
           <Sheet open={timelineOpen} onOpenChange={setTimelineOpen}>
             <SheetTrigger asChild>
