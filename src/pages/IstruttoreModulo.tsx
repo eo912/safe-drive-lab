@@ -647,17 +647,59 @@ const IstruttoreModulo = () => {
         <div className="flex-1 min-w-0 flex flex-col">
           {/* ============== VISTA LIVE ============== */}
           {view === "live" && (
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[260px_1fr_300px] xl:grid-cols-[280px_1fr_320px]">
-              <aside className="hidden lg:block lg:border-r border-border bg-card/40">
-                <div className="p-4 border-b border-border/60">
-                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
-                    Scaletta
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {blocks.length} blocchi
-                  </p>
-                </div>
-                {TimelineContent}
+            <div
+              className={`flex-1 grid grid-cols-1 transition-[grid-template-columns] duration-300 ${
+                liveTimelineOpen && liveTipsOpen
+                  ? "lg:grid-cols-[260px_1fr_300px] xl:grid-cols-[280px_1fr_320px]"
+                  : liveTimelineOpen
+                    ? "lg:grid-cols-[260px_1fr_44px] xl:grid-cols-[280px_1fr_44px]"
+                    : liveTipsOpen
+                      ? "lg:grid-cols-[44px_1fr_300px] xl:grid-cols-[44px_1fr_320px]"
+                      : "lg:grid-cols-[44px_1fr_44px]"
+              }`}
+            >
+              {/* SIDE LEFT — scaletta collassabile */}
+              <aside className="hidden lg:flex flex-col lg:border-r border-border bg-card/40 min-h-0">
+                {liveTimelineOpen ? (
+                  <>
+                    <div className="p-3 border-b border-border/60 flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
+                          Scaletta
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                          {blocks.length} blocchi
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setLiveTimelineOpen(false)}
+                        className="w-7 h-7 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                        aria-label="Chiudi scaletta"
+                        title="Chiudi scaletta"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">{TimelineContent}</div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setLiveTimelineOpen(true)}
+                    className="flex-1 w-full flex flex-col items-center gap-3 py-3 text-muted-foreground hover:text-foreground hover:bg-secondary/40 transition-colors"
+                    aria-label="Apri scaletta"
+                    title="Apri scaletta"
+                  >
+                    <PanelLeft className="w-4 h-4" />
+                    <span
+                      className="text-[10px] font-mono uppercase tracking-[0.25em]"
+                      style={{ writingMode: "vertical-rl" }}
+                    >
+                      Scaletta
+                    </span>
+                  </button>
+                )}
               </aside>
 
               <main className="p-4 sm:p-6 md:p-10 min-w-0">
@@ -677,6 +719,14 @@ const IstruttoreModulo = () => {
                         {previewState.step}
                       </span>
                     </span>
+
+                    {/* Timer compatto inline — solo info essenziali */}
+                    {liveBlock && !aulaPaused && (
+                      <LiveTimerBadge
+                        liveSeconds={liveSeconds}
+                        expectedSeconds={liveExpected}
+                      />
+                    )}
                   </div>
 
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6">
@@ -723,28 +773,6 @@ const IstruttoreModulo = () => {
                     )}
                   </div>
 
-                  {aulaPaused && (
-                    <div className="mb-4 flex items-center justify-between gap-3 p-3 rounded-md border border-amber-500/40 bg-amber-500/5">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Coffee className="w-4 h-4 text-amber-500 shrink-0" />
-                        <p className="text-sm text-foreground/90 truncate">
-                          Aula in pausa
-                          {liveState?.pauseMinutes
-                            ? ` · ${liveState.pauseMinutes} min`
-                            : ""}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={resumeAula}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-amber-500/15 text-amber-500 text-xs font-mono uppercase tracking-wider hover:bg-amber-500/25 transition-colors shrink-0"
-                      >
-                        <Play className="w-3 h-3" />
-                        Riprendi
-                      </button>
-                    </div>
-                  )}
-
                   <div
                     className={`grid grid-cols-1 gap-4 md:gap-5 transition-[grid-template-columns] duration-300 ${
                       aulaPaused ? "" : "md:grid-cols-3"
@@ -777,20 +805,8 @@ const IstruttoreModulo = () => {
                     )}
                   </div>
 
-                  <div className="mt-4">
-                    <SlideTimeIndicator
-                      expectedSeconds={liveExpected}
-                      liveSeconds={liveSeconds}
-                      isLive={Boolean(liveBlock) && !aulaPaused}
-                      onChange={(s) =>
-                        liveBlock && setExpected(liveBlock.id, s)
-                      }
-                      onReset={() => liveBlock && resetExpected(liveBlock.id)}
-                    />
-                  </div>
-
                   <div className="mt-4 flex items-center justify-between gap-3">
-                    <div className="text-[11px] text-muted-foreground">
+                    <div className="text-[11px] text-muted-foreground min-w-0 truncate">
                       {liveState ? (
                         <>
                           In Aula:{" "}
@@ -809,7 +825,7 @@ const IstruttoreModulo = () => {
                         type="button"
                         onClick={sendToAula}
                         disabled={isLive}
-                        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors ${
+                        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors shrink-0 ${
                           isLive
                             ? "bg-emerald-500/15 text-emerald-500 cursor-default"
                             : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -828,7 +844,7 @@ const IstruttoreModulo = () => {
                         )}
                       </button>
                     ) : (
-                      <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider">
+                      <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider shrink-0">
                         <Radio className="w-3 h-3" />
                         Sync automatica
                       </span>
@@ -858,14 +874,46 @@ const IstruttoreModulo = () => {
                 </div>
               </main>
 
-              <aside className="hidden lg:block lg:border-l border-border bg-card/40 overflow-y-auto">
-                <div className="p-4 border-b border-border/60 flex items-center gap-2">
-                  <BookOpen className="w-3.5 h-3.5 text-primary" />
-                  <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground">
-                    Suggerimenti didattici
-                  </p>
-                </div>
-                {TeachingNotes}
+              {/* SIDE RIGHT — suggerimenti didattici collassabili */}
+              <aside className="hidden lg:flex flex-col lg:border-l border-border bg-card/40 min-h-0">
+                {liveTipsOpen ? (
+                  <>
+                    <div className="p-3 border-b border-border/60 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground truncate">
+                          Suggerimenti
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setLiveTipsOpen(false)}
+                        className="w-7 h-7 rounded-md inline-flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                        aria-label="Chiudi suggerimenti"
+                        title="Chiudi suggerimenti"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">{TeachingNotes}</div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setLiveTipsOpen(true)}
+                    className="flex-1 w-full flex flex-col items-center gap-3 py-3 text-muted-foreground hover:text-foreground hover:bg-secondary/40 transition-colors"
+                    aria-label="Apri suggerimenti didattici"
+                    title="Apri suggerimenti"
+                  >
+                    <PanelRight className="w-4 h-4" />
+                    <span
+                      className="text-[10px] font-mono uppercase tracking-[0.25em]"
+                      style={{ writingMode: "vertical-rl" }}
+                    >
+                      Suggerimenti
+                    </span>
+                  </button>
+                )}
               </aside>
             </div>
           )}
