@@ -333,7 +333,7 @@ const AulaPerche = () => {
           In embed la schermata pausa è semplificata (no vapore/particelle/breathe). */}
       {isPaused && (
         <AulaPauseScreen
-          atmosphere={embedMode ? "sun" : aulaState.pauseAtmosphere}
+          atmosphere={embedMode ? (embedAtm ?? "sun") : aulaState.pauseAtmosphere}
           pauseMinutes={embedMode ? undefined : aulaState.pauseMinutes}
           simplified={embedMode}
         />
