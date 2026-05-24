@@ -14,7 +14,6 @@ import {
   ExternalLink,
   ChevronRight,
   ChevronLeft,
-  StickyNote,
   Radio,
   ListOrdered,
   Send,
