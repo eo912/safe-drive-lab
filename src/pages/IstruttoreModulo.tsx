@@ -1156,4 +1156,36 @@ const ActionButton = ({
   </button>
 );
 
+/**
+ * Badge timer compatto per il LIVE: mostra solo tempo trascorso e
+ * stato semplice (in tempo / fuori tempo). La regolazione fine vive in STUDIO.
+ */
+const LiveTimerBadge = ({
+  liveSeconds,
+  expectedSeconds,
+}: {
+  liveSeconds: number;
+  expectedSeconds: number;
+}) => {
+  const over = liveSeconds > expectedSeconds;
+  const remaining = Math.max(0, expectedSeconds - liveSeconds);
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  const overM = Math.floor((liveSeconds - expectedSeconds) / 60);
+  const overS = (liveSeconds - expectedSeconds) % 60;
+  return (
+    <span
+      className={`inline-flex items-center gap-1 font-mono text-[10px] tabular-nums uppercase tracking-wider ${
+        over ? "text-amber-500" : "text-emerald-500"
+      }`}
+      title={over ? "Fuori tempo" : "In tempo"}
+    >
+      <Clock className="w-3 h-3" />
+      {over
+        ? `+${String(overM).padStart(2, "0")}:${String(overS).padStart(2, "0")}`
+        : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`}
+    </span>
+  );
+};
+
 export default IstruttoreModulo;
