@@ -456,7 +456,7 @@ const IstruttoreModulo = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className={`bg-background text-foreground flex flex-col ${view === "live" ? "h-screen overflow-hidden" : "min-h-screen"}`}>
       {/* HEADER FISSO */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
         <div className="h-14 px-3 md:px-6 flex items-center gap-2 md:gap-4">
