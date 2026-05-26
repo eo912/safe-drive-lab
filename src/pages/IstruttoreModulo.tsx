@@ -762,11 +762,11 @@ const IstruttoreModulo = () => {
                     </div>
                   )}
 
-                  {/* LIVE dominante (3/4) + ANTEPRIMA secondaria (1/4).
+                  {/* LIVE dominante (2/3) + ANTEPRIMA secondaria (1/3).
                       In pausa: solo LIVE full width. */}
                   <div
                     className={`flex-1 min-h-0 grid grid-cols-1 gap-3 md:gap-4 ${
-                      aulaPaused ? "" : "md:grid-cols-[3fr_1fr] xl:grid-cols-[4fr_1fr]"
+                      aulaPaused ? "" : "md:grid-cols-[2fr_1fr]"
                     }`}
                   >
                     <div className="min-h-0 flex flex-col">
