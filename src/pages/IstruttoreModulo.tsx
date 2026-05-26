@@ -17,7 +17,7 @@ import {
   Radio,
   ListOrdered,
   Send,
-  
+  CheckCircle2,
   Coffee,
   Inbox,
   Layers,
@@ -456,7 +456,7 @@ const IstruttoreModulo = () => {
   );
 
   return (
-    <div className={`bg-background text-foreground flex flex-col ${view === "live" ? "h-screen overflow-hidden" : "min-h-screen"}`}>
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* HEADER FISSO */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
         <div className="h-14 px-3 md:px-6 flex items-center gap-2 md:gap-4">
@@ -701,16 +701,25 @@ const IstruttoreModulo = () => {
                 )}
               </aside>
 
-              <main className="p-3 sm:p-4 md:p-5 min-w-0 min-h-0 flex flex-col overflow-hidden">
-                <div className="w-full max-w-6xl mx-auto flex-1 min-h-0 flex flex-col gap-3">
-                  {/* Riga compatta: blocco · tipo · titolo · timer */}
-                  <div className="flex items-center flex-wrap gap-x-3 gap-y-1 shrink-0">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary shrink-0">
-                      {String(active.index).padStart(2, "0")} · {KindLabel[active.kind]}
+              <main className="p-4 sm:p-6 md:p-10 min-w-0">
+                <div className="max-w-3xl mx-auto">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
+                      Blocco {String(active.index).padStart(2, "0")}
                     </span>
-                    <h2 className="text-sm md:text-base font-semibold truncate min-w-0 flex-1">
-                      {active.title}
-                    </h2>
+                    <span className="text-muted-foreground text-xs">•</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                      {KindLabel[active.kind]}
+                    </span>
+                    <span className="text-muted-foreground text-xs">•</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                      Step:{" "}
+                      <span className="text-foreground/80">
+                        {previewState.step}
+                      </span>
+                    </span>
+
+                    {/* Timer compatto inline — solo info essenziali */}
                     {liveBlock && !aulaPaused && (
                       <LiveTimerBadge
                         liveSeconds={liveSeconds}
@@ -719,57 +728,56 @@ const IstruttoreModulo = () => {
                     )}
                   </div>
 
-                  {/* Azioni step compatte */}
-                  {(active.hasScenario || active.hasOutcomes || active.hasExplanation || active.hasDeepDive) && (
-                    <div className="flex flex-wrap gap-1.5 shrink-0">
-                      {active.hasScenario && (
-                        <ActionButton
-                          icon={Play}
-                          label="Scenario"
-                          primary
-                          active={previewState.step === "scenario"}
-                          live={isLive && liveStep === "scenario"}
-                          onClick={() => setStep("scenario")}
-                        />
-                      )}
-                      {active.hasOutcomes && (
-                        <ActionButton
-                          icon={ListChecks}
-                          label="Esiti"
-                          active={previewState.step === "esiti"}
-                          live={isLive && liveStep === "esiti"}
-                          onClick={() => setStep("esiti")}
-                        />
-                      )}
-                      {active.hasExplanation && (
-                        <ActionButton
-                          icon={BookOpen}
-                          label="Spiegazione"
-                          active={previewState.step === "spiegazione"}
-                          live={isLive && liveStep === "spiegazione"}
-                          onClick={() => setStep("spiegazione")}
-                        />
-                      )}
-                      {active.hasDeepDive && (
-                        <ActionButton
-                          icon={ExternalLink}
-                          label="Approfondimento"
-                          active={previewState.step === "approfondimento"}
-                          live={isLive && liveStep === "approfondimento"}
-                          onClick={() => setStep("approfondimento")}
-                        />
-                      )}
-                    </div>
-                  )}
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6">
+                    {active.title}
+                  </h2>
 
-                  {/* LIVE dominante (2/3) + ANTEPRIMA secondaria (1/3).
-                      In pausa: solo LIVE full width. */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {active.hasScenario && (
+                      <ActionButton
+                        icon={Play}
+                        label="Avvia scenario"
+                        primary
+                        active={previewState.step === "scenario"}
+                        live={isLive && liveStep === "scenario"}
+                        onClick={() => setStep("scenario")}
+                      />
+                    )}
+                    {active.hasOutcomes && (
+                      <ActionButton
+                        icon={ListChecks}
+                        label="Mostra esiti"
+                        active={previewState.step === "esiti"}
+                        live={isLive && liveStep === "esiti"}
+                        onClick={() => setStep("esiti")}
+                      />
+                    )}
+                    {active.hasExplanation && (
+                      <ActionButton
+                        icon={BookOpen}
+                        label="Mostra spiegazione"
+                        active={previewState.step === "spiegazione"}
+                        live={isLive && liveStep === "spiegazione"}
+                        onClick={() => setStep("spiegazione")}
+                      />
+                    )}
+                    {active.hasDeepDive && (
+                      <ActionButton
+                        icon={ExternalLink}
+                        label="Apri approfondimento"
+                        active={previewState.step === "approfondimento"}
+                        live={isLive && liveStep === "approfondimento"}
+                        onClick={() => setStep("approfondimento")}
+                      />
+                    )}
+                  </div>
+
                   <div
-                    className={`flex-1 min-h-0 grid grid-cols-1 gap-3 md:gap-4 ${
-                      aulaPaused ? "" : "md:grid-cols-[2fr_1fr]"
+                    className={`grid grid-cols-1 gap-4 md:gap-5 transition-[grid-template-columns] duration-300 ${
+                      aulaPaused ? "" : "md:grid-cols-3"
                     }`}
                   >
-                    <div className="min-h-0 flex flex-col">
+                    <div className={aulaPaused ? "" : "md:col-span-2"}>
                       <SlidePreview
                         variant="live"
                         modulo={slug}
@@ -782,29 +790,83 @@ const IstruttoreModulo = () => {
                       />
                     </div>
                     {!aulaPaused && (
-                      <div className="min-h-0 flex flex-col">
+                      <div className="md:col-span-1 transition-opacity duration-300">
                         <SlidePreview
                           variant="preview"
                           modulo={slug}
                           block={active}
                           step={previewState.step}
+                          onSend={
+                            mode === "regia" && !isLive ? sendToAula : undefined
+                          }
                         />
                       </div>
                     )}
                   </div>
 
-                  {/* Unico CTA "Invia in Aula" (solo regia, solo se non già live).
-                      Niente caption "In Aula …": l'AulaStatusBadge in header e la
-                      label del riquadro LIVE bastano. */}
-                  {mode === "regia" && !aulaPaused && !isLive && (
-                    <div className="flex items-center justify-end shrink-0">
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <div className="text-[11px] text-muted-foreground min-w-0 truncate">
+                      {liveState ? (
+                        <>
+                          In Aula:{" "}
+                          <span className="text-foreground/80 font-mono">
+                            {blocks.find((b) => b.id === liveBlockId)?.title ??
+                              "—"}{" "}
+                            · {liveStep}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-mono">Aula in attesa</span>
+                      )}
+                    </div>
+                    {mode === "regia" ? (
                       <button
                         type="button"
                         onClick={sendToAula}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-semibold uppercase tracking-wider hover:bg-primary/90 transition-colors"
+                        disabled={isLive}
+                        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-semibold uppercase tracking-wider transition-colors shrink-0 ${
+                          isLive
+                            ? "bg-emerald-500/15 text-emerald-500 cursor-default"
+                            : "bg-primary text-primary-foreground hover:bg-primary/90"
+                        }`}
                       >
-                        <Send className="w-4 h-4" />
-                        Invia in Aula
+                        {isLive ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4" />
+                            In Aula
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4" />
+                            Invia in Aula
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider shrink-0">
+                        <Radio className="w-3 h-3" />
+                        Sync automatica
+                      </span>
+                    )}
+                  </div>
+
+                  {mode === "regia" && nextBlock && (
+                    <div className="mt-6 flex items-center justify-between gap-4 p-4 rounded-md border border-primary/30 bg-primary/5">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
+                          Prossimo passo
+                        </p>
+                        <p className="text-sm text-foreground/90 truncate">
+                          {nextBlock.title}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => goToBlock(nextBlock.id)}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary/10 text-primary text-xs font-medium uppercase tracking-wider hover:bg-primary/20 transition-colors shrink-0"
+                      >
+                        Avanti
+                        <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   )}
