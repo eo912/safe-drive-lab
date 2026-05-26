@@ -17,7 +17,7 @@ import {
   Radio,
   ListOrdered,
   Send,
-  CheckCircle2,
+  
   Coffee,
   Inbox,
   Layers,
