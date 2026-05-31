@@ -17,6 +17,8 @@ export type AulaState = {
   paused?: boolean;
   pauseMinutes?: number;
   pauseAtmosphere?: PauseAtmosphere;
+  /** Schermata nera istantanea (tasto B). Sovrasta tutto in Aula. */
+  blackout?: boolean;
   // Media attualmente proiettato in Aula (immagine/video/pdf/link). null = nessuno.
   media?: Resource | null;
   // Media embedded inline nella scena (più di uno consentito).

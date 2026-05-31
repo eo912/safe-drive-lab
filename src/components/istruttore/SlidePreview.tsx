@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Radio, Eye, Maximize2, Hourglass, Coffee, Send } from "lucide-react";
 import type { ModuleBlock } from "@/lib/moduleBlocks";
 import type { AulaStep } from "@/lib/aulaSync";
@@ -29,6 +29,8 @@ type Props = {
   onOpenWindow?: () => void;
   onSend?: () => void;
   empty?: boolean;
+  /** Overlay opzionale renderizzato sopra il box 16:9 (es. cornice timer). */
+  frameOverlay?: ReactNode;
 };
 
 /**
@@ -51,6 +53,7 @@ export const SlidePreview = ({
   onOpenWindow,
   onSend,
   empty = false,
+  frameOverlay,
 }: Props) => {
   const isLive = variant === "live";
   const containerRef = useRef<HTMLDivElement>(null);
@@ -217,6 +220,13 @@ export const SlidePreview = ({
           <div className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm bg-background/70 backdrop-blur text-[9px] font-mono uppercase tracking-wider text-emerald-500">
             <Radio className="w-2.5 h-2.5" />
             live
+          </div>
+        )}
+
+        {/* Overlay opzionale (cornice timer perimetrale) */}
+        {frameOverlay && (
+          <div className="absolute inset-0 pointer-events-none z-20">
+            {frameOverlay}
           </div>
         )}
       </div>

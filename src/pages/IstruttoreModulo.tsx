@@ -54,6 +54,8 @@ import { SlideTimeIndicator } from "@/components/istruttore/SlideTimeIndicator";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { CourseFormatPanel } from "@/components/istruttore/CourseFormatPanel";
 import { useCourseFormat } from "@/lib/courseFormat";
+import { LiveFrameProgress } from "@/components/istruttore/LiveFrameProgress";
+import { useModuleTimer, formatTimerMMSS } from "@/lib/moduleTimer";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
 // "regia"   = controllo manuale, preview separata da live (Invia in Aula).
@@ -147,9 +149,14 @@ const IstruttoreModulo = () => {
         setFormatOpen((v) => !v);
         return;
       }
-      if (import.meta.env.DEV && (e.key === "p" || e.key === "P")) {
+      if (e.key === "p" || e.key === "P") {
         e.preventDefault();
         pauseRemoteRef.current?.();
+        return;
+      }
+      if (e.key === "b" || e.key === "B") {
+        e.preventDefault();
+        blackoutRemoteRef.current?.();
         return;
       }
 
@@ -176,6 +183,7 @@ const IstruttoreModulo = () => {
   // Ref aggiornata sotto: contiene la callback "telecomando" stabile rispetto a stato.
   const stepRemoteRef = useRef<((dir: 1 | -1) => void) | null>(null);
   const pauseRemoteRef = useRef<(() => void) | null>(null);
+  const blackoutRemoteRef = useRef<(() => void) | null>(null);
 
   if (!module || blocks.length === 0) {
     return (
@@ -213,6 +221,10 @@ const IstruttoreModulo = () => {
 
   // Formato corso (Flash/Standard/Full) + override priorità/abilitazione blocchi.
   const courseFormat = useCourseFormat(slug, blocks, getExpected);
+
+  // Timer modulo: parte al primo invio in Aula e persiste per slug.
+  const moduleTimer = useModuleTimer(slug, liveState != null);
+  const moduleTargetSeconds = courseFormat.targetSeconds ?? courseFormat.totalSeconds ?? 0;
 
   // Stato preview vs live: stesso blocco+step → "in aula"
   const isLive =
@@ -295,8 +307,21 @@ const IstruttoreModulo = () => {
     pauseAula(5, atmosphere);
   };
 
-  // Aggancia lo shortcut "P" (dev) alla pausa aula (usa il flusso di test).
-  pauseRemoteRef.current = () => testPauseAula();
+  // Toggle pausa via tasto P (telecomando): se in pausa riprende, altrimenti mette in pausa.
+  pauseRemoteRef.current = () => {
+    if (liveState?.paused) resumeAula();
+    else testPauseAula();
+  };
+
+  // Toggle schermata nera via tasto B. Mantiene blocco/step correnti, sospende media.
+  blackoutRemoteRef.current = () => {
+    const cur = liveState ?? previewState;
+    publish({
+      blocco: cur.blocco,
+      step: cur.step as AulaStep,
+      blackout: !liveState?.blackout,
+    });
+  };
 
   const resumeAula = () => {
     // Se siamo usciti da una pausa di test, torna alla slide live precedente.
@@ -478,7 +503,14 @@ const IstruttoreModulo = () => {
                 live
               </span>
             </p>
-            <h1 className="text-sm font-semibold truncate">{module.title}</h1>
+            <div className="flex items-center gap-3 min-w-0">
+              <h1 className="text-sm font-semibold truncate">{module.title}</h1>
+              <ModuleTimerBadge
+                elapsed={moduleTimer.elapsed}
+                target={moduleTargetSeconds}
+                started={moduleTimer.started}
+              />
+            </div>
           </div>
 
           <AulaStatusBadge modulo={slug} blocks={blocks} />
@@ -506,27 +538,9 @@ const IstruttoreModulo = () => {
             </SheetContent>
           </Sheet>
 
-          {/* Telecomando on-screen — sempre visibile */}
-          <div className="hidden md:flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => stepRemoteRef.current?.(-1)}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              aria-label="Posizione precedente (←)"
-              title="Indietro (← / PageUp)"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => stepRemoteRef.current?.(1)}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              aria-label="Posizione successiva (→)"
-              title="Avanti (→ / PageDown / Spazio)"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          {/* Telecomando: navigazione slide ora solo da tastiera/clicker
+              (← / → / PageUp / PageDown / Spazio). Le frecce sono state
+              rimosse dalla barra superiore per ridurre rumore visivo. */}
 
           {/* PAUSA / RIPRENDI — sempre visibile in LIVE, immediato */}
           {view === "live" && (
@@ -615,25 +629,8 @@ const IstruttoreModulo = () => {
           </div>
         )}
 
-        {/* Telecomando mobile — sotto md */}
-        <div className="md:hidden flex items-center justify-center gap-2 px-4 pb-2">
-          <button
-            type="button"
-            onClick={() => stepRemoteRef.current?.(-1)}
-            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground"
-            aria-label="Indietro"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => stepRemoteRef.current?.(1)}
-            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground"
-            aria-label="Avanti"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+        {/* Telecomando mobile rimosso: la barra superiore resta pulita.
+            Nei tablet la navigazione avviene da scaletta o tastiera/clicker. */}
       </header>
 
       {/* Rail mobile (sopra il contenuto) */}
@@ -719,13 +716,9 @@ const IstruttoreModulo = () => {
                       </span>
                     </span>
 
-                    {/* Timer compatto inline — solo info essenziali */}
-                    {liveBlock && !aulaPaused && (
-                      <LiveTimerBadge
-                        liveSeconds={liveSeconds}
-                        expectedSeconds={liveExpected}
-                      />
-                    )}
+                    {/* Timer scena spostato sotto la preview LIVE come riga
+                        secondaria; la percezione del tempo è data dalla
+                        cornice perimetrale animata. */}
                   </div>
 
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6">
@@ -787,7 +780,22 @@ const IstruttoreModulo = () => {
                         pauseAtmosphere={liveState?.pauseAtmosphere ?? null}
                         onOpenWindow={launchAula}
                         empty={!liveState}
+                        frameOverlay={
+                          liveBlock && !aulaPaused && liveExpected > 0 ? (
+                            <LiveFrameProgress
+                              progress={liveSeconds / liveExpected}
+                              active
+                            />
+                          ) : null
+                        }
                       />
+                      {/* Timer scena (secondario) sotto la preview LIVE */}
+                      {liveBlock && !aulaPaused && (
+                        <SceneTimerLine
+                          liveSeconds={liveSeconds}
+                          expectedSeconds={liveExpected}
+                        />
+                      )}
                     </div>
                     {!aulaPaused && (
                       <div className="md:col-span-1 transition-opacity duration-300">
@@ -1156,10 +1164,48 @@ const ActionButton = ({
 );
 
 /**
- * Badge timer compatto per il LIVE: mostra solo tempo trascorso e
- * stato semplice (in tempo / fuori tempo). La regolazione fine vive in STUDIO.
+ * Timer del MODULO (principale): tempo trascorso / target del corso.
+ * Posizionato accanto al titolo del modulo per massima visibilità senza
+ * occupare la zona azioni dell'header.
  */
-const LiveTimerBadge = ({
+const ModuleTimerBadge = ({
+  elapsed,
+  target,
+  started,
+}: {
+  elapsed: number;
+  target: number;
+  started: boolean;
+}) => {
+  if (!started) {
+    return (
+      <span className="hidden md:inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground/70 shrink-0">
+        <Clock className="w-3 h-3" />
+        Modulo —
+      </span>
+    );
+  }
+  const over = target > 0 && elapsed > target;
+  const stateClass = over ? "text-amber-500" : "text-emerald-500";
+  return (
+    <span
+      className={`hidden md:inline-flex items-center gap-1.5 font-mono text-[11px] tabular-nums shrink-0 ${stateClass}`}
+      title={over ? "Modulo fuori tempo" : "Modulo in tempo"}
+    >
+      <Clock className="w-3 h-3" />
+      <span className="text-foreground/90">{formatTimerMMSS(elapsed)}</span>
+      {target > 0 && (
+        <span className="text-muted-foreground">/ {formatTimerMMSS(target)}</span>
+      )}
+    </span>
+  );
+};
+
+/**
+ * Riga timer SCENA (secondaria) sotto la preview LIVE.
+ * Peso visivo basso: la percezione del tempo passa dalla cornice perimetrale.
+ */
+const SceneTimerLine = ({
   liveSeconds,
   expectedSeconds,
 }: {
@@ -1167,23 +1213,19 @@ const LiveTimerBadge = ({
   expectedSeconds: number;
 }) => {
   const over = liveSeconds > expectedSeconds;
-  const remaining = Math.max(0, expectedSeconds - liveSeconds);
-  const m = Math.floor(remaining / 60);
-  const s = remaining % 60;
-  const overM = Math.floor((liveSeconds - expectedSeconds) / 60);
-  const overS = (liveSeconds - expectedSeconds) % 60;
   return (
-    <span
-      className={`inline-flex items-center gap-1 font-mono text-[10px] tabular-nums uppercase tracking-wider ${
-        over ? "text-amber-500" : "text-emerald-500"
-      }`}
-      title={over ? "Fuori tempo" : "In tempo"}
-    >
-      <Clock className="w-3 h-3" />
-      {over
-        ? `+${String(overM).padStart(2, "0")}:${String(overS).padStart(2, "0")}`
-        : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`}
-    </span>
+    <div className="mt-2 flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+      <span className="inline-flex items-center gap-1.5">
+        <Clock className="w-3 h-3" />
+        Scena
+      </span>
+      <span className="tabular-nums text-foreground/80">
+        {formatTimerMMSS(liveSeconds)}{" "}
+        <span className={over ? "text-amber-500" : "text-muted-foreground/70"}>
+          / {formatTimerMMSS(expectedSeconds)}
+        </span>
+      </span>
+    </div>
   );
 };
 
