@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Radio, Eye, Maximize2, Hourglass, Coffee, Send } from "lucide-react";
 import type { ModuleBlock } from "@/lib/moduleBlocks";
 import type { AulaStep } from "@/lib/aulaSync";
@@ -29,6 +29,8 @@ type Props = {
   onOpenWindow?: () => void;
   onSend?: () => void;
   empty?: boolean;
+  /** Overlay opzionale renderizzato sopra il box 16:9 (es. cornice timer). */
+  frameOverlay?: ReactNode;
 };
 
 /**
