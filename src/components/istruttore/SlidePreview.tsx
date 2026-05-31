@@ -222,6 +222,13 @@ export const SlidePreview = ({
             live
           </div>
         )}
+
+        {/* Overlay opzionale (cornice timer perimetrale) */}
+        {frameOverlay && (
+          <div className="absolute inset-0 pointer-events-none z-20">
+            {frameOverlay}
+          </div>
+        )}
       </div>
 
       {/* Caption sotto */}
