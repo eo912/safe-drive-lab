@@ -183,6 +183,7 @@ const IstruttoreModulo = () => {
   // Ref aggiornata sotto: contiene la callback "telecomando" stabile rispetto a stato.
   const stepRemoteRef = useRef<((dir: 1 | -1) => void) | null>(null);
   const pauseRemoteRef = useRef<(() => void) | null>(null);
+  const blackoutRemoteRef = useRef<(() => void) | null>(null);
 
   if (!module || blocks.length === 0) {
     return (
