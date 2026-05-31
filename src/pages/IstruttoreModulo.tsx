@@ -527,27 +527,9 @@ const IstruttoreModulo = () => {
             </SheetContent>
           </Sheet>
 
-          {/* Telecomando on-screen — sempre visibile */}
-          <div className="hidden md:flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => stepRemoteRef.current?.(-1)}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              aria-label="Posizione precedente (←)"
-              title="Indietro (← / PageUp)"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => stepRemoteRef.current?.(1)}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              aria-label="Posizione successiva (→)"
-              title="Avanti (→ / PageDown / Spazio)"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          {/* Telecomando: navigazione slide ora solo da tastiera/clicker
+              (← / → / PageUp / PageDown / Spazio). Le frecce sono state
+              rimosse dalla barra superiore per ridurre rumore visivo. */}
 
           {/* PAUSA / RIPRENDI — sempre visibile in LIVE, immediato */}
           {view === "live" && (
