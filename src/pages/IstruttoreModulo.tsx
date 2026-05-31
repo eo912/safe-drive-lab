@@ -618,25 +618,8 @@ const IstruttoreModulo = () => {
           </div>
         )}
 
-        {/* Telecomando mobile — sotto md */}
-        <div className="md:hidden flex items-center justify-center gap-2 px-4 pb-2">
-          <button
-            type="button"
-            onClick={() => stepRemoteRef.current?.(-1)}
-            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground"
-            aria-label="Indietro"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => stepRemoteRef.current?.(1)}
-            className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-border text-muted-foreground"
-            aria-label="Avanti"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+        {/* Telecomando mobile rimosso: la barra superiore resta pulita.
+            Nei tablet la navigazione avviene da scaletta o tastiera/clicker. */}
       </header>
 
       {/* Rail mobile (sopra il contenuto) */}
