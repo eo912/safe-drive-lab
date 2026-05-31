@@ -303,8 +303,21 @@ const IstruttoreModulo = () => {
     pauseAula(5, atmosphere);
   };
 
-  // Aggancia lo shortcut "P" (dev) alla pausa aula (usa il flusso di test).
-  pauseRemoteRef.current = () => testPauseAula();
+  // Toggle pausa via tasto P (telecomando): se in pausa riprende, altrimenti mette in pausa.
+  pauseRemoteRef.current = () => {
+    if (liveState?.paused) resumeAula();
+    else testPauseAula();
+  };
+
+  // Toggle schermata nera via tasto B. Mantiene blocco/step correnti, sospende media.
+  blackoutRemoteRef.current = () => {
+    const cur = liveState ?? previewState;
+    publish({
+      blocco: cur.blocco,
+      step: cur.step as AulaStep,
+      blackout: !liveState?.blackout,
+    });
+  };
 
   const resumeAula = () => {
     // Se siamo usciti da una pausa di test, torna alla slide live precedente.
