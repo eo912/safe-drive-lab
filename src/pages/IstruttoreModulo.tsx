@@ -1166,10 +1166,48 @@ const ActionButton = ({
 );
 
 /**
- * Badge timer compatto per il LIVE: mostra solo tempo trascorso e
- * stato semplice (in tempo / fuori tempo). La regolazione fine vive in STUDIO.
+ * Timer del MODULO (principale): tempo trascorso / target del corso.
+ * Posizionato accanto al titolo del modulo per massima visibilità senza
+ * occupare la zona azioni dell'header.
  */
-const LiveTimerBadge = ({
+const ModuleTimerBadge = ({
+  elapsed,
+  target,
+  started,
+}: {
+  elapsed: number;
+  target: number;
+  started: boolean;
+}) => {
+  if (!started) {
+    return (
+      <span className="hidden md:inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground/70 shrink-0">
+        <Clock className="w-3 h-3" />
+        Modulo —
+      </span>
+    );
+  }
+  const over = target > 0 && elapsed > target;
+  const stateClass = over ? "text-amber-500" : "text-emerald-500";
+  return (
+    <span
+      className={`hidden md:inline-flex items-center gap-1.5 font-mono text-[11px] tabular-nums shrink-0 ${stateClass}`}
+      title={over ? "Modulo fuori tempo" : "Modulo in tempo"}
+    >
+      <Clock className="w-3 h-3" />
+      <span className="text-foreground/90">{formatTimerMMSS(elapsed)}</span>
+      {target > 0 && (
+        <span className="text-muted-foreground">/ {formatTimerMMSS(target)}</span>
+      )}
+    </span>
+  );
+};
+
+/**
+ * Riga timer SCENA (secondaria) sotto la preview LIVE.
+ * Peso visivo basso: la percezione del tempo passa dalla cornice perimetrale.
+ */
+const SceneTimerLine = ({
   liveSeconds,
   expectedSeconds,
 }: {
@@ -1177,23 +1215,19 @@ const LiveTimerBadge = ({
   expectedSeconds: number;
 }) => {
   const over = liveSeconds > expectedSeconds;
-  const remaining = Math.max(0, expectedSeconds - liveSeconds);
-  const m = Math.floor(remaining / 60);
-  const s = remaining % 60;
-  const overM = Math.floor((liveSeconds - expectedSeconds) / 60);
-  const overS = (liveSeconds - expectedSeconds) % 60;
   return (
-    <span
-      className={`inline-flex items-center gap-1 font-mono text-[10px] tabular-nums uppercase tracking-wider ${
-        over ? "text-amber-500" : "text-emerald-500"
-      }`}
-      title={over ? "Fuori tempo" : "In tempo"}
-    >
-      <Clock className="w-3 h-3" />
-      {over
-        ? `+${String(overM).padStart(2, "0")}:${String(overS).padStart(2, "0")}`
-        : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`}
-    </span>
+    <div className="mt-2 flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+      <span className="inline-flex items-center gap-1.5">
+        <Clock className="w-3 h-3" />
+        Scena
+      </span>
+      <span className="tabular-nums text-foreground/80">
+        {formatTimerMMSS(liveSeconds)}{" "}
+        <span className={over ? "text-amber-500" : "text-muted-foreground/70"}>
+          / {formatTimerMMSS(expectedSeconds)}
+        </span>
+      </span>
+    </div>
   );
 };
 
