@@ -503,7 +503,14 @@ const IstruttoreModulo = () => {
                 live
               </span>
             </p>
-            <h1 className="text-sm font-semibold truncate">{module.title}</h1>
+            <div className="flex items-center gap-3 min-w-0">
+              <h1 className="text-sm font-semibold truncate">{module.title}</h1>
+              <ModuleTimerBadge
+                elapsed={moduleTimer.elapsed}
+                target={moduleTargetSeconds}
+                started={moduleTimer.started}
+              />
+            </div>
           </div>
 
           <AulaStatusBadge modulo={slug} blocks={blocks} />
