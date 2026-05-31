@@ -222,6 +222,10 @@ const IstruttoreModulo = () => {
   // Formato corso (Flash/Standard/Full) + override priorità/abilitazione blocchi.
   const courseFormat = useCourseFormat(slug, blocks, getExpected);
 
+  // Timer modulo: parte al primo invio in Aula e persiste per slug.
+  const moduleTimer = useModuleTimer(slug, liveState != null);
+  const moduleTargetSeconds = courseFormat.targetSeconds ?? courseFormat.totalSeconds ?? 0;
+
   // Stato preview vs live: stesso blocco+step → "in aula"
   const isLive =
     liveBlockId === previewState.blocco && liveStep === previewState.step;
