@@ -149,9 +149,14 @@ const IstruttoreModulo = () => {
         setFormatOpen((v) => !v);
         return;
       }
-      if (import.meta.env.DEV && (e.key === "p" || e.key === "P")) {
+      if (e.key === "p" || e.key === "P") {
         e.preventDefault();
         pauseRemoteRef.current?.();
+        return;
+      }
+      if (e.key === "b" || e.key === "B") {
+        e.preventDefault();
+        blackoutRemoteRef.current?.();
         return;
       }
 
