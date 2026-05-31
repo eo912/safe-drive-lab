@@ -359,6 +359,14 @@ const AulaPerche = () => {
         <AulaEmbedLayer embeds={aulaState.embeds} />
       )}
 
+      {/* BLACKOUT — schermata nera istantanea (tasto B in Regia) */}
+      {!embedMode && aulaState.blackout && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black"
+          aria-hidden="true"
+        />
+      )}
+
       {/* DEBUG SYNC — solo dev, mai in embed */}
       {!embedMode && <SyncDebugOverlay side="aula" live={aulaState} />}
 
