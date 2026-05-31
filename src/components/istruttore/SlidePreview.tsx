@@ -53,6 +53,7 @@ export const SlidePreview = ({
   onOpenWindow,
   onSend,
   empty = false,
+  frameOverlay,
 }: Props) => {
   const isLive = variant === "live";
   const containerRef = useRef<HTMLDivElement>(null);
