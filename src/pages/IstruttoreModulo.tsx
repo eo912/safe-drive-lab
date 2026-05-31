@@ -716,13 +716,9 @@ const IstruttoreModulo = () => {
                       </span>
                     </span>
 
-                    {/* Timer compatto inline — solo info essenziali */}
-                    {liveBlock && !aulaPaused && (
-                      <LiveTimerBadge
-                        liveSeconds={liveSeconds}
-                        expectedSeconds={liveExpected}
-                      />
-                    )}
+                    {/* Timer scena spostato sotto la preview LIVE come riga
+                        secondaria; la percezione del tempo è data dalla
+                        cornice perimetrale animata. */}
                   </div>
 
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6">
