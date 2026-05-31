@@ -774,7 +774,7 @@ const IstruttoreModulo = () => {
                       aulaPaused ? "" : "md:grid-cols-3"
                     }`}
                   >
-                    <div className={aulaPaused ? "" : "md:col-span-2"}>
+                    <div className={aulaPaused ? "relative" : "md:col-span-2 relative"}>
                       <SlidePreview
                         variant="live"
                         modulo={slug}
@@ -785,6 +785,23 @@ const IstruttoreModulo = () => {
                         onOpenWindow={launchAula}
                         empty={!liveState}
                       />
+                      {/* Cornice perimetrale animata: percezione del tempo scena
+                          senza dover leggere numeri. Si attiva solo con slide live. */}
+                      {liveBlock && !aulaPaused && liveExpected > 0 && (
+                        <div className="pointer-events-none absolute inset-0 rounded-lg overflow-hidden">
+                          <LiveFrameProgress
+                            progress={liveSeconds / liveExpected}
+                            active
+                          />
+                        </div>
+                      )}
+                      {/* Timer scena (secondario) sotto la preview LIVE */}
+                      {liveBlock && !aulaPaused && (
+                        <SceneTimerLine
+                          liveSeconds={liveSeconds}
+                          expectedSeconds={liveExpected}
+                        />
+                      )}
                     </div>
                     {!aulaPaused && (
                       <div className="md:col-span-1 transition-opacity duration-300">
