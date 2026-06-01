@@ -1209,10 +1209,10 @@ const SceneTimerBar = ({
   expectedSeconds: number;
 }) => {
   const over = expectedSeconds > 0 && liveSeconds > expectedSeconds;
-  const ratio = expectedSeconds > 0 ? Math.min(1, liveSeconds / expectedSeconds) : 0;
-  const width = `${ratio * 100}%`;
-  const barColor = over ? "bg-red-500" : "bg-primary";
-  const timeColor = over ? "text-red-500" : "text-foreground/80";
+  const ratio = expectedSeconds > 0 ? liveSeconds / expectedSeconds : 0;
+  const width = `${Math.min(ratio, 2) * 100}%`;
+  const barColor = over ? "bg-red-500" : "bg-emerald-500";
+  const timeColor = over ? "text-red-500" : "text-emerald-500";
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
