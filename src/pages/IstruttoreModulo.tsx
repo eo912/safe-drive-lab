@@ -54,7 +54,7 @@ import { SlideTimeIndicator } from "@/components/istruttore/SlideTimeIndicator";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { CourseFormatPanel } from "@/components/istruttore/CourseFormatPanel";
 import { useCourseFormat } from "@/lib/courseFormat";
-import { LiveFrameProgress } from "@/components/istruttore/LiveFrameProgress";
+
 import { useModuleTimer, formatTimerMMSS } from "@/lib/moduleTimer";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
