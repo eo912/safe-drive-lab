@@ -39,15 +39,15 @@ export const LiveFrameProgress = ({ progress, active }: Props) => {
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      {/* Guida di fondo (sottile, sempre visibile quando attivo) */}
+      {/* Tracciato verde di base: tempo disponibile della scena */}
       <rect
         x="0"
         y="0"
         width="100"
         height="100"
         fill="none"
-        stroke="hsl(var(--border) / 0.35)"
-        strokeWidth={1.5}
+        stroke={greenColor}
+        strokeWidth={3}
         vectorEffect="non-scaling-stroke"
         pathLength={100}
       />
