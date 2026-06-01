@@ -340,14 +340,14 @@ const AulaPerche = () => {
       )}
 
       {/* OVERLAY PAUSA AULA — controllato solo dall'istruttore.
+          Sempre montato per consentire fade in/out morbidi (~800ms).
           In embed la schermata pausa è semplificata (no vapore/particelle/breathe). */}
-      {isPaused && (
-        <AulaPauseScreen
-          atmosphere={embedMode ? (embedAtm ?? "sun") : aulaState.pauseAtmosphere}
-          pauseMinutes={embedMode ? undefined : aulaState.pauseMinutes}
-          simplified={embedMode}
-        />
-      )}
+      <AulaPauseScreen
+        active={isPaused}
+        atmosphere={embedMode ? (embedAtm ?? "sun") : aulaState.pauseAtmosphere}
+        pauseMinutes={embedMode ? undefined : aulaState.pauseMinutes}
+        simplified={embedMode}
+      />
 
       {/* OVERLAY MEDIA AULA — solo modalità live, mai in embed */}
       {!embedMode && !isPaused && aulaState.media && (
