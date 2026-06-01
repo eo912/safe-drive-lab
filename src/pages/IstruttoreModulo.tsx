@@ -54,7 +54,7 @@ import { SlideTimeIndicator } from "@/components/istruttore/SlideTimeIndicator";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { CourseFormatPanel } from "@/components/istruttore/CourseFormatPanel";
 import { useCourseFormat } from "@/lib/courseFormat";
-import { LiveFrameProgress } from "@/components/istruttore/LiveFrameProgress";
+
 import { useModuleTimer, formatTimerMMSS } from "@/lib/moduleTimer";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
@@ -780,18 +780,11 @@ const IstruttoreModulo = () => {
                         pauseAtmosphere={liveState?.pauseAtmosphere ?? null}
                         onOpenWindow={launchAula}
                         empty={!liveState}
-                        frameOverlay={
-                          liveBlock && !aulaPaused && liveExpected > 0 ? (
-                            <LiveFrameProgress
-                              progress={liveSeconds / liveExpected}
-                              active
-                            />
-                          ) : null
-                        }
                       />
-                      {/* Timer scena (secondario) sotto la preview LIVE */}
+                      {/* Barra tempo scena sotto la preview LIVE */}
                       {liveBlock && !aulaPaused && (
-                        <SceneTimerLine
+                        <SceneTimerBar
+                          sceneName={liveBlock.title}
                           liveSeconds={liveSeconds}
                           expectedSeconds={liveExpected}
                         />
@@ -1202,29 +1195,43 @@ const ModuleTimerBadge = ({
 };
 
 /**
- * Riga timer SCENA (secondaria) sotto la preview LIVE.
- * Peso visivo basso: la percezione del tempo passa dalla cornice perimetrale.
+ * Barra tempo scena sotto la preview LIVE.
+ * Mostra nome scena, barra di avanzamento e tempo trascorso / previsto.
+ * Blu entro tempo, rosso quando superato.
  */
-const SceneTimerLine = ({
+const SceneTimerBar = ({
+  sceneName,
   liveSeconds,
   expectedSeconds,
 }: {
+  sceneName: string;
   liveSeconds: number;
   expectedSeconds: number;
 }) => {
-  const over = liveSeconds > expectedSeconds;
+  const over = expectedSeconds > 0 && liveSeconds > expectedSeconds;
+  const ratio = expectedSeconds > 0 ? Math.min(1, liveSeconds / expectedSeconds) : 0;
+  const width = `${ratio * 100}%`;
+  const barColor = over ? "bg-red-500" : "bg-primary";
+  const timeColor = over ? "text-red-500" : "text-foreground/80";
   return (
-    <div className="mt-2 flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-      <span className="inline-flex items-center gap-1.5">
-        <Clock className="w-3 h-3" />
-        Scena
-      </span>
-      <span className="tabular-nums text-foreground/80">
-        {formatTimerMMSS(liveSeconds)}{" "}
-        <span className={over ? "text-amber-500" : "text-muted-foreground/70"}>
-          / {formatTimerMMSS(expectedSeconds)}
+    <div className="mt-3">
+      <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+        <span className="truncate">
+          Scena: <span className="text-foreground/80">{sceneName}</span>
         </span>
-      </span>
+        <span className={`tabular-nums ${timeColor}`}>
+          {formatTimerMMSS(liveSeconds)}{" "}
+          <span className="text-muted-foreground/70">
+            / {formatTimerMMSS(expectedSeconds)}
+          </span>
+        </span>
+      </div>
+      <div className="h-1.5 w-full bg-muted/40 rounded-full overflow-hidden">
+        <div
+          className={`h-full ${barColor} transition-[width] duration-500`}
+          style={{ width }}
+        />
+      </div>
     </div>
   );
 };
