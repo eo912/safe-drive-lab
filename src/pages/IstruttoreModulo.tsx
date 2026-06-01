@@ -780,18 +780,11 @@ const IstruttoreModulo = () => {
                         pauseAtmosphere={liveState?.pauseAtmosphere ?? null}
                         onOpenWindow={launchAula}
                         empty={!liveState}
-                        frameOverlay={
-                          liveBlock && !aulaPaused && liveExpected > 0 ? (
-                            <LiveFrameProgress
-                              progress={liveSeconds / liveExpected}
-                              active
-                            />
-                          ) : null
-                        }
                       />
-                      {/* Timer scena (secondario) sotto la preview LIVE */}
+                      {/* Barra tempo scena sotto la preview LIVE */}
                       {liveBlock && !aulaPaused && (
-                        <SceneTimerLine
+                        <SceneTimerBar
+                          sceneName={liveBlock.title}
                           liveSeconds={liveSeconds}
                           expectedSeconds={liveExpected}
                         />
