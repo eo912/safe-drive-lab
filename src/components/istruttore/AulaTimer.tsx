@@ -8,7 +8,10 @@ import {
   BellOff,
   Plus,
   X,
+  Eye,
 } from "lucide-react";
+import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
+
 
 const DEFAULT_TOTAL = 45 * 60; // 45 minuti
 const WARN_AT = 30; // secondi rimanenti per il warning
