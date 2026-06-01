@@ -71,41 +71,23 @@ export const LiveFrameProgress = ({ progress, active }: Props) => {
         />
       )}
 
-      {/* Glow rosso di sforamento — secondo livello esterno, cresce da 0 a 100% */}
+      {/* Tratto rosso di sforamento — copre progressivamente il blu */}
       {over > 0 && (
-        <>
-          {/* alone soft */}
-          <rect
-            x="0"
-            y="0"
-            width="100"
-            height="100"
-            fill="none"
-            stroke={overColor}
-            strokeWidth={8}
-            strokeOpacity={0.25}
-            vectorEffect="non-scaling-stroke"
-            pathLength={100}
-            strokeDasharray={`${over * 100} 100`}
-            strokeDashoffset={0}
-            style={{ transition: "stroke-dasharray 600ms linear" }}
-          />
-          {/* tratto pieno */}
-          <rect
-            x="0"
-            y="0"
-            width="100"
-            height="100"
-            fill="none"
-            stroke={overColor}
-            strokeWidth={3}
-            vectorEffect="non-scaling-stroke"
-            pathLength={100}
-            strokeDasharray={`${over * 100} 100`}
-            strokeDashoffset={0}
-            style={{ transition: "stroke-dasharray 600ms linear" }}
-          />
-        </>
+        <rect
+          x="0"
+          y="0"
+          width="100"
+          height="100"
+          fill="none"
+          stroke={overColor}
+          strokeWidth={3}
+          strokeLinecap="butt"
+          vectorEffect="non-scaling-stroke"
+          pathLength={100}
+          strokeDasharray={`${over * 100} 100`}
+          strokeDashoffset={0}
+          style={{ transition: "stroke-dasharray 600ms linear" }}
+        />
       )}
     </svg>
   );
