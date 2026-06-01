@@ -1,13 +1,12 @@
 // Atmosfere predefinite per la schermata di pausa Aula.
-// Nessuna integrazione meteo reale: l'istruttore sceglie manualmente.
+// Ogni atmosfera è una singola fotografia ambientale coerente (POV da un tavolino
+// con tazzina in primo piano e strada tranquilla sullo sfondo). Nessuna sovrapposizione
+// grafica: la scena è la fotografia.
 
-import bgSun from "@/assets/pause/bg-sun.jpg";
-import bgRain from "@/assets/pause/bg-rain.jpg";
-import bgSnow from "@/assets/pause/bg-snow.jpg";
-import bgSpring from "@/assets/pause/bg-spring.jpg";
-import bgSummer from "@/assets/pause/bg-summer.jpg";
-import bgAutumn from "@/assets/pause/bg-autumn.jpg";
-import bgWinter from "@/assets/pause/bg-winter.jpg";
+import sceneSun from "@/assets/pause/scene-sun.jpg";
+import sceneRain from "@/assets/pause/scene-rain.jpg";
+import sceneSnow from "@/assets/pause/scene-snow.jpg";
+import sceneAutumn from "@/assets/pause/scene-autumn.jpg";
 
 export type PauseAtmosphere =
   | "sun"
@@ -22,62 +21,58 @@ export const PAUSE_ATMOSPHERES: {
   id: PauseAtmosphere;
   label: string;
   bg: string;
-  // Tinta ambiente: sovrapposta al bg per coerenza colore con la tazza.
+  // Overlay tonale minimo: la fotografia deve restare protagonista.
   overlay: string;
-  // Caratteristiche particellari opzionali (pioggia/neve)
   particles?: "rain" | "snow";
 }[] = [
   {
     id: "sun",
     label: "Sole",
-    bg: bgSun,
+    bg: sceneSun,
     overlay:
-      "linear-gradient(180deg, hsl(35 60% 8% / 0.55) 0%, hsl(30 50% 6% / 0.7) 100%)",
+      "linear-gradient(180deg, hsl(0 0% 0% / 0.05) 0%, hsl(0 0% 0% / 0.25) 100%)",
   },
   {
     id: "rain",
     label: "Pioggia",
-    bg: bgRain,
+    bg: sceneRain,
     overlay:
-      "linear-gradient(180deg, hsl(215 30% 8% / 0.55) 0%, hsl(220 35% 6% / 0.75) 100%)",
-    particles: "rain",
+      "linear-gradient(180deg, hsl(215 20% 5% / 0.1) 0%, hsl(220 25% 4% / 0.3) 100%)",
   },
   {
     id: "snow",
     label: "Neve",
-    bg: bgSnow,
+    bg: sceneSnow,
     overlay:
-      "linear-gradient(180deg, hsl(210 20% 10% / 0.5) 0%, hsl(215 25% 7% / 0.7) 100%)",
-    particles: "snow",
+      "linear-gradient(180deg, hsl(210 15% 8% / 0.08) 0%, hsl(215 20% 5% / 0.28) 100%)",
   },
   {
     id: "spring",
     label: "Primavera",
-    bg: bgSpring,
+    bg: sceneSun,
     overlay:
-      "linear-gradient(180deg, hsl(140 25% 8% / 0.55) 0%, hsl(150 30% 6% / 0.72) 100%)",
+      "linear-gradient(180deg, hsl(0 0% 0% / 0.05) 0%, hsl(0 0% 0% / 0.25) 100%)",
   },
   {
     id: "summer",
     label: "Estate",
-    bg: bgSummer,
+    bg: sceneSun,
     overlay:
-      "linear-gradient(180deg, hsl(190 30% 8% / 0.5) 0%, hsl(200 35% 6% / 0.7) 100%)",
+      "linear-gradient(180deg, hsl(0 0% 0% / 0.05) 0%, hsl(0 0% 0% / 0.25) 100%)",
   },
   {
     id: "autumn",
     label: "Autunno",
-    bg: bgAutumn,
+    bg: sceneAutumn,
     overlay:
-      "linear-gradient(180deg, hsl(20 45% 7% / 0.55) 0%, hsl(15 50% 5% / 0.75) 100%)",
+      "linear-gradient(180deg, hsl(20 30% 4% / 0.08) 0%, hsl(15 35% 3% / 0.3) 100%)",
   },
   {
     id: "winter",
     label: "Inverno",
-    bg: bgWinter,
+    bg: sceneSnow,
     overlay:
-      "linear-gradient(180deg, hsl(220 25% 8% / 0.55) 0%, hsl(225 30% 5% / 0.78) 100%)",
-    particles: "snow",
+      "linear-gradient(180deg, hsl(220 20% 6% / 0.1) 0%, hsl(225 25% 4% / 0.32) 100%)",
   },
 ];
 
