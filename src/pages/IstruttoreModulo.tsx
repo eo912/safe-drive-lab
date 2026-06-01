@@ -1197,7 +1197,7 @@ const ModuleTimerBadge = ({
 /**
  * Barra tempo scena sotto la preview LIVE.
  * Mostra nome scena, barra di avanzamento e tempo trascorso / previsto.
- * Blu entro tempo, rosso quando superato.
+ * Verde entro tempo, rosso quando superato.
  */
 const SceneTimerBar = ({
   sceneName,
