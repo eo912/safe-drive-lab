@@ -26,6 +26,7 @@ export const LiveFrameProgress = ({ progress, active }: Props) => {
   const base = Math.min(1, p);
   const over = Math.max(0, Math.min(1, p - 1));
 
+  const greenColor = "hsl(145 65% 45%)";
   const blueColor = "hsl(var(--primary))";
   const overColor = "hsl(0 85% 58%)";
 
@@ -38,15 +39,15 @@ export const LiveFrameProgress = ({ progress, active }: Props) => {
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      {/* Guida di fondo (sottile, sempre visibile quando attivo) */}
+      {/* Tracciato verde di base: tempo disponibile della scena */}
       <rect
         x="0"
         y="0"
         width="100"
         height="100"
         fill="none"
-        stroke="hsl(var(--border) / 0.35)"
-        strokeWidth={1.5}
+        stroke={greenColor}
+        strokeWidth={3}
         vectorEffect="non-scaling-stroke"
         pathLength={100}
       />
@@ -70,41 +71,23 @@ export const LiveFrameProgress = ({ progress, active }: Props) => {
         />
       )}
 
-      {/* Glow rosso di sforamento — secondo livello esterno, cresce da 0 a 100% */}
+      {/* Tratto rosso di sforamento — copre progressivamente il blu */}
       {over > 0 && (
-        <>
-          {/* alone soft */}
-          <rect
-            x="0"
-            y="0"
-            width="100"
-            height="100"
-            fill="none"
-            stroke={overColor}
-            strokeWidth={8}
-            strokeOpacity={0.25}
-            vectorEffect="non-scaling-stroke"
-            pathLength={100}
-            strokeDasharray={`${over * 100} 100`}
-            strokeDashoffset={0}
-            style={{ transition: "stroke-dasharray 600ms linear" }}
-          />
-          {/* tratto pieno */}
-          <rect
-            x="0"
-            y="0"
-            width="100"
-            height="100"
-            fill="none"
-            stroke={overColor}
-            strokeWidth={3}
-            vectorEffect="non-scaling-stroke"
-            pathLength={100}
-            strokeDasharray={`${over * 100} 100`}
-            strokeDashoffset={0}
-            style={{ transition: "stroke-dasharray 600ms linear" }}
-          />
-        </>
+        <rect
+          x="0"
+          y="0"
+          width="100"
+          height="100"
+          fill="none"
+          stroke={overColor}
+          strokeWidth={3}
+          strokeLinecap="butt"
+          vectorEffect="non-scaling-stroke"
+          pathLength={100}
+          strokeDasharray={`${over * 100} 100`}
+          strokeDashoffset={0}
+          style={{ transition: "stroke-dasharray 600ms linear" }}
+        />
       )}
     </svg>
   );
