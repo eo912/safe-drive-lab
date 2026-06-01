@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import cupImg from "@/assets/pause/cup-foreground.png";
 import { getAtmosphere, type PauseAtmosphere } from "@/lib/pauseAtmosphere";
 
@@ -10,27 +10,90 @@ type Props = {
    * Usato dai mini-stage della regia istruttore per ridurre il carico CPU/GPU.
    */
   simplified?: boolean;
+  /**
+   * Controllo visibilità con dissolvenza morbida (~800ms).
+   * Quando undefined: si comporta come sempre visibile (compat retroattiva).
+   * Quando false: avvia il fade-out e smonta al termine.
+   */
+  active?: boolean;
 };
+
+const FADE_MS = 800;
 
 /**
  * Schermata di pausa Aula: immersiva, full-screen, senza interazione.
  * - Sfondo paesaggio sfocato variabile (sun/rain/snow/stagioni)
- * - Tazza fotorealistica in foreground con vapore animato
- * - Leggera "respirazione" continua (scala 100% -> 101%)
- * - Fade-in lento all'apertura
- * - Nessun timer, nessun countdown visibile
+ * - Tavolino in legno con tazza fotorealistica appoggiata
+ * - Vapore animato dalla tazza
+ * - Leggera "respirazione" continua del paesaggio
+ * - Fade-in / fade-out morbidi (~800ms): tutta la scena appare/scompare come unico elemento
  *
  * In modalità `simplified`: rendering statico (no vapore, no particelle, no breathe).
  */
-export const AulaPauseScreen = ({ atmosphere, pauseMinutes, simplified = false }: Props) => {
+export const AulaPauseScreen = ({
+  atmosphere,
+  pauseMinutes,
+  simplified = false,
+  active,
+}: Props) => {
+  const controlled = active !== undefined;
+  const isActive = controlled ? !!active : true;
   const atm = getAtmosphere(atmosphere);
-  const [mounted, setMounted] = useState(simplified);
 
+  // visibile = mantenuta in DOM. visibleOpacity = stato della dissolvenza.
+  const [mounted, setMounted] = useState<boolean>(isActive);
+  const [opacity, setOpacity] = useState<number>(simplified && isActive ? 1 : 0);
+  const exitTimer = useRef<number | null>(null);
+
+  // Pre-decode dell'immagine sfondo + tazza prima di mostrare la scena:
+  // evita la sensazione di "costruzione" progressiva.
+  const [assetsReady, setAssetsReady] = useState<boolean>(false);
   useEffect(() => {
-    if (simplified) return;
-    const id = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(id);
-  }, [simplified]);
+    let cancelled = false;
+    const preload = (src: string) =>
+      new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = src;
+      });
+    Promise.all([preload(atm.bg), preload(cupImg)]).then(() => {
+      if (!cancelled) setAssetsReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [atm.bg]);
+
+  // Gestione entry/exit
+  useEffect(() => {
+    if (exitTimer.current) {
+      window.clearTimeout(exitTimer.current);
+      exitTimer.current = null;
+    }
+
+    if (isActive) {
+      setMounted(true);
+      if (!assetsReady) return;
+      // Doppio rAF: assicura che il browser abbia committato opacity:0 prima della transizione.
+      const r1 = requestAnimationFrame(() => {
+        const r2 = requestAnimationFrame(() => setOpacity(1));
+        exitTimer.current = r2 as unknown as number;
+      });
+      return () => cancelAnimationFrame(r1);
+    }
+
+    // Uscita: fade out → unmount dopo FADE_MS
+    setOpacity(0);
+    exitTimer.current = window.setTimeout(() => {
+      setMounted(false);
+    }, FADE_MS);
+    return () => {
+      if (exitTimer.current) window.clearTimeout(exitTimer.current);
+    };
+  }, [isActive, assetsReady]);
+
+  if (!mounted) return null;
 
   return (
     <div
@@ -38,8 +101,9 @@ export const AulaPauseScreen = ({ atmosphere, pauseMinutes, simplified = false }
       aria-live="polite"
       className="fixed inset-0 z-[95] overflow-hidden bg-black"
       style={{
-        opacity: mounted ? 1 : 0,
-        transition: "opacity 600ms ease-out",
+        opacity,
+        transition: `opacity ${FADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+        willChange: "opacity",
       }}
     >
       {/* BACKGROUND: paesaggio sfocato + respirazione lenta */}
@@ -65,23 +129,71 @@ export const AulaPauseScreen = ({ atmosphere, pauseMinutes, simplified = false }
         />
       </div>
 
-      {/* MID: superficie tavolo (banda inferiore) */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 h-[40%]"
-        style={{
-          background:
-            "linear-gradient(180deg, transparent 0%, hsl(25 25% 6% / 0.55) 35%, hsl(20 30% 4% / 0.85) 100%)",
-        }}
-      />
-
       {/* PARTICELLE: pioggia / neve (CSS only). Disattivate in simplified. */}
       {!simplified && atm.particles === "rain" && <RainLayer />}
       {!simplified && atm.particles === "snow" && <SnowLayer />}
 
-      {/* FOREGROUND: tazza con vapore */}
+      {/* TAVOLINO: superficie in legno con prospettiva, occupa la fascia inferiore */}
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-[42%] pointer-events-none">
+        {/* Penombra di transizione paesaggio → tavolo */}
+        <div
+          className="absolute inset-x-0 -top-16 h-16"
+          style={{
+            background:
+              "linear-gradient(180deg, transparent 0%, hsl(25 30% 5% / 0.55) 100%)",
+          }}
+        />
+        {/* Piano del tavolo (legno scuro) con leggera prospettiva */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, hsl(22 35% 14%) 0%, hsl(20 38% 10%) 45%, hsl(18 40% 7%) 100%)",
+          }}
+        />
+        {/* Venature legno (sottilissime, soft) */}
+        <div
+          className="absolute inset-0 opacity-40 mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(180deg, transparent 0px, transparent 6px, hsl(25 40% 22% / 0.35) 7px, transparent 8px, transparent 14px)",
+          }}
+        />
+        {/* Bordo anteriore del tavolo: linea di luce calda */}
+        <div
+          className="absolute inset-x-0 top-0 h-px"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent 0%, hsl(35 60% 45% / 0.45) 50%, transparent 100%)",
+          }}
+        />
+        {/* Vignette laterale */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(120% 80% at 50% 100%, transparent 40%, hsl(20 30% 3% / 0.55) 100%)",
+          }}
+        />
+      </div>
+
+      {/* FOREGROUND: tazza appoggiata sul tavolino, con ombra di contatto */}
       <div className="absolute inset-0 flex items-end justify-center pointer-events-none">
-        <div className="relative w-full max-w-[820px] aspect-[16/10] mb-[2vh]">
+        <div className="relative w-full max-w-[760px] aspect-[16/10]" style={{ marginBottom: "8vh" }}>
+          {/* Ombra di contatto sul tavolo (ellisse sotto la tazza) */}
+          <div
+            aria-hidden
+            className="absolute left-1/2 -translate-x-1/2"
+            style={{
+              bottom: "4%",
+              width: "46%",
+              height: "30px",
+              background:
+                "radial-gradient(ellipse at center, hsl(0 0% 0% / 0.65) 0%, hsl(0 0% 0% / 0.25) 55%, transparent 75%)",
+              filter: "blur(6px)",
+            }}
+          />
+
           {/* VAPORE: tre flussi sfalsati. Disattivato in simplified. */}
           {!simplified && (
             <>
@@ -95,7 +207,7 @@ export const AulaPauseScreen = ({ atmosphere, pauseMinutes, simplified = false }
             src={cupImg}
             alt=""
             aria-hidden
-            className="relative z-10 w-full h-full object-contain object-bottom drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)]"
+            className="relative z-10 w-full h-full object-contain object-bottom drop-shadow-[0_24px_30px_rgba(0,0,0,0.55)]"
           />
         </div>
       </div>
