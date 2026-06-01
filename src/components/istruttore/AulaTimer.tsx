@@ -61,7 +61,9 @@ export const AulaTimer = ({
   const [customMin, setCustomMin] = useState("45");
   const [warned, setWarned] = useState(false);
   const [showWarn, setShowWarn] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const lastTickRef = useRef<number | null>(null);
+
 
   // Orario corrente
   useEffect(() => {
