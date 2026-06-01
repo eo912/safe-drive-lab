@@ -1,12 +1,18 @@
 /**
- * Barra perimetrale che percorre la cornice della preview LIVE in senso orario,
- * a partire dall'angolo superiore sinistro. Sostituisce il timer numerico come
- * strumento di "percezione del tempo" via visione periferica.
+ * Indicatore di avanzamento perimetrale della preview LIVE.
  *
- * Stati:
- *  - 0%..80%   → blu (primary)
- *  - 80%..100% → blu più intenso
- *  - oltre 100%→ cornice completa + tratto rosso che cresce sopra
+ * Logica:
+ *  - Un unico tratto continuo blu parte dall'angolo superiore sinistro e
+ *    percorre il perimetro in senso orario.
+ *  - A 0% non c'è alcun tratto; a 100% la cornice è completa.
+ *  - Oltre il 100%: la cornice blu resta piena e cresce un secondo tratto
+ *    rosso esterno (sforamento), senza loop né reset.
+ *
+ * L'SVG usa viewBox 100x100 con preserveAspectRatio="none" e
+ * vectorEffect="non-scaling-stroke" per mantenere uno spessore costante a
+ * prescindere dal rapporto del contenitore. pathLength=100 normalizza il
+ * perimetro così che `strokeDasharray = progress*100` corrisponda alla
+ * frazione percorsa.
  */
 type Props = {
   /** Frazione 0..1 di avanzamento; >1 = sforamento. */
@@ -18,19 +24,10 @@ type Props = {
 export const LiveFrameProgress = ({ progress, active }: Props) => {
   const p = Math.max(0, progress);
   const base = Math.min(1, p);
-  const over = Math.max(0, p - 1);
-  // Tratto blu: avanza fino al 100% lungo l'intero perimetro.
-  // dasharray normalizzato in "pathLength" 100 per facilitare i calcoli.
-  const intense = base >= 0.8;
-  const baseColor = over > 0
-    ? "hsl(var(--primary))"
-    : intense
-      ? "hsl(var(--primary))"
-      : "hsl(var(--primary) / 0.85)";
-  const baseWidth = intense || over > 0 ? 3 : 2;
-  const overColor = "hsl(0 80% 55%)";
-  // Tratto rosso (sforamento): cresce da 0 a 100% del perimetro, sovrapposto.
-  const overDash = Math.min(100, over * 100);
+  const over = Math.max(0, Math.min(1, p - 1));
+
+  const blueColor = "hsl(var(--primary))";
+  const overColor = "hsl(0 85% 58%)";
 
   return (
     <svg
@@ -41,49 +38,73 @@ export const LiveFrameProgress = ({ progress, active }: Props) => {
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      {/* Guida di fondo */}
+      {/* Guida di fondo (sottile, sempre visibile quando attivo) */}
       <rect
-        x="0.5"
-        y="0.5"
-        width="99"
-        height="99"
+        x="0"
+        y="0"
+        width="100"
+        height="100"
         fill="none"
-        stroke="hsl(var(--border) / 0.4)"
-        strokeWidth="1"
+        stroke="hsl(var(--border) / 0.35)"
+        strokeWidth={1.5}
         vectorEffect="non-scaling-stroke"
         pathLength={100}
       />
-      {/* Tratto blu — parte dall'angolo top-left, avanza in senso orario */}
-      <rect
-        x="0.5"
-        y="0.5"
-        width="99"
-        height="99"
-        fill="none"
-        stroke={baseColor}
-        strokeWidth={baseWidth}
-        vectorEffect="non-scaling-stroke"
-        pathLength={100}
-        strokeDasharray={`${base * 100} 100`}
-        strokeDashoffset={0}
-        style={{ transition: "stroke-dasharray 500ms linear, stroke 300ms" }}
-      />
-      {/* Tratto rosso di sforamento, sopra il blu */}
-      {over > 0 && (
+
+      {/* Tratto blu continuo — top-left → clockwise */}
+      {base > 0 && (
         <rect
-          x="0.5"
-          y="0.5"
-          width="99"
-          height="99"
+          x="0"
+          y="0"
+          width="100"
+          height="100"
           fill="none"
-          stroke={overColor}
+          stroke={blueColor}
           strokeWidth={3}
+          strokeLinecap="butt"
           vectorEffect="non-scaling-stroke"
           pathLength={100}
-          strokeDasharray={`${overDash} 100`}
+          strokeDasharray={`${base * 100} 100`}
           strokeDashoffset={0}
-          style={{ transition: "stroke-dasharray 500ms linear" }}
+          style={{ transition: "stroke-dasharray 600ms linear" }}
         />
+      )}
+
+      {/* Glow rosso di sforamento — secondo livello esterno, cresce da 0 a 100% */}
+      {over > 0 && (
+        <>
+          {/* alone soft */}
+          <rect
+            x="0"
+            y="0"
+            width="100"
+            height="100"
+            fill="none"
+            stroke={overColor}
+            strokeWidth={8}
+            strokeOpacity={0.25}
+            vectorEffect="non-scaling-stroke"
+            pathLength={100}
+            strokeDasharray={`${over * 100} 100`}
+            strokeDashoffset={0}
+            style={{ transition: "stroke-dasharray 600ms linear" }}
+          />
+          {/* tratto pieno */}
+          <rect
+            x="0"
+            y="0"
+            width="100"
+            height="100"
+            fill="none"
+            stroke={overColor}
+            strokeWidth={3}
+            vectorEffect="non-scaling-stroke"
+            pathLength={100}
+            strokeDasharray={`${over * 100} 100`}
+            strokeDashoffset={0}
+            style={{ transition: "stroke-dasharray 600ms linear" }}
+          />
+        </>
       )}
     </svg>
   );
