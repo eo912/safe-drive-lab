@@ -26,6 +26,7 @@ export const LiveFrameProgress = ({ progress, active }: Props) => {
   const base = Math.min(1, p);
   const over = Math.max(0, Math.min(1, p - 1));
 
+  const greenColor = "hsl(145 65% 45%)";
   const blueColor = "hsl(var(--primary))";
   const overColor = "hsl(0 85% 58%)";
 
