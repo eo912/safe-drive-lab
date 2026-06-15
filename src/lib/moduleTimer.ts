@@ -45,12 +45,14 @@ export const useModuleTimer = (slug: string, hasLive: boolean) => {
   const elapsed = start != null ? Math.max(0, Math.floor((now - start) / 1000)) : 0;
 
   const reset = useCallback(() => {
+    const ts = Date.now();
     try {
-      localStorage.removeItem(KEY_PREFIX + slug);
+      localStorage.setItem(KEY_PREFIX + slug, String(ts));
     } catch {
       /* ignore */
     }
-    setStart(null);
+    setStart(ts);
+    setNow(ts);
   }, [slug]);
 
   return { elapsed, started: start != null, reset };
@@ -60,4 +62,17 @@ export const formatTimerMMSS = (s: number) => {
   const m = Math.floor(s / 60);
   const sec = s % 60;
   return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+};
+
+/**
+ * Formato adattivo: MM:SS sotto i 60 minuti, HH:MM:SS oltre.
+ * Evita letture ambigue come "1754:58".
+ */
+export const formatTimerAdaptive = (s: number) => {
+  const safe = Math.max(0, Math.floor(s));
+  if (safe < 3600) return formatTimerMMSS(safe);
+  const h = Math.floor(safe / 3600);
+  const m = Math.floor((safe % 3600) / 60);
+  const sec = safe % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 };

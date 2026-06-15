@@ -25,6 +25,7 @@ import {
   PanelRight,
   Pause,
   Clock,
+  RotateCcw,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -55,7 +56,7 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { CourseFormatPanel } from "@/components/istruttore/CourseFormatPanel";
 import { useCourseFormat } from "@/lib/courseFormat";
 
-import { useModuleTimer, formatTimerMMSS } from "@/lib/moduleTimer";
+import { useModuleTimer, formatTimerMMSS, formatTimerAdaptive } from "@/lib/moduleTimer";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
 // "regia"   = controllo manuale, preview separata da live (Invia in Aula).
@@ -509,6 +510,7 @@ const IstruttoreModulo = () => {
                 elapsed={moduleTimer.elapsed}
                 target={moduleTargetSeconds}
                 started={moduleTimer.started}
+                onReset={moduleTimer.reset}
               />
             </div>
           </div>
@@ -1165,11 +1167,20 @@ const ModuleTimerBadge = ({
   elapsed,
   target,
   started,
+  onReset,
 }: {
   elapsed: number;
   target: number;
   started: boolean;
+  onReset: () => void;
 }) => {
+  const handleReset = () => {
+    if (started && elapsed > 5) {
+      if (!window.confirm("Reimpostare il timer del modulo a 00:00?")) return;
+    }
+    onReset();
+  };
+
   if (!started) {
     return (
       <span className="hidden md:inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground/70 shrink-0">
@@ -1186,10 +1197,19 @@ const ModuleTimerBadge = ({
       title={over ? "Modulo fuori tempo" : "Modulo in tempo"}
     >
       <Clock className="w-3 h-3" />
-      <span className="text-foreground/90">{formatTimerMMSS(elapsed)}</span>
+      <span className="text-foreground/90">{formatTimerAdaptive(elapsed)}</span>
       {target > 0 && (
         <span className="text-muted-foreground">/ {formatTimerMMSS(target)}</span>
       )}
+      <button
+        type="button"
+        onClick={handleReset}
+        className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded text-muted-foreground/60 hover:text-foreground hover:bg-secondary transition-colors"
+        title="Reimposta timer modulo"
+        aria-label="Reimposta timer modulo"
+      >
+        <RotateCcw className="w-3 h-3" />
+      </button>
     </span>
   );
 };
