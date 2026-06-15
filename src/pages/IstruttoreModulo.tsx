@@ -25,6 +25,7 @@ import {
   PanelRight,
   Pause,
   Clock,
+  RotateCcw,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
