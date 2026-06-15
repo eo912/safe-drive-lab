@@ -510,6 +510,7 @@ const IstruttoreModulo = () => {
                 elapsed={moduleTimer.elapsed}
                 target={moduleTargetSeconds}
                 started={moduleTimer.started}
+                onReset={moduleTimer.reset}
               />
             </div>
           </div>
