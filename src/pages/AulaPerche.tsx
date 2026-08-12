@@ -497,18 +497,18 @@ const AulaPerche = () => {
       </Slide>
 
 
-      {/* SLIDE CONSEGUENZA */}
+      {/* RACCORDO: chiusura breve, non ripete lo step spiegazione */}
       <Slide bg="black" blockId="abitudine">
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.h2
             {...fade}
             className="text-4xl md:text-6xl font-bold leading-tight"
           >
-            Non è esperienza.<br />
-            <span className="text-primary">È abitudine.</span>
+            L'abitudine <span className="text-primary">guida al posto tuo.</span>
           </motion.h2>
         </div>
       </Slide>
+
 
       {/* ============================================================
           BLOCCO 4 — GUIDARE È LAVORO
