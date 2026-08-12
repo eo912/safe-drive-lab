@@ -8,8 +8,8 @@ import urbanRoad from "@/assets/stat-urban-road.jpg";
 import traffic from "@/assets/stat-traffic.jpg";
 import hospital from "@/assets/stat-hospital.jpg";
 import intersection from "@/assets/stat-intersection.jpg";
-import familiarRoad from "@/assets/familiar-road.jpg";
-import routineDriving from "@/assets/routine-driving.jpg";
+import { StradaConosciutaScene } from "@/components/perche/StradaConosciutaScene";
+
 import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
 import povVideo from "@/assets/pov-distraction.mp4.asset.json";
