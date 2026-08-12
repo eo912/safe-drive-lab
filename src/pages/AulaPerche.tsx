@@ -157,8 +157,16 @@ const AulaPerche = () => {
   const renderLevel: RenderLevel =
     embedParam === "preview" ? "preview" : embedParam === "mini" ? "live" : "full";
   const embedBlocco = urlParams?.get("blocco") ?? "hero";
+  const VALID_STEPS = ["intro", "scenario", "esiti", "spiegazione", "approfondimento"] as const;
+  const rawStep = urlParams?.get("step");
+  const embedStep = (VALID_STEPS as readonly string[]).includes(rawStep ?? "")
+    ? (rawStep as import("@/lib/aulaSync").AulaStep)
+    : "intro";
+  /** Step effettivo della scena "strada conosciuta": URL in embed, sync in Aula reale. */
+  const stradaStep = embedMode ? embedStep : aulaState.step;
   const embedPaused = urlParams?.get("pausa") === "1";
   const embedAtm = (urlParams?.get("atm") as import("@/lib/pauseAtmosphere").PauseAtmosphere | null) ?? null;
+
   const isPaused = embedMode
     ? embedPaused
     : aulaState.paused || forcePauseFromUrl;
