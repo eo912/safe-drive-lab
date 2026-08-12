@@ -67,7 +67,7 @@ const ModulesSection = () => {
             Scegli da dove iniziare
           </h2>
           <p className="text-muted-foreground">
-            Sei percorsi. Un obiettivo: capire prima di agire.
+            Sette percorsi. Un obiettivo: capire prima di agire.
           </p>
         </motion.div>
 
@@ -81,7 +81,7 @@ const ModulesSection = () => {
               transition={{ duration: 0.5, delay: i * 0.08 }}
               className="card-lab text-left cursor-pointer group"
               onClick={() => {
-                if (m.title === "Perché la guida sicura") {
+                if (m.title === "Cultura della Sicurezza") {
                   navigate("/perche-la-guida-sicura");
                 }
               }}
