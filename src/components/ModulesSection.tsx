@@ -1,37 +1,50 @@
 import { motion } from "framer-motion";
-import { HelpCircle, User, Car, Atom, CloudRain, Wrench } from "lucide-react";
+import {
+  ShieldCheck,
+  User,
+  Car,
+  Atom,
+  Wrench,
+  Briefcase,
+  Route,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const modules = [
   {
-    icon: HelpCircle,
-    title: "Perché la guida sicura",
-    desc: "Dati, statistiche e consapevolezza. Il punto di partenza.",
+    icon: ShieldCheck,
+    title: "Cultura della Sicurezza",
+    desc: "Rischio, prevenzione, catena degli eventi.",
   },
   {
     icon: User,
-    title: "Il conducente",
-    desc: "Percezione, reazione, limiti umani. Conosci il fattore più importante.",
+    title: "Il Conducente",
+    desc: "Postura, osservazione, attenzione, stato psicofisico.",
   },
   {
     icon: Car,
-    title: "Il veicolo",
-    desc: "Come risponde l'auto. Freni, aderenza, elettronica di bordo.",
+    title: "Il Veicolo",
+    desc: "Pneumatici, freni, sistemi elettronici, controlli.",
   },
   {
     icon: Atom,
-    title: "La fisica della guida",
-    desc: "Forze, inerzia, traiettorie. La scienza dietro ogni manovra.",
-  },
-  {
-    icon: CloudRain,
-    title: "Le condizioni reali",
-    desc: "Pioggia, neve, notte, stanchezza. Guidare quando tutto cambia.",
+    title: "Dinamica del Veicolo",
+    desc: "Aderenza, trasferimenti di carico, frenata, curva.",
   },
   {
     icon: Wrench,
-    title: "La tecnica",
-    desc: "Frenata, curva, sorpasso. Le azioni che fanno la differenza.",
+    title: "Tecniche di Guida",
+    desc: "Anticipazione, distanza, fluidità, gestione della curva.",
+  },
+  {
+    icon: Briefcase,
+    title: "Guida Professionale",
+    desc: "Pianificazione, pressione operativa, prevedibilità.",
+  },
+  {
+    icon: Route,
+    title: "Applicazione EST",
+    desc: "Applicazione dei moduli al contesto operativo EST.",
   },
 ];
 
@@ -54,7 +67,7 @@ const ModulesSection = () => {
             Scegli da dove iniziare
           </h2>
           <p className="text-muted-foreground">
-            Sei percorsi. Un obiettivo: capire prima di agire.
+            Sette percorsi. Un obiettivo: capire prima di agire.
           </p>
         </motion.div>
 
@@ -68,7 +81,7 @@ const ModulesSection = () => {
               transition={{ duration: 0.5, delay: i * 0.08 }}
               className="card-lab text-left cursor-pointer group"
               onClick={() => {
-                if (m.title === "Perché la guida sicura") {
+                if (m.title === "Cultura della Sicurezza") {
                   navigate("/perche-la-guida-sicura");
                 }
               }}
