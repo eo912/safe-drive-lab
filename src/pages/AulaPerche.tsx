@@ -505,6 +505,11 @@ const AulaPerche = () => {
       </Slide>
 
 
+      {/* SCENA CONTROLLATA DALLA REGIA — catena di eventi */}
+      <Slide blockId="incidente-non-numero">
+        <CatenaEventiScene step={stradaStep} level={renderLevel} />
+      </Slide>
+
       {/* RACCORDO: chiusura breve, non ripete lo step spiegazione */}
       <Slide bg="black" blockId="abitudine">
         <div className="relative z-10 text-center px-6 max-w-3xl">
