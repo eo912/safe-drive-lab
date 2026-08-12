@@ -62,13 +62,15 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "incidente-non-numero",
     index: 5,
-    expectedSeconds: 180,
-    title: "Un incidente non è solo un numero",
-    kind: "riflessione",
+    expectedSeconds: 300,
+    title: "Un incidente è una catena di eventi",
+    kind: "scenario",
+    hasScenario: true,
     hasOutcomes: true,
     hasExplanation: true,
+    hasDeepDive: true,
     notes:
-      "Un incidente non finisce quando finisce. Le conseguenze continuano per mesi, anni, a volte per sempre. 4 aree: lavoro, salute, famiglia, responsabilità. Per le aziende: focus su capacità lavorativa e responsabilità. Tempo: max 2 minuti.",
+      "Aprire con: «Secondo voi, un incidente nasce davvero in un solo istante?». Far emergere dall'aula che quasi sempre esistono più anelli: velocità, attenzione, osservazione, frenata. Non cercare il colpevole, ma il primo punto utile in cui interrompere la sequenza. Domanda chiave: «Dove avreste potuto rompere la catena?». Chiusura: «La sicurezza non elimina ogni errore. Crea più occasioni per fermarlo prima.»",
   },
   {
     id: "guidare-lavoro",
