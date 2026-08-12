@@ -9,6 +9,7 @@ import traffic from "@/assets/stat-traffic.jpg";
 import hospital from "@/assets/stat-hospital.jpg";
 import intersection from "@/assets/stat-intersection.jpg";
 import { StradaConosciutaScene } from "@/components/perche/StradaConosciutaScene";
+import { CatenaEventiScene } from "@/components/perche/CatenaEventiScene";
 
 import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
