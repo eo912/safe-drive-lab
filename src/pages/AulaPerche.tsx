@@ -491,43 +491,11 @@ const AulaPerche = () => {
           Slide impatto → Free → Slide tensione → Slide conseguenza
           ============================================================ */}
 
-      {/* SLIDE IMPATTO */}
+      {/* SCENA CONTROLLATA DALLA REGIA — contenuto dipendente dallo step */}
       <Slide blockId="strada-conosciuta">
-        <ImgBg src={familiarRoad} alt="Strada familiare" opacity="opacity-25" level={renderLevel} />
-        <div className="relative z-10 text-center px-6 max-w-3xl">
-          <motion.h2
-            {...fade}
-            className="text-4xl md:text-6xl font-bold leading-tight"
-          >
-            Una strada<br />
-            <span className="text-primary">che conosci.</span>
-          </motion.h2>
-        </div>
+        <StradaConosciutaScene step={stradaStep} level={renderLevel} />
       </Slide>
 
-      {/* FREE: respiro / domanda istruttore */}
-      <Free>
-        <motion.p
-          {...fade}
-          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90 text-center"
-        >
-          Sai dove sono le curve.
-        </motion.p>
-      </Free>
-
-      {/* SLIDE TENSIONE */}
-      <Slide bg="darker">
-        <ImgBg src={routineDriving} alt="Guida di routine" opacity="opacity-15" level={renderLevel} />
-        <div className="relative z-10 text-center px-6 max-w-3xl">
-          <motion.h2
-            {...fade}
-            className="text-4xl md:text-6xl font-bold leading-tight"
-          >
-            Ed è proprio lì<br />
-            <span className="text-primary">che smetti di guardare.</span>
-          </motion.h2>
-        </div>
-      </Slide>
 
       {/* SLIDE CONSEGUENZA */}
       <Slide bg="black" blockId="abitudine">
