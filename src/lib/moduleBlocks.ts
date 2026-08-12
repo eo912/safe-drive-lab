@@ -38,14 +38,17 @@ export const perchéBlocks: ModuleBlock[] = [
   {
     id: "strada-conosciuta",
     index: 3,
-    expectedSeconds: 150,
-    title: "Una strada che conosci",
-    kind: "riflessione",
+    expectedSeconds: 240,
+    title: "Una strada conosciuta",
+    kind: "scenario",
     hasScenario: true,
+    hasOutcomes: true,
     hasExplanation: true,
+    hasDeepDive: true,
     notes:
-      "Far pensare al tragitto casa-lavoro. Domanda: «Quante curve, incroci, semafori ci sono sulla strada che fai più spesso? Riusciresti a elencarli?». Punto chiave: la familiarità abbassa la soglia di attenzione. Sei presente, ma non davvero.",
+      "Apertura con domanda: «Pensate alla strada che fate più spesso. Vi sembra una strada sicura?». Non dare subito la risposta: far motivare 1-2 persone. Punto chiave: la familiarità può abbassare la soglia di attenzione. Distinguere esperienza (capacità acquisita) da abitudine (automatismo). Chiusura: «L'esperienza ti rende più capace. L'abitudine, se non la controlli, ti rende meno presente.»",
   },
+
   {
     id: "abitudine",
     index: 4,
