@@ -149,14 +149,11 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
                   : "border-border/60 hover:border-border"
               }`}
             >
-              {/* TODO: sfondo foto — sostituire con import da @/assets/tre-leve-stato.jpg (Flag of Italy), @/assets/tre-leve-industria.jpg (Plant for production of cars), @/assets/tre-leve-educazione.jpg (Blurred European City Square) */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(160deg, hsl(220 20% 14%) 0%, hsl(220 20% 7%) 100%)",
-                }}
+              <img
+                src={l.img}
+                alt=""
                 aria-hidden
+                className="absolute inset-0 w-full h-full object-cover"
               />
               <div
                 className={`absolute inset-0 ${active ? "bg-background/30" : "bg-background/60"}`}
