@@ -408,7 +408,7 @@ const AulaModulo1 = () => {
         <Link
           to={`/istruttore/${MODULO}`}
           aria-label="Esci dalla modalità aula"
-          className={`fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-background/70 backdrop-blur border border-border/40 text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-border transition-opacity duration-300 ${
+          className={`fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-background/70 backdrop-blur border border-border/40 text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-border transition-opacity duration-300 ${
             showExit ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
