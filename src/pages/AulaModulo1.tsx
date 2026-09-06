@@ -84,6 +84,7 @@ type Leva = {
   anno: string;
   titolo: string;
   testo: string;
+  img: string;
 };
 
 const LEVE: Leva[] = [
@@ -94,6 +95,7 @@ const LEVE: Leva[] = [
     titolo: "Regole e controllo",
     testo:
       "La patente a punti entra in vigore nel 2003. Lo Stato agisce su norme, controlli e sanzioni per cambiare il comportamento alla guida.",
+    img: leveStatoAsset.url,
   },
   {
     id: "industria",
@@ -102,6 +104,7 @@ const LEVE: Leva[] = [
     titolo: "Dalla sicurezza passiva agli ADAS",
     testo:
       "Dall'ABS agli airbag, fino agli ADAS resi obbligatori tra il 2022 e il 2024. Il veicolo diventa parte attiva della prevenzione.",
+    img: leveIndustriaAsset.url,
   },
   {
     id: "educazione",
@@ -110,6 +113,7 @@ const LEVE: Leva[] = [
     titolo: "Campagne e formazione",
     testo:
       "Campagne di sensibilizzazione e corsi come questo. È la leva più lenta, ma è l'unica che agisce direttamente su chi guida.",
+    img: leveEducazioneAsset.url,
   },
 ];
 
