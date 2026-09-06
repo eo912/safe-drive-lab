@@ -26,6 +26,10 @@ const App = () => (
           <Route path="/istruttore" element={<Istruttore />} />
           <Route path="/istruttore/:slug" element={<IstruttoreModulo />} />
           <Route
+            path="/modulo/perche-un-corso"
+            element={<PercheUnCorso />}
+          />
+          <Route
             path="/modulo/perche-la-guida-sicura"
             element={<PercheLaGuidaSicura />}
           />
