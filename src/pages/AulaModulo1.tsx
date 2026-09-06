@@ -18,10 +18,10 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 const MODULO = "modulo-1-perche-un-corso";
 
 const fade = {
-  initial: { opacity: 0 },
-  whileInView: { opacity: 1 },
+  initial: { opacity: 0, y: 20, scale: 0.98 },
+  whileInView: { opacity: 1, y: 0, scale: 1 },
   viewport: { once: true, margin: "-15%" },
-  transition: { duration: 0.4, delay: 0.4 },
+  transition: { duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
 };
 
 type RenderLevel = "full" | "live" | "preview";
@@ -118,8 +118,8 @@ const LEVE: Leva[] = [
 ];
 
 const TreLeveScene = ({ level }: { level: RenderLevel }) => {
-  const [attiva, setAttiva] = useState<string>(LEVE[0].id);
-  const leva = LEVE.find((l) => l.id === attiva) ?? LEVE[0];
+  const [attiva, setAttiva] = useState<string | null>(null);
+  const leva = attiva ? LEVE.find((l) => l.id === attiva) ?? null : null;
 
   return (
     <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-6">
@@ -131,7 +131,7 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
           aria-hidden
           className="w-8 h-8 rounded-full object-cover border border-primary/40"
         />
-        <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary">
           2001 · Obiettivo: dimezzare i morti sulla strada
         </p>
       </div>
@@ -162,7 +162,7 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
                 aria-hidden
               />
               <div className="relative z-10 h-full flex flex-col justify-end p-5">
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-2">
+                <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-2">
                   {l.anno}
                 </p>
                 <p className="text-2xl md:text-3xl font-bold uppercase tracking-tight text-foreground">
@@ -175,15 +175,17 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
       </div>
 
       {/* Area dettaglio fissa — mai scroll, sostituisce il contenuto precedente */}
-      <div className="h-[16vh] rounded-lg border border-border/60 bg-card/70 px-6 py-5 overflow-hidden">
+      <div className="h-[16vh] rounded-lg border border-border/60 bg-card/70 px-6 py-5 overflow-hidden flex items-center justify-center">
         {level === "preview" ? (
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-2">
-              {leva.nome}
+          <div className="text-center">
+            <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-2">
+              {leva ? leva.nome : "Le tre leve"}
             </p>
-            <p className="text-base text-foreground/80">{leva.titolo}</p>
+            <p className="text-lg text-foreground/80">
+              {leva ? leva.titolo : "Tocca una leva per scoprire di più"}
+            </p>
           </div>
-        ) : (
+        ) : leva ? (
           <AnimatePresence mode="wait">
             <motion.div
               key={leva.id}
@@ -192,14 +194,18 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
             >
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-2">
+              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-2">
                 {leva.nome} — {leva.titolo}
               </p>
-              <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed">
                 {leva.testo}
               </p>
             </motion.div>
           </AnimatePresence>
+        ) : (
+          <p className="font-mono text-sm uppercase tracking-wide text-muted-foreground text-center">
+            Tocca una leva per scoprire di più
+          </p>
         )}
       </div>
     </div>
@@ -402,7 +408,7 @@ const AulaModulo1 = () => {
         <Link
           to={`/istruttore/${MODULO}`}
           aria-label="Esci dalla modalità aula"
-          className={`fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-background/70 backdrop-blur border border-border/40 text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-border transition-opacity duration-300 ${
+          className={`fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-background/70 backdrop-blur border border-border/40 text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-border transition-opacity duration-300 ${
             showExit ? "opacity-100" : "opacity-0 pointer-events-none"
           }`}
         >
@@ -445,7 +451,7 @@ const AulaModulo1 = () => {
         </div>
       </Slide>
 
-      <Free className="text-center">
+      <Free className="text-center" blockId="hook">
         <motion.p
           {...fade}
           className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
@@ -471,7 +477,7 @@ const AulaModulo1 = () => {
           ============================================================ */}
       <Slide bg="card" blockId="numeri-2001-2024" className="items-stretch">
         <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-6">
-          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary text-center">
+          <p className="font-mono text-sm tracking-[0.3em] uppercase text-primary text-center">
             2001 vs oggi
           </p>
 
@@ -481,7 +487,7 @@ const AulaModulo1 = () => {
               { anno: "2024", key: "b" as const },
             ].map((col) => (
               <div key={col.anno} className="space-y-3">
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-muted-foreground text-center">
+                <p className="font-mono text-xs tracking-[0.3em] uppercase text-muted-foreground text-center">
                   {col.anno}
                 </p>
                 {NUMERI.map((n) => (
@@ -492,7 +498,7 @@ const AulaModulo1 = () => {
                     <p className="text-2xl md:text-3xl font-bold text-foreground">
                       {n[col.key]}
                     </p>
-                    <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-1">
+                    <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mt-1">
                       {n.label}
                     </p>
                   </div>
@@ -517,7 +523,7 @@ const AulaModulo1 = () => {
                 <ZoomIn className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </button>
-            <p className="text-[11px] text-muted-foreground mt-2 font-mono tracking-wider">
+            <p className="text-xs text-muted-foreground mt-2 font-mono tracking-wider">
               Fonte: ISTAT – ACI
             </p>
           </div>
@@ -544,7 +550,7 @@ const AulaModulo1 = () => {
         </div>
       </Slide>
 
-      <Free className="text-center">
+      <Free className="text-center" blockId="costi-stato">
         <motion.p
           {...fade}
           className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
