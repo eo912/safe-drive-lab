@@ -7,6 +7,12 @@ export type Module = {
 
 export const modules: Module[] = [
   {
+    slug: "modulo-1-perche-un-corso",
+    title: "Perché un corso",
+    short: "Le tre leve, i numeri, il perché siamo qui.",
+    available: true,
+  },
+  {
     slug: "perche-la-guida-sicura",
     title: "Cultura della Sicurezza",
     short: "Rischio, prevenzione, catena degli eventi.",

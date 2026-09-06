@@ -126,6 +126,62 @@ export const perchéBlocks: ModuleBlock[] = [
   },
 ];
 
+// Blocchi del Modulo 1 — Perché un corso
+export const moduloUnoBlocks: ModuleBlock[] = [
+  {
+    id: "copertina",
+    index: 1,
+    expectedSeconds: 30,
+    title: "Guida Sicura VDA",
+    kind: "intro",
+    notes:
+      "Slide di apertura, solo logo e nome. Nessun intervento istruttore necessario, transizione rapida al blocco successivo.",
+  },
+  {
+    id: "hook",
+    index: 2,
+    expectedSeconds: 60,
+    title: "Perché un corso",
+    kind: "intro",
+    hasExplanation: true,
+    notes:
+      "Frase di apertura: «Non è un'idea nuova. È una storia che comincia più di vent'anni fa — e che oggi passa anche da questa aula.» Pausa, poi passare al blocco tre leve.",
+  },
+  {
+    id: "tre-leve",
+    index: 3,
+    expectedSeconds: 180,
+    title: "Le tre leve",
+    kind: "scenario",
+    hasScenario: true,
+    hasExplanation: true,
+    notes:
+      "Nel 2001 l'Unione Europea si è posta l'obiettivo di dimezzare i morti sulla strada. Da lì tre leve: STATO (patente a punti, 2003), INDUSTRIA (da ABS a ADAS obbligatori 2022-2024), EDUCAZIONE (campagne e corsi come questo). Far toccare le tre card una per una, chiudere con: «Anche voi oggi siete dentro la terza leva.»",
+  },
+  {
+    id: "numeri-2001-2024",
+    index: 4,
+    expectedSeconds: 150,
+    title: "2001 vs oggi",
+    kind: "dati",
+    hasExplanation: true,
+    hasDeepDive: true,
+    notes:
+      "Incidenti: 263.100 → 173.364. Morti: 7.096 → 3.030. Feriti: 373.286 → 233.853. Veicoli circolanti: 32,5M → 41,3M (fonte ACI). SUGGERIMENTO CHIAVE per l'istruttore, da NON mettere a schermo: rapportando al numero di veicoli, il rischio per veicolo è calato ancora di più del dato assoluto — incidenti/veicolo -48%, MORTI/VEICOLO -66%, feriti/veicolo -51%. Usare questa frase se l'aula sembra pensare che il miglioramento sia «solo perché ci sono più regole»: il calo è strutturale, non statistico. Fonte: ISTAT-ACI, Report Incidenti Stradali 2024.",
+  },
+  {
+    id: "costi-stato",
+    index: 5,
+    expectedSeconds: 90,
+    title: "Il costo per tutti",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "18 miliardi di euro l'anno, quasi l'1% del PIL nazionale (dato 2024, fonte Ministero Infrastrutture/ISTAT-ACI). Chiudere con: «La strada è più sicura di ieri, ma il lavoro non è finito, ed è anche per questo che siete qui.»",
+  },
+];
+
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
+  "modulo-1-perche-un-corso": moduloUnoBlocks,
   "perche-la-guida-sicura": perchéBlocks,
 };
