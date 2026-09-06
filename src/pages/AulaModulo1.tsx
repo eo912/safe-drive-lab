@@ -4,6 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ZoomIn, X } from "lucide-react";
 
 import istatInfografica from "@/assets/istat-infografica.jpg";
+import logoGsVdaAsset from "@/assets/logo-gsvda.png.asset.json";
+import leveEuropaAsset from "@/assets/tre-leve-europa.jpg.asset.json";
+import leveStatoAsset from "@/assets/tre-leve-stato.jpg.asset.json";
+import leveIndustriaAsset from "@/assets/tre-leve-industria.jpg.asset.json";
+import leveEducazioneAsset from "@/assets/tre-leve-educazione.jpg.asset.json";
 import { useAulaSubscriber, useAulaHeartbeat } from "@/lib/aulaSync";
 import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
@@ -79,6 +84,7 @@ type Leva = {
   anno: string;
   titolo: string;
   testo: string;
+  img: string;
 };
 
 const LEVE: Leva[] = [
@@ -89,6 +95,7 @@ const LEVE: Leva[] = [
     titolo: "Regole e controllo",
     testo:
       "La patente a punti entra in vigore nel 2003. Lo Stato agisce su norme, controlli e sanzioni per cambiare il comportamento alla guida.",
+    img: leveStatoAsset.url,
   },
   {
     id: "industria",
@@ -97,6 +104,7 @@ const LEVE: Leva[] = [
     titolo: "Dalla sicurezza passiva agli ADAS",
     testo:
       "Dall'ABS agli airbag, fino agli ADAS resi obbligatori tra il 2022 e il 2024. Il veicolo diventa parte attiva della prevenzione.",
+    img: leveIndustriaAsset.url,
   },
   {
     id: "educazione",
@@ -105,6 +113,7 @@ const LEVE: Leva[] = [
     titolo: "Campagne e formazione",
     testo:
       "Campagne di sensibilizzazione e corsi come questo. È la leva più lenta, ma è l'unica che agisce direttamente su chi guida.",
+    img: leveEducazioneAsset.url,
   },
 ];
 
@@ -116,14 +125,12 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
     <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-6">
       {/* Intestazione: Unione Europea, 2001 */}
       <div className="flex items-center justify-center gap-3">
-        {/* TODO: bandiera UE — sostituire con import da @/assets/tre-leve-europa.jpg */}
-        <div
-          className="w-8 h-8 rounded-full border border-primary/40 flex items-center justify-center text-[9px] font-mono text-primary"
-          style={{ backgroundColor: "hsl(220 60% 20%)" }}
+        <img
+          src={leveEuropaAsset.url}
+          alt=""
           aria-hidden
-        >
-          UE
-        </div>
+          className="w-8 h-8 rounded-full object-cover border border-primary/40"
+        />
         <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary">
           2001 · Obiettivo: dimezzare i morti sulla strada
         </p>
@@ -144,14 +151,11 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
                   : "border-border/60 hover:border-border"
               }`}
             >
-              {/* TODO: sfondo foto — sostituire con import da @/assets/tre-leve-stato.jpg (Flag of Italy), @/assets/tre-leve-industria.jpg (Plant for production of cars), @/assets/tre-leve-educazione.jpg (Blurred European City Square) */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(160deg, hsl(220 20% 14%) 0%, hsl(220 20% 7%) 100%)",
-                }}
+              <img
+                src={l.img}
+                alt=""
                 aria-hidden
+                className="absolute inset-0 w-full h-full object-cover"
               />
               <div
                 className={`absolute inset-0 ${active ? "bg-background/30" : "bg-background/60"}`}
@@ -412,14 +416,12 @@ const AulaModulo1 = () => {
           ============================================================ */}
       <Slide bg="black" blockId="copertina">
         <div className="relative z-10 text-center px-6">
-          {/* TODO: sostituire con <img src={logoGsVda} /> quando l'asset è disponibile in src/assets/logo-gsvda.png */}
-          <motion.p
+          <motion.img
             {...fade}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-none"
-          >
-            <span className="text-foreground">GUIDA SICURA </span>
-            <span className="text-primary">VDA</span>
-          </motion.p>
+            src={logoGsVdaAsset.url}
+            alt="Guida Sicura VDA"
+            className="w-[70vw] max-w-3xl h-auto mx-auto"
+          />
         </div>
       </Slide>
 
