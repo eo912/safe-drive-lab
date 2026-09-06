@@ -125,14 +125,12 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
     <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-6">
       {/* Intestazione: Unione Europea, 2001 */}
       <div className="flex items-center justify-center gap-3">
-        {/* TODO: bandiera UE — sostituire con import da @/assets/tre-leve-europa.jpg */}
-        <div
-          className="w-8 h-8 rounded-full border border-primary/40 flex items-center justify-center text-[9px] font-mono text-primary"
-          style={{ backgroundColor: "hsl(220 60% 20%)" }}
+        <img
+          src={leveEuropaAsset.url}
+          alt=""
           aria-hidden
-        >
-          UE
-        </div>
+          className="w-8 h-8 rounded-full object-cover border border-primary/40"
+        />
         <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary">
           2001 · Obiettivo: dimezzare i morti sulla strada
         </p>
