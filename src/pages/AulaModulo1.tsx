@@ -95,7 +95,7 @@ const LEVE: Leva[] = [
     titolo: "Regole e controllo",
     testo:
       "La patente a punti entra in vigore nel 2003. Lo Stato agisce su norme, controlli e sanzioni per cambiare il comportamento alla guida.",
-    img: leveStatoAsset.url,
+    img: leveStato,
   },
   {
     id: "industria",
@@ -104,7 +104,7 @@ const LEVE: Leva[] = [
     titolo: "Dalla sicurezza passiva agli ADAS",
     testo:
       "Dall'ABS agli airbag, fino agli ADAS resi obbligatori tra il 2022 e il 2024. Il veicolo diventa parte attiva della prevenzione.",
-    img: leveIndustriaAsset.url,
+    img: leveIndustria,
   },
   {
     id: "educazione",
@@ -113,7 +113,7 @@ const LEVE: Leva[] = [
     titolo: "Campagne e formazione",
     testo:
       "Campagne di sensibilizzazione e corsi come questo. È la leva più lenta, ma è l'unica che agisce direttamente su chi guida.",
-    img: leveEducazioneAsset.url,
+    img: leveEducazione,
   },
 ];
 
@@ -126,7 +126,7 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
       {/* Intestazione: Unione Europea, 2001 */}
       <div className="flex items-center justify-center gap-3">
         <img
-          src={leveEuropaAsset.url}
+          src={leveEuropa}
           alt=""
           aria-hidden
           className="w-8 h-8 rounded-full object-cover border border-primary/40"
@@ -418,7 +418,7 @@ const AulaModulo1 = () => {
         <div className="relative z-10 text-center px-6">
           <motion.img
             {...fade}
-            src={logoGsVdaAsset.url}
+            src={logoGsVda}
             alt="Guida Sicura VDA"
             className="w-[70vw] max-w-3xl h-auto mx-auto"
           />
