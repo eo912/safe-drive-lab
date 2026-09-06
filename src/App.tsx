@@ -8,6 +8,7 @@ import Aula from "./pages/Aula.tsx";
 import Istruttore from "./pages/Istruttore.tsx";
 import IstruttoreModulo from "./pages/IstruttoreModulo.tsx";
 import PercheLaGuidaSicura from "./pages/PercheLaGuidaSicura.tsx";
+import PercheUnCorso from "./pages/PercheUnCorso.tsx";
 import AulaPerche from "./pages/AulaPerche.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -24,6 +25,10 @@ const App = () => (
           <Route path="/aula" element={<Aula />} />
           <Route path="/istruttore" element={<Istruttore />} />
           <Route path="/istruttore/:slug" element={<IstruttoreModulo />} />
+          <Route
+            path="/modulo/perche-un-corso"
+            element={<PercheUnCorso />}
+          />
           <Route
             path="/modulo/perche-la-guida-sicura"
             element={<PercheLaGuidaSicura />}
