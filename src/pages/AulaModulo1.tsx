@@ -477,7 +477,7 @@ const AulaModulo1 = () => {
           ============================================================ */}
       <Slide bg="card" blockId="numeri-2001-2024" className="items-stretch">
         <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-6">
-          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary text-center">
+          <p className="font-mono text-sm tracking-[0.3em] uppercase text-primary text-center">
             2001 vs oggi
           </p>
 
@@ -487,7 +487,7 @@ const AulaModulo1 = () => {
               { anno: "2024", key: "b" as const },
             ].map((col) => (
               <div key={col.anno} className="space-y-3">
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-muted-foreground text-center">
+                <p className="font-mono text-xs tracking-[0.3em] uppercase text-muted-foreground text-center">
                   {col.anno}
                 </p>
                 {NUMERI.map((n) => (
@@ -498,7 +498,7 @@ const AulaModulo1 = () => {
                     <p className="text-2xl md:text-3xl font-bold text-foreground">
                       {n[col.key]}
                     </p>
-                    <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mt-1">
+                    <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mt-1">
                       {n.label}
                     </p>
                   </div>
@@ -523,7 +523,7 @@ const AulaModulo1 = () => {
                 <ZoomIn className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             </button>
-            <p className="text-[11px] text-muted-foreground mt-2 font-mono tracking-wider">
+            <p className="text-xs text-muted-foreground mt-2 font-mono tracking-wider">
               Fonte: ISTAT – ACI
             </p>
           </div>
