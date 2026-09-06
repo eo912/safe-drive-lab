@@ -418,14 +418,12 @@ const AulaModulo1 = () => {
           ============================================================ */}
       <Slide bg="black" blockId="copertina">
         <div className="relative z-10 text-center px-6">
-          {/* TODO: sostituire con <img src={logoGsVda} /> quando l'asset è disponibile in src/assets/logo-gsvda.png */}
-          <motion.p
+          <motion.img
             {...fade}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-none"
-          >
-            <span className="text-foreground">GUIDA SICURA </span>
-            <span className="text-primary">VDA</span>
-          </motion.p>
+            src={logoGsVdaAsset.url}
+            alt="Guida Sicura VDA"
+            className="w-[70vw] max-w-3xl h-auto mx-auto"
+          />
         </div>
       </Slide>
 
