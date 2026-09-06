@@ -18,10 +18,10 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 const MODULO = "modulo-1-perche-un-corso";
 
 const fade = {
-  initial: { opacity: 0 },
-  whileInView: { opacity: 1 },
+  initial: { opacity: 0, y: 20, scale: 0.98 },
+  whileInView: { opacity: 1, y: 0, scale: 1 },
   viewport: { once: true, margin: "-15%" },
-  transition: { duration: 0.4, delay: 0.4 },
+  transition: { duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
 };
 
 type RenderLevel = "full" | "live" | "preview";
