@@ -4,11 +4,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ZoomIn, X } from "lucide-react";
 
 import istatInfografica from "@/assets/istat-infografica.jpg";
-import logoGsVdaAsset from "@/assets/logo-gsvda.png.asset.json";
-import leveEuropaAsset from "@/assets/tre-leve-europa.jpg.asset.json";
-import leveStatoAsset from "@/assets/tre-leve-stato.jpg.asset.json";
-import leveIndustriaAsset from "@/assets/tre-leve-industria.jpg.asset.json";
-import leveEducazioneAsset from "@/assets/tre-leve-educazione.jpg.asset.json";
+import logoGsVda from "@/assets/logo-gsvda.png";
+import leveEuropa from "@/assets/tre-leve-europa.jpg";
+import leveStato from "@/assets/tre-leve-stato.jpg";
+import leveIndustria from "@/assets/tre-leve-industria.jpg";
+import leveEducazione from "@/assets/tre-leve-educazione.jpg";
 import { useAulaSubscriber, useAulaHeartbeat } from "@/lib/aulaSync";
 import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
