@@ -118,8 +118,8 @@ const LEVE: Leva[] = [
 ];
 
 const TreLeveScene = ({ level }: { level: RenderLevel }) => {
-  const [attiva, setAttiva] = useState<string>(LEVE[0].id);
-  const leva = LEVE.find((l) => l.id === attiva) ?? LEVE[0];
+  const [attiva, setAttiva] = useState<string | null>(null);
+  const leva = attiva ? LEVE.find((l) => l.id === attiva) ?? null : null;
 
   return (
     <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-6">
@@ -131,7 +131,7 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
           aria-hidden
           className="w-8 h-8 rounded-full object-cover border border-primary/40"
         />
-        <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-primary">
+        <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary">
           2001 · Obiettivo: dimezzare i morti sulla strada
         </p>
       </div>
@@ -162,7 +162,7 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
                 aria-hidden
               />
               <div className="relative z-10 h-full flex flex-col justify-end p-5">
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-2">
+                <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-2">
                   {l.anno}
                 </p>
                 <p className="text-2xl md:text-3xl font-bold uppercase tracking-tight text-foreground">
@@ -175,15 +175,17 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
       </div>
 
       {/* Area dettaglio fissa — mai scroll, sostituisce il contenuto precedente */}
-      <div className="h-[16vh] rounded-lg border border-border/60 bg-card/70 px-6 py-5 overflow-hidden">
+      <div className="h-[16vh] rounded-lg border border-border/60 bg-card/70 px-6 py-5 overflow-hidden flex items-center justify-center">
         {level === "preview" ? (
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-2">
-              {leva.nome}
+          <div className="text-center">
+            <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-2">
+              {leva ? leva.nome : "Le tre leve"}
             </p>
-            <p className="text-base text-foreground/80">{leva.titolo}</p>
+            <p className="text-lg text-foreground/80">
+              {leva ? leva.titolo : "Tocca una leva per scoprire di più"}
+            </p>
           </div>
-        ) : (
+        ) : leva ? (
           <AnimatePresence mode="wait">
             <motion.div
               key={leva.id}
@@ -192,14 +194,18 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
             >
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-primary mb-2">
+              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-2">
                 {leva.nome} — {leva.titolo}
               </p>
-              <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed">
                 {leva.testo}
               </p>
             </motion.div>
           </AnimatePresence>
+        ) : (
+          <p className="font-mono text-sm uppercase tracking-wide text-muted-foreground text-center">
+            Tocca una leva per scoprire di più
+          </p>
         )}
       </div>
     </div>
