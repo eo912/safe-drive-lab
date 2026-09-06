@@ -550,7 +550,7 @@ const AulaModulo1 = () => {
         </div>
       </Slide>
 
-      <Free className="text-center">
+      <Free className="text-center" blockId="costi-stato">
         <motion.p
           {...fade}
           className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
