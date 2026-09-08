@@ -91,7 +91,7 @@ export const perchéBlocks: ModuleBlock[] = [
 
   {
     id: "abitudine",
-    index: 4,
+    index: 8,
     expectedSeconds: 120,
     title: "Non è esperienza. È abitudine.",
     kind: "riflessione",
@@ -101,7 +101,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "incidente-non-numero",
-    index: 5,
+    index: 9,
     expectedSeconds: 300,
     title: "Un incidente è una catena di eventi",
     kind: "scenario",
@@ -114,7 +114,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "guidare-lavoro",
-    index: 6,
+    index: 10,
     expectedSeconds: 150,
     title: "Guidare è lavoro",
     kind: "riflessione",
@@ -125,7 +125,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "distrazione",
-    index: 7,
+    index: 11,
     expectedSeconds: 120,
     title: "Bastano pochi secondi",
     kind: "scenario",
@@ -137,7 +137,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "video-pov",
-    index: 8,
+    index: 12,
     expectedSeconds: 240,
     title: "Scenario POV — Distrazione",
     kind: "video",
@@ -148,7 +148,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "chiusura",
-    index: 9,
+    index: 13,
     expectedSeconds: 120,
     title: "Se il problema è umano…",
     kind: "chiusura",
@@ -157,7 +157,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "cta",
-    index: 10,
+    index: 14,
     expectedSeconds: 90,
     title: "Verso il modulo successivo",
     kind: "cta",
