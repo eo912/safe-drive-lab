@@ -12,8 +12,6 @@ import {
 } from "lucide-react";
 
 import heroBg from "@/assets/perche-hero-bg.jpg";
-import { StradaConosciutaScene } from "@/components/perche/StradaConosciutaScene";
-import { CatenaEventiScene } from "@/components/perche/CatenaEventiScene";
 import { CatenaUrgenzaScene } from "@/components/perche/CatenaUrgenzaScene";
 
 
@@ -164,13 +162,6 @@ const AulaPerche = () => {
   const renderLevel: RenderLevel =
     embedParam === "preview" ? "preview" : embedParam === "mini" ? "live" : "full";
   const embedBlocco = urlParams?.get("blocco") ?? "hero";
-  const VALID_STEPS = ["intro", "scenario", "esiti", "spiegazione", "approfondimento"] as const;
-  const rawStep = urlParams?.get("step");
-  const embedStep = (VALID_STEPS as readonly string[]).includes(rawStep ?? "")
-    ? (rawStep as import("@/lib/aulaSync").AulaStep)
-    : "intro";
-  /** Step effettivo della scena "strada conosciuta": URL in embed, sync in Aula reale. */
-  const stradaStep = embedMode ? embedStep : aulaState.step;
   const embedPaused = urlParams?.get("pausa") === "1";
   const embedAtm = (urlParams?.get("atm") as import("@/lib/pauseAtmosphere").PauseAtmosphere | null) ?? null;
 
@@ -577,40 +568,6 @@ const AulaPerche = () => {
           </motion.p>
         </div>
       </Free>
-
-
-
-
-
-      {/* ============================================================
-          BLOCCO 3 — STRADA CONOSCIUTA & ABITUDINE
-          Slide impatto → Free → Slide tensione → Slide conseguenza
-          ============================================================ */}
-
-      {/* SCENA CONTROLLATA DALLA REGIA — contenuto dipendente dallo step */}
-      <Slide blockId="strada-conosciuta">
-        <StradaConosciutaScene step={stradaStep} level={renderLevel} />
-      </Slide>
-
-
-      {/* SCENA CONTROLLATA DALLA REGIA — catena di eventi */}
-      <Slide blockId="incidente-non-numero">
-        <CatenaEventiScene step={stradaStep} level={renderLevel} />
-      </Slide>
-
-      {/* RACCORDO: chiusura breve, non ripete lo step spiegazione */}
-      <Slide bg="black" blockId="abitudine">
-        <div className="relative z-10 text-center px-6 max-w-3xl">
-          <motion.h2
-            {...fade}
-            className="text-4xl md:text-6xl font-bold leading-tight"
-          >
-            L'abitudine <span className="text-primary">guida al posto tuo.</span>
-          </motion.h2>
-        </div>
-      </Slide>
-
-
       {/* ============================================================
           BLOCCO 4 — GUIDARE È LAVORO
           Slide impatto → Free comprensione
