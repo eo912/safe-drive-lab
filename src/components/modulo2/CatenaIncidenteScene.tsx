@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { ImagePlaceholder } from "./ImagePlaceholder";
@@ -65,7 +65,7 @@ const NODI: Nodo[] = [
   },
 ];
 
-const PROB_MIN = 0.15;
+const PROB_MIN = 0.1;
 
 type Fase = "intro" | "nodi" | "esito" | "riflessione";
 
@@ -85,7 +85,9 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
   const probRef = useRef(0.2);
   const logRef = useRef<string[]>([]);
 
-  const chiamante = useMemo(() => (Math.random() < 0.5 ? "Mamma" : "Moglie"), []);
+  const [chiamante, setChiamante] = useState(() =>
+    Math.random() < 0.5 ? "Mamma" : "Moglie",
+  );
 
   const reset = () => {
     probRef.current = 0.2;
@@ -94,6 +96,7 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
     setEsito(null);
     setSecondaChiamata(false);
     setSpecchietto(false);
+    setChiamante(Math.random() < 0.5 ? "Mamma" : "Moglie");
     setFase("intro");
   };
 
@@ -329,6 +332,11 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
               >
                 {esito === "casa" ? "Sei arrivato a casa." : "Non ce l'hai fatta."}
               </p>
+              <p className="mt-4 text-base md:text-lg leading-snug text-foreground/80">
+                {esito === "casa"
+                  ? "Stessa strada, stesse condizioni. Questa volta la catena si è fermata prima."
+                  : "Stessa strada, stesse condizioni. Questa volta la catena è arrivata fino in fondo."}
+              </p>
               <button
                 type="button"
                 onClick={() => setFase("riflessione")}
@@ -352,6 +360,11 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
             </p>
             <p className="mt-4 text-2xl md:text-4xl font-semibold leading-snug max-w-3xl mx-auto">
               In quale punto della catena, secondo voi, si decideva davvero l'esito?
+            </p>
+            <p className="mt-5 text-base md:text-lg leading-relaxed text-foreground/75 max-w-3xl mx-auto">
+              Non c'è una risposta giusta scritta qui. Ripercorretela insieme: stanchezza,
+              telefono, pioggia, imprevisto. Dove avreste rotto la catena voi, e dove invece
+              avreste fatto la stessa scelta?
             </p>
           </motion.div>
         )}
