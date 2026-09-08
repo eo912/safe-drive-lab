@@ -139,7 +139,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "cta",
-    index: 14,
+    index: 12,
     expectedSeconds: 90,
     title: "Verso il modulo successivo",
     kind: "cta",
