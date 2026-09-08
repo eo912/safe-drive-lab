@@ -1,15 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  CloudRain,
+  Eye,
+  Gauge,
+  HeartPulse,
+  Ruler,
+  Wrench,
+} from "lucide-react";
 
 import heroBg from "@/assets/perche-hero-bg.jpg";
-import urbanRoad from "@/assets/stat-urban-road.jpg";
-import traffic from "@/assets/stat-traffic.jpg";
-import hospital from "@/assets/stat-hospital.jpg";
-import intersection from "@/assets/stat-intersection.jpg";
 import { StradaConosciutaScene } from "@/components/perche/StradaConosciutaScene";
 import { CatenaEventiScene } from "@/components/perche/CatenaEventiScene";
+import { CatenaUrgenzaScene } from "@/components/perche/CatenaUrgenzaScene";
+
 
 import workDriving from "@/assets/work-driving.jpg";
 import phoneDriving from "@/assets/phone-driving.jpg";
@@ -408,7 +414,7 @@ const AulaPerche = () => {
             transition={{ duration: 0.4, delay: 0.5 }}
             className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-6"
           >
-            Modulo 01
+            Modulo 02
           </motion.p>
           <motion.h1
             initial={{ opacity: 0 }}
@@ -432,68 +438,139 @@ const AulaPerche = () => {
       </Free>
 
       {/* ============================================================
-          BLOCCO 2 — I NUMERI
-          Slide tensione (dati) → Slide conseguenza (ritmo) → Free comprensione
+          BLOCCO 2 — COS'È LA SICUREZZA
           ============================================================ */}
 
-      {/* SLIDE TENSIONE: Numeri */}
-      <Slide bg="card" blockId="numeri">
-        <div className="relative z-10 w-full max-w-5xl px-6">
-          <div className="grid grid-cols-2 gap-8 md:gap-14">
-            {[
-              { value: "173.364", label: "incidenti", img: urbanRoad, alt: "Strada urbana" },
-              { value: "3.030", label: "morti", img: traffic, alt: "Traffico" },
-              { value: "233.853", label: "feriti", img: hospital, alt: "Ospedale" },
-              { value: "475", label: "al giorno", img: intersection, alt: "Incrocio" },
-            ].map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.5 + i * 0.15 }}
-              >
-                <div className="rounded-md overflow-hidden mb-3 aspect-[16/9]">
-                  <img
-                    src={s.img}
-                    alt={s.alt}
-                    loading="lazy"
-                    className="w-full h-full object-cover grayscale-[40%] opacity-50"
-                  />
-                </div>
-                <p className="font-mono text-3xl md:text-5xl font-bold mb-1">
-                  {s.value}
-                </p>
-                <p className="text-primary text-sm md:text-base font-medium">
-                  {s.label}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </Slide>
-
-      {/* SLIDE CONSEGUENZA: il ritmo */}
-      <Slide bg="darker">
-        <div className="relative z-10 text-center px-6 max-w-3xl">
+      <Slide bg="darker" blockId="cosa-e-sicurezza">
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          <motion.h2 {...fade} className="text-4xl md:text-6xl font-bold leading-tight">
+            Cos'è la sicurezza
+          </motion.h2>
           <motion.p
-            {...fade}
-            className="text-4xl md:text-6xl font-bold leading-tight"
+            {...fadeQuick}
+            className="mt-6 text-xl md:text-3xl font-medium text-primary"
           >
-            Uno ogni <span className="text-primary">3 minuti</span>.
+            Non è uno stato. È una somma di decisioni.
           </motion.p>
         </div>
       </Slide>
 
-      {/* FREE: comprensione */}
-      <Free>
+      <Free blockId="cosa-e-sicurezza">
+        <div className="grid grid-cols-3 gap-3 max-w-4xl mx-auto">
+          {[
+            { t: "Velocità scelta", Icon: Gauge },
+            { t: "Distanza mantenuta", Icon: Ruler },
+            { t: "Qualità dell'osservazione", Icon: Eye },
+            { t: "Condizioni del veicolo", Icon: Wrench },
+            { t: "Adattamento al meteo", Icon: CloudRain },
+            { t: "Stato psicofisico", Icon: HeartPulse },
+          ].map(({ t, Icon }, i) => (
+            <motion.div
+              key={t}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.3 + i * 0.1 }}
+              className="rounded-lg border border-border/60 bg-card/70 px-4 py-4 text-center"
+            >
+              <Icon className="w-5 h-5 mx-auto mb-3 text-primary" />
+              <p className="text-sm md:text-base font-medium">{t}</p>
+            </motion.div>
+          ))}
+        </div>
+      </Free>
+
+      {/* ============================================================
+          BLOCCO 3 — CATENA DELL'URGENZA (interattivo)
+          ============================================================ */}
+
+      <Slide bg="darker" blockId="catena-urgenza">
+        <CatenaUrgenzaScene />
+      </Slide>
+
+      {/* ============================================================
+          BLOCCO 4 — RISCHIO PERCEPITO / REALE
+          ============================================================ */}
+
+      <Slide bg="black" blockId="rischio-percepito-reale">
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          <motion.h2 {...fade} className="text-4xl md:text-6xl font-bold leading-tight">
+            Rischio percepito. <span className="text-primary">Rischio reale.</span>
+          </motion.h2>
+        </div>
+      </Slide>
+
+      <Free blockId="rischio-percepito-reale">
         <motion.p
           {...fade}
-          className="text-xl md:text-3xl font-semibold leading-snug text-foreground/80 text-center"
+          className="text-xl md:text-2xl leading-relaxed text-foreground/85 text-center"
         >
-          Mentre parliamo, sta succedendo.
+          Su una strada che sembra facile, la percezione del rischio scende e la velocità
+          sale — anche se il rischio reale resta identico, o aumenta.
         </motion.p>
       </Free>
+
+      {/* ============================================================
+          BLOCCO 5 — IL FATTORE UMANO
+          ============================================================ */}
+
+      <Slide bg="darker" blockId="fattore-umano">
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          <motion.h2 {...fade} className="text-4xl md:text-6xl font-bold leading-tight">
+            Il fattore umano
+          </motion.h2>
+          <motion.p
+            {...fadeQuick}
+            className="mt-6 text-xl md:text-3xl font-medium text-primary"
+          >
+            La tecnologia alza il margine di sicurezza. Non lo sostituisce.
+          </motion.p>
+        </div>
+      </Slide>
+
+      <Free blockId="fattore-umano">
+        <div className="text-center">
+          <motion.p
+            {...fade}
+            className="text-xl md:text-2xl leading-relaxed text-foreground/85"
+          >
+            ABS, ESP, ADAS aiutano. Ma la decisione — quando frenare, quanta velocità
+            tenere — resta sempre di chi guida.
+          </motion.p>
+          <motion.p
+            {...fadeQuick}
+            className="mt-8 font-mono text-xs uppercase tracking-widest text-muted-foreground"
+          >
+            Prossimo modulo → Il Conducente
+          </motion.p>
+        </div>
+      </Free>
+
+      {/* ============================================================
+          BLOCCO 6 — COSA NON È QUESTO CORSO
+          ============================================================ */}
+
+      <Slide bg="black" blockId="cosa-non-e">
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          <motion.p
+            {...fadeQuick}
+            className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-6"
+          >
+            Cosa NON è questo corso
+          </motion.p>
+          <motion.h2 {...fade} className="text-2xl md:text-4xl font-semibold leading-snug">
+            Non è un corso di guida sportiva, né un addestramento a manovre estreme.
+          </motion.h2>
+          <motion.p
+            {...fadeQuick}
+            className="mt-8 text-base md:text-xl text-foreground/70 leading-relaxed"
+          >
+            Il pilota da competizione cerca il limite del veicolo. Il conducente
+            professionale lo evita.
+          </motion.p>
+        </div>
+      </Slide>
+
 
       {/* ============================================================
           BLOCCO 3 — STRADA CONOSCIUTA & ABITUDINE
@@ -648,7 +725,7 @@ const AulaPerche = () => {
           {...fade}
           className="font-mono text-[11px] tracking-[0.3em] uppercase text-muted-foreground/60"
         >
-          Fine modulo 01
+          Fine modulo 02
         </motion.p>
       </Free>
     </div>
