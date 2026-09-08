@@ -131,7 +131,7 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
           aria-hidden
           className="w-8 h-8 rounded-full object-cover border border-primary/40"
         />
-        <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary">
+        <p className="font-mono text-sm tracking-[0.3em] uppercase text-primary">
           2001 · Obiettivo: dimezzare i morti sulla strada
         </p>
       </div>
