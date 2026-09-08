@@ -13,6 +13,12 @@ export const modules: Module[] = [
     available: true,
   },
   {
+    slug: "modulo-2-sicurezza-e-rischio",
+    title: "Sicurezza e Rischio",
+    short: "Somma di decisioni, catena dell'incidente, fattore umano.",
+    available: true,
+  },
+  {
     slug: "perche-la-guida-sicura",
     title: "Cultura della Sicurezza",
     short: "Rischio, prevenzione, catena degli eventi.",
