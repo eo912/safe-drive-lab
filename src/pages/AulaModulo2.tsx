@@ -330,7 +330,7 @@ const AulaModulo2 = () => {
       </Slide>
 
       {/* Rischio reale vs percepito */}
-      <Slide bg="darker" blockId="rischio-percepito" className="items-stretch">
+      <Slide bg="darker" blockId="sicurezza-rischio" className="items-stretch">
         <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-6">
           <div className="text-center">
             <p className="font-mono text-sm tracking-[0.3em] uppercase text-primary">
@@ -367,7 +367,7 @@ const AulaModulo2 = () => {
         </div>
       </Slide>
 
-      <Slide blockId="rischio-percepito">
+      <Slide blockId="sicurezza-rischio">
         <div className="relative z-10 text-center px-6 max-w-3xl">
           <motion.p {...fade} className="text-2xl md:text-4xl font-semibold leading-snug">
             Il corso non ti insegna ad avere più paura.
@@ -382,7 +382,7 @@ const AulaModulo2 = () => {
       </Slide>
 
       {/* Callout: cosa NON è questo corso */}
-      <Slide bg="black" blockId="cosa-non-e">
+      <Slide bg="black" blockId="sicurezza-rischio">
         <div className="relative z-10 px-6 max-w-4xl">
           <div className="rounded-lg border border-primary/50 bg-card/60 px-8 py-10">
             <p className="font-mono text-sm tracking-[0.3em] uppercase text-primary mb-6 text-center">
