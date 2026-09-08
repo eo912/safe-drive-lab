@@ -12,8 +12,6 @@ import {
 } from "lucide-react";
 
 import heroBg from "@/assets/perche-hero-bg.jpg";
-import { StradaConosciutaScene } from "@/components/perche/StradaConosciutaScene";
-import { CatenaEventiScene } from "@/components/perche/CatenaEventiScene";
 import { CatenaUrgenzaScene } from "@/components/perche/CatenaUrgenzaScene";
 
 
@@ -577,40 +575,6 @@ const AulaPerche = () => {
           </motion.p>
         </div>
       </Free>
-
-
-
-
-
-      {/* ============================================================
-          BLOCCO 3 — STRADA CONOSCIUTA & ABITUDINE
-          Slide impatto → Free → Slide tensione → Slide conseguenza
-          ============================================================ */}
-
-      {/* SCENA CONTROLLATA DALLA REGIA — contenuto dipendente dallo step */}
-      <Slide blockId="strada-conosciuta">
-        <StradaConosciutaScene step={stradaStep} level={renderLevel} />
-      </Slide>
-
-
-      {/* SCENA CONTROLLATA DALLA REGIA — catena di eventi */}
-      <Slide blockId="incidente-non-numero">
-        <CatenaEventiScene step={stradaStep} level={renderLevel} />
-      </Slide>
-
-      {/* RACCORDO: chiusura breve, non ripete lo step spiegazione */}
-      <Slide bg="black" blockId="abitudine">
-        <div className="relative z-10 text-center px-6 max-w-3xl">
-          <motion.h2
-            {...fade}
-            className="text-4xl md:text-6xl font-bold leading-tight"
-          >
-            L'abitudine <span className="text-primary">guida al posto tuo.</span>
-          </motion.h2>
-        </div>
-      </Slide>
-
-
       {/* ============================================================
           BLOCCO 4 — GUIDARE È LAVORO
           Slide impatto → Free comprensione

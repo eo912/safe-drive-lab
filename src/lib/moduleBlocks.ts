@@ -55,48 +55,9 @@ export const perchéBlocks: ModuleBlock[] = [
     notes:
       "«La tecnologia alza il margine di sicurezza. Non lo sostituisce.» ABS, ESP, ADAS aiutano, ma la decisione — quando frenare, quanta velocità tenere — resta di chi guida. Ponte verso il modulo Il Conducente.",
   },
-
-  {
-    id: "strada-conosciuta",
-    index: 5,
-    expectedSeconds: 240,
-    title: "Una strada conosciuta",
-    kind: "scenario",
-    hasScenario: true,
-    hasOutcomes: true,
-    hasExplanation: true,
-    hasDeepDive: true,
-    notes:
-      "Apertura con domanda: «Pensate alla strada che fate più spesso. Vi sembra una strada sicura?». Non dare subito la risposta: far motivare 1-2 persone. Punto chiave: la familiarità può abbassare la soglia di attenzione. Distinguere esperienza (capacità acquisita) da abitudine (automatismo). Chiusura: «L'esperienza ti rende più capace. L'abitudine, se non la controlli, ti rende meno presente.»",
-  },
-
-
-  {
-    id: "abitudine",
-    index: 6,
-    expectedSeconds: 120,
-    title: "Non è esperienza. È abitudine.",
-    kind: "riflessione",
-    hasExplanation: true,
-    notes:
-      "Distinguere chiaramente esperienza (capacità acquisita) da abitudine (automatismo cieco). Esempio: chi guida da 30 anni può essere meno presente di un neopatentato attento.",
-  },
-  {
-    id: "incidente-non-numero",
-    index: 7,
-    expectedSeconds: 300,
-    title: "Un incidente è una catena di eventi",
-    kind: "scenario",
-    hasScenario: true,
-    hasOutcomes: true,
-    hasExplanation: true,
-    hasDeepDive: true,
-    notes:
-      "Aprire con: «Secondo voi, un incidente nasce davvero in un solo istante?». Far emergere dall'aula che quasi sempre esistono più anelli: velocità, attenzione, osservazione, frenata. Non cercare il colpevole, ma il primo punto utile in cui interrompere la sequenza. Domanda chiave: «Dove avreste potuto rompere la catena?». Chiusura: «La sicurezza non elimina ogni errore. Crea più occasioni per fermarlo prima.»",
-  },
   {
     id: "guidare-lavoro",
-    index: 8,
+    index: 5,
     expectedSeconds: 150,
     title: "Guidare è lavoro",
     kind: "riflessione",
