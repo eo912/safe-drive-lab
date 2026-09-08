@@ -25,19 +25,58 @@ export const perchéBlocks: ModuleBlock[] = [
       "Apertura. Tono reale, niente drammatizzazione. Introdurre con qualcosa tipo: «Prima di guardare i numeri, fermiamoci un attimo. Quando pensiamo a un incidente immaginiamo qualcosa di raro, lontano, che capita agli altri. I dati raccontano un'altra storia.» Pausa lunga prima di passare ai numeri.",
   },
   {
-    id: "numeri",
+    id: "cosa-e-sicurezza",
     index: 2,
-    expectedSeconds: 180,
-    title: "I numeri reali",
+    expectedSeconds: 120,
+    title: "Cos'è la sicurezza",
     kind: "dati",
     hasExplanation: true,
-    hasDeepDive: true,
     notes:
-      "173.364 incidenti, 3.030 morti, 233.853 feriti, 475 al giorno. Non leggere i numeri: lasciarli leggere. Sottolineare: «475 al giorno = uno ogni 3 minuti. Mentre parliamo, da qualche parte sta succedendo». Domanda all'aula: «Pensavate fosse di più, di meno, o circa così?». Fonte: ISTAT–ACI 2024.",
+      "«La sicurezza non è uno stato: è una somma di decisioni.» Passare in rassegna le sei voci: velocità scelta, distanza mantenuta, qualità dell'osservazione, condizioni del veicolo, adattamento al meteo, stato psicofisico. Chiedere all'aula quale di queste viene trascurata più spesso nella loro giornata di lavoro.",
+  },
+  {
+    id: "catena-urgenza",
+    index: 3,
+    expectedSeconds: 150,
+    title: "La catena dell'urgenza",
+    kind: "scenario",
+    hasScenario: true,
+    hasExplanation: true,
+    notes:
+      "Scena interattiva. Quattro nodi: 1) Sono le 22, hai guidato tutto il giorno, mancano 40 minuti a casa. 2) Il telefono vibra, è una chiamata importante. 3) Il tratto lo fai tre-quattro volte al giorno, ormai è automatico. 4) Un imprevisto ordinario e hai meno margine di quanto pensavi. Per i primi tre nodi far scegliere all'aula fra interrompere (fermarsi, rispondere dopo, tenere l'attenzione) e proseguire. Se si interrompe: «Incidente evitato — fermarsi in tempo ha rotto la catena, anche se gli altri fattori erano già presenti». Se si prosegue sempre: «Incidente — nessun anello si è rotto in tempo». Usare il pulsante Ricomincia per provare percorsi diversi.",
+  },
+  {
+    id: "rischio-percepito-reale",
+    index: 4,
+    expectedSeconds: 90,
+    title: "Rischio percepito. Rischio reale.",
+    kind: "riflessione",
+    hasExplanation: true,
+    notes:
+      "«Su una strada che sembra facile, la percezione del rischio scende e la velocità sale — anche se il rischio reale resta identico, o aumenta.» Far esempi concreti dai loro percorsi abituali.",
+  },
+  {
+    id: "fattore-umano",
+    index: 5,
+    expectedSeconds: 90,
+    title: "Il fattore umano",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "«La tecnologia alza il margine di sicurezza. Non lo sostituisce.» ABS, ESP, ADAS aiutano, ma la decisione — quando frenare, quanta velocità tenere — resta di chi guida. Ponte verso il modulo Il Conducente.",
+  },
+  {
+    id: "cosa-non-e",
+    index: 6,
+    expectedSeconds: 60,
+    title: "Cosa NON è questo corso",
+    kind: "chiusura",
+    notes:
+      "Chiarire le aspettative: «Non è un corso di guida sportiva, né un addestramento a manovre estreme. Il pilota da competizione cerca il limite del veicolo. Il conducente professionale lo evita.»",
   },
   {
     id: "strada-conosciuta",
-    index: 3,
+    index: 7,
     expectedSeconds: 240,
     title: "Una strada conosciuta",
     kind: "scenario",
@@ -48,6 +87,7 @@ export const perchéBlocks: ModuleBlock[] = [
     notes:
       "Apertura con domanda: «Pensate alla strada che fate più spesso. Vi sembra una strada sicura?». Non dare subito la risposta: far motivare 1-2 persone. Punto chiave: la familiarità può abbassare la soglia di attenzione. Distinguere esperienza (capacità acquisita) da abitudine (automatismo). Chiusura: «L'esperienza ti rende più capace. L'abitudine, se non la controlli, ti rende meno presente.»",
   },
+
 
   {
     id: "abitudine",
