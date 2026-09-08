@@ -11,6 +11,7 @@ import PercheLaGuidaSicura from "./pages/PercheLaGuidaSicura.tsx";
 import PercheUnCorso from "./pages/PercheUnCorso.tsx";
 import AulaPerche from "./pages/AulaPerche.tsx";
 import AulaModulo1 from "./pages/AulaModulo1.tsx";
+import AulaModulo2 from "./pages/AulaModulo2.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,10 @@ const App = () => (
           <Route
             path="/aula/modulo-1-perche-un-corso"
             element={<AulaModulo1 />}
+          />
+          <Route
+            path="/aula/modulo-2-sicurezza-e-rischio"
+            element={<AulaModulo2 />}
           />
           {/* Legacy redirect */}
           <Route
