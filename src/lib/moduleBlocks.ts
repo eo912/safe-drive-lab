@@ -169,35 +169,16 @@ export const moduloDueBlocks: ModuleBlock[] = [
   {
     id: "sicurezza-rischio",
     index: 1,
-    expectedSeconds: 240,
+    expectedSeconds: 510,
     title: "La sicurezza è una somma di decisioni",
     kind: "intro",
     hasExplanation: true,
     notes:
-      "Sei decisioni: velocità, distanza, osservazione, condizioni del veicolo, adattamento al meteo, stato psicofisico. Nessuna da sola salva o condanna: è la somma. Chiedi in aula: quando vi sentite più sicuri alla guida — su una strada larga e dritta, o su una tortuosa di montagna? Quasi tutti diranno la prima: è l'aggancio per introdurre il rischio percepito.",
-  },
-  {
-    id: "rischio-percepito",
-    index: 2,
-    expectedSeconds: 180,
-    title: "Rischio reale vs rischio percepito",
-    kind: "riflessione",
-    hasExplanation: true,
-    notes:
-      "Esempio pratico: statale ampia con incrocio nascosto vs tornante stretto ma con visuale libera — stesso rischio oggettivo, percezione opposta. Se qualcuno racconta un episodio personale di «mi sentivo tranquillo e invece...», usalo: vale più di ogni slide. Chiudere con: il corso non insegna ad avere più paura, allena a leggere quello che c'è davvero.",
-  },
-  {
-    id: "cosa-non-e",
-    index: 3,
-    expectedSeconds: 90,
-    title: "Cosa NON è questo corso",
-    kind: "chiusura",
-    notes:
-      "Il pilota cerca il limite dell'auto, il conducente lo evita. Anche con un'auto perfetta si resta su una strada condivisa con persone che sbagliano, che sono distratte, che non ti hanno visto. Il rischio non è mai solo tuo e della tua auto.",
+      "Sei decisioni: velocità, distanza, osservazione, condizioni del veicolo, adattamento al meteo, stato psicofisico. Nessuna da sola salva o condanna: è la somma. Chiedi in aula: quando vi sentite più sicuri alla guida — su una strada larga e dritta, o su una tortuosa di montagna? Quasi tutti diranno la prima: è l'aggancio per introdurre il rischio percepito. Esempio pratico: statale ampia con incrocio nascosto vs tornante stretto ma con visuale libera — stesso rischio oggettivo, percezione opposta. Se qualcuno racconta un episodio personale di «mi sentivo tranquillo e invece...», usalo: vale più di ogni slide. Chiudere con: il corso non insegna ad avere più paura, allena a leggere quello che c'è davvero. Poi il callout: non è un corso per guidare come un pilota; il pilota cerca il limite dell'auto, il conducente lo evita. Anche con un'auto perfetta si resta su una strada condivisa con persone che sbagliano, che sono distratte, che non ti hanno visto.",
   },
   {
     id: "catena-incidente",
-    index: 4,
+    index: 2,
     expectedSeconds: 420,
     title: "La catena dell'incidente",
     kind: "scenario",
@@ -209,7 +190,7 @@ export const moduloDueBlocks: ModuleBlock[] = [
   },
   {
     id: "fattore-umano",
-    index: 5,
+    index: 3,
     expectedSeconds: 180,
     title: "Il fattore umano",
     kind: "chiusura",
