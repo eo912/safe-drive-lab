@@ -266,139 +266,108 @@ const AulaModulo2 = () => {
       )}
 
       {/* ============================================================
-          BLOCCO 1 — SICUREZZA E RISCHIO
+          BLOCCO 1 — SICUREZZA E RISCHIO (una sola schermata compatta)
           ============================================================ */}
-      <Slide bg="black" blockId="sicurezza-rischio">
-        <div className="relative z-10 text-center px-6 max-w-4xl">
-          <motion.p
-            {...fade}
-            className="font-mono text-sm tracking-[0.3em] uppercase text-primary mb-8"
-          >
-            Modulo 02
-          </motion.p>
-          <motion.h1
-            {...fade}
-            className="text-4xl md:text-6xl font-bold leading-[1.15]"
-          >
-            La sicurezza non è uno stato,
-            <br />
-            <span className="text-primary">è una somma di decisioni</span>
-          </motion.h1>
-        </div>
-      </Slide>
+      <Slide bg="black" blockId="sicurezza-rischio" className="items-stretch">
+        <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 py-8">
+          <div className="max-w-6xl mx-auto flex flex-col gap-8">
+            {/* Titolo */}
+            <div className="text-center">
+              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-4">
+                Modulo 02
+              </p>
+              <h1 className="text-3xl md:text-5xl font-bold leading-[1.15]">
+                La sicurezza non è uno stato,{" "}
+                <span className="text-primary">è una somma di decisioni</span>
+              </h1>
+            </div>
 
-      <Slide bg="darker" blockId="sicurezza-rischio" className="items-stretch">
-        <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-8">
-          <p className="text-xl md:text-2xl text-foreground/80 text-center max-w-4xl mx-auto leading-snug">
-            Non esiste un interruttore «sicuro / pericoloso». La sicurezza è il
-            risultato di sei decisioni che prendi ogni volta che guidi.
-          </p>
-          <div className="grid grid-cols-3 gap-4 max-w-5xl mx-auto w-full">
-            {DECISIONI.map(({ icon: Icon, label }, i) => (
-              <div
-                key={label}
-                className="rounded-lg border border-border/60 bg-card/70 px-4 py-5 text-center flex flex-col items-center gap-3"
-              >
-                <Icon className="w-6 h-6 text-primary" aria-hidden />
-                <p className="text-sm md:text-base font-medium leading-snug">
-                  <span className="font-mono text-xs text-muted-foreground mr-2">
-                    0{i + 1}
-                  </span>
-                  {label}
+            {/* Sei decisioni */}
+            <div className="flex flex-col gap-4">
+              <p className="text-base md:text-lg text-foreground/80 text-center leading-snug max-w-4xl mx-auto">
+                Non esiste un interruttore «sicuro / pericoloso». La sicurezza è il
+                risultato di sei decisioni che prendi ogni volta che guidi.
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {DECISIONI.map(({ icon: Icon, label }, i) => (
+                  <div
+                    key={label}
+                    className="rounded-lg border border-border/60 bg-card/70 px-3 py-3 flex items-center gap-3"
+                  >
+                    <Icon className="w-5 h-5 text-primary shrink-0" aria-hidden />
+                    <p className="text-xs md:text-sm font-medium leading-snug">
+                      <span className="font-mono text-[10px] text-muted-foreground mr-2">
+                        0{i + 1}
+                      </span>
+                      {label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-center text-sm md:text-base text-foreground/70 leading-snug max-w-3xl mx-auto">
+                Nessuna di queste, da sola, ti salva. Nessuna, da sola, ti condanna.{" "}
+                <span className="text-primary font-medium">
+                  È la somma che fa la differenza — e la somma la controlli tu.
+                </span>
+              </p>
+            </div>
+
+            {/* Rischio reale vs percepito */}
+            <div className="flex flex-col gap-4">
+              <div className="text-center">
+                <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary">
+                  Rischio reale vs rischio percepito
+                </p>
+                <p className="mt-2 text-xl md:text-2xl font-semibold leading-snug">
+                  Non reagisci al rischio che c'è davvero. Reagisci a quello che senti.
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </Slide>
-
-      <Slide blockId="sicurezza-rischio">
-        <div className="relative z-10 text-center px-6 max-w-3xl">
-          <motion.p {...fade} className="text-2xl md:text-4xl font-semibold leading-snug">
-            Nessuna di queste, da sola, ti salva.
-            <br />
-            Nessuna, da sola, ti condanna.
-          </motion.p>
-          <motion.p
-            {...fade}
-            className="mt-8 text-xl md:text-2xl text-primary font-medium leading-snug"
-          >
-            È la somma che fa la differenza — e la somma la controlli tu, prima di
-            partire e mentre guidi.
-          </motion.p>
-        </div>
-      </Slide>
-
-      {/* Rischio reale vs percepito */}
-      <Slide bg="darker" blockId="sicurezza-rischio" className="items-stretch">
-        <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-6">
-          <div className="text-center">
-            <p className="font-mono text-sm tracking-[0.3em] uppercase text-primary">
-              Rischio reale vs rischio percepito
-            </p>
-            <p className="mt-4 text-2xl md:text-3xl font-semibold leading-snug max-w-4xl mx-auto">
-              Non reagisci al rischio che c'è davvero. Reagisci a quello che senti.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 max-w-5xl mx-auto w-full">
-            <div className="flex flex-col gap-3">
-              <ImagePlaceholder
-                label="Strada ampia italiana/alpina con incrocio poco visibile in lontananza"
-                className="h-[26vh]"
-              />
-              <p className="text-base md:text-lg text-foreground/80 leading-snug">
-                Una strada dritta, larga, poco traffico: ti sembra facile e la
-                velocità sale da sola — anche se dietro quella curva dolce c'è un
-                incrocio che non vedi.
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <ImagePlaceholder
+                    label="Strada ampia italiana/alpina con incrocio poco visibile in lontananza"
+                    className="h-[18vh]"
+                  />
+                  <p className="text-sm md:text-base text-foreground/80 leading-snug">
+                    Una strada dritta, larga, poco traffico: ti sembra facile e la
+                    velocità sale da sola — anche se dietro quella curva dolce c'è un
+                    incrocio che non vedi.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <ImagePlaceholder
+                    label="Strada di montagna tortuosa alpina con buona visibilità"
+                    className="h-[18vh]"
+                  />
+                  <p className="text-sm md:text-base text-foreground/80 leading-snug">
+                    Una strada stretta e tortuosa ti mette in allerta anche quando, in
+                    realtà, il rischio reale è identico.
+                  </p>
+                </div>
+              </div>
+              <p className="text-center text-sm md:text-base text-primary font-medium leading-snug max-w-3xl mx-auto">
+                Il corso non ti insegna ad avere più paura. Ti allena a leggere quello
+                che c'è davvero, non solo quello che senti.
               </p>
             </div>
-            <div className="flex flex-col gap-3">
-              <ImagePlaceholder
-                label="Strada di montagna tortuosa alpina con buona visibilità"
-                className="h-[26vh]"
-              />
-              <p className="text-base md:text-lg text-foreground/80 leading-snug">
-                Una strada stretta e tortuosa ti mette in allerta anche quando, in
-                realtà, il rischio reale è identico.
+
+            {/* Callout: cosa NON è questo corso */}
+            <div className="rounded-lg border border-primary/50 bg-card/60 px-6 py-6">
+              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-3 text-center">
+                Cosa NON è questo corso
+              </p>
+              <p className="text-lg md:text-xl font-semibold leading-snug text-center">
+                Non stai imparando a guidare come un pilota. Un pilota cerca il limite
+                dell'auto. Tu lo eviti.
+              </p>
+              <p className="mt-3 text-sm md:text-base text-foreground/70 leading-relaxed text-center max-w-4xl mx-auto">
+                Anche con un'auto perfetta — frenata al top, gomme nuove, traiettoria
+                pulita — resti su una strada vera, condivisa con persone che non guidano
+                come te, che sbagliano, che sono distratte, che non ti hanno visto. Il
+                rischio non è mai solo tuo e della tua auto: è di tutti quelli con cui
+                condividi l'asfalto.
               </p>
             </div>
-          </div>
-        </div>
-      </Slide>
-
-      <Slide blockId="sicurezza-rischio">
-        <div className="relative z-10 text-center px-6 max-w-3xl">
-          <motion.p {...fade} className="text-2xl md:text-4xl font-semibold leading-snug">
-            Il corso non ti insegna ad avere più paura.
-          </motion.p>
-          <motion.p
-            {...fade}
-            className="mt-6 text-xl md:text-2xl text-primary font-medium leading-snug"
-          >
-            Ti allena a leggere quello che c'è davvero, non solo quello che senti.
-          </motion.p>
-        </div>
-      </Slide>
-
-      {/* Callout: cosa NON è questo corso */}
-      <Slide bg="black" blockId="sicurezza-rischio">
-        <div className="relative z-10 px-6 max-w-4xl">
-          <div className="rounded-lg border border-primary/50 bg-card/60 px-8 py-10">
-            <p className="font-mono text-sm tracking-[0.3em] uppercase text-primary mb-6 text-center">
-              Cosa NON è questo corso
-            </p>
-            <p className="text-2xl md:text-3xl font-semibold leading-snug text-center">
-              Non stai imparando a guidare come un pilota. Un pilota cerca il limite
-              dell'auto. Tu lo eviti.
-            </p>
-            <p className="mt-6 text-base md:text-lg text-foreground/70 leading-relaxed text-center">
-              Anche con un'auto perfetta — frenata al top, gomme nuove, traiettoria
-              pulita — resti su una strada vera, condivisa con persone che non guidano
-              come te, che sbagliano, che sono distratte, che non ti hanno visto. Il
-              rischio non è mai solo tuo e della tua auto: è di tutti quelli con cui
-              condividi l'asfalto.
-            </p>
           </div>
         </div>
       </Slide>
@@ -411,66 +380,57 @@ const AulaModulo2 = () => {
       </Slide>
 
       {/* ============================================================
-          BLOCCO 3 — IL FATTORE UMANO
+          BLOCCO 3 — IL FATTORE UMANO (una sola schermata compatta)
           ============================================================ */}
-      <Slide bg="black" blockId="fattore-umano">
-        <div className="relative z-10 text-center px-6 max-w-4xl">
-          <motion.h2 {...fade} className="text-4xl md:text-6xl font-bold leading-tight">
-            La tecnologia alza il margine.
-            <br />
-            <span className="text-primary">Non decide al posto tuo.</span>
-          </motion.h2>
-        </div>
-      </Slide>
-
       <Slide bg="darker" blockId="fattore-umano" className="items-stretch">
-        <div className="relative z-10 w-full h-full flex items-center px-6 md:px-12 py-10">
-          <div className="grid grid-cols-2 gap-8 max-w-5xl mx-auto w-full items-center">
-            <ImagePlaceholder
-              label="Mano sul volante in primo piano o cruscotto con spia ESP/ABS accesa, contesto europeo"
-              className="h-[52vh]"
-            />
-            <div className="space-y-5">
-              <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
-                Cintura, airbag, poggiatesta ti proteggono quando l'impatto è già
-                successo. Sono lì da sempre e li conosci. Ma nella tua auto ci sono
-                anche sistemi che intervengono prima, mentre stai ancora guidando:
-                frenano una ruota per farti restare in traiettoria, limitano lo
-                slittamento, ti aiutano a non perdere il controllo.
+        <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 py-8">
+          <div className="max-w-5xl mx-auto flex flex-col gap-8">
+            <div className="text-center">
+              <h2 className="text-3xl md:text-5xl font-bold leading-tight">
+                La tecnologia alza il margine.{" "}
+                <span className="text-primary">Non decide al posto tuo.</span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 items-center">
+              <ImagePlaceholder
+                label="Mano sul volante in primo piano o cruscotto con spia elettronica accesa, contesto europeo"
+                className="h-[32vh]"
+              />
+              <div className="space-y-4">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                  Cintura, airbag, poggiatesta ti proteggono quando l'impatto è già
+                  successo. Sono lì da sempre e li conosci. Ma nella tua auto ci sono
+                  anche sistemi che intervengono prima, mentre stai ancora guidando:
+                  frenano una ruota per farti restare in traiettoria, limitano lo
+                  slittamento, ti aiutano a non perdere il controllo.
+                </p>
+                <p className="text-base md:text-lg font-medium leading-snug">
+                  Sistemi potenti. Ma nessuno di questi decide quando frenare, quanta
+                  velocità tenere, quando è il momento di lasciar perdere e fermarsi.
+                </p>
+                <p className="text-base md:text-lg text-primary font-medium leading-snug">
+                  Quella decisione resta sempre tua. Più ti affidi alla tecnologia per
+                  compensare le tue disattenzioni, meno margine reale ti resta quando
+                  serve davvero.
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center flex flex-col gap-4">
+              <p className="text-base md:text-lg text-foreground/80 leading-snug max-w-3xl mx-auto">
+                Nel prossimo modulo lasciamo l'auto da parte un momento. Parliamo di te:
+                come ti siedi, come guardi, quanto tempo hai davvero per reagire.
               </p>
-              <p className="text-lg md:text-xl font-medium leading-snug">
-                Sistemi potenti. Ma nessuno di questi decide quando frenare, quanta
-                velocità tenere, quando è il momento di lasciar perdere e fermarsi.
+              <p className="text-xl md:text-3xl font-bold text-primary leading-snug max-w-3xl mx-auto">
+                Prima di essere un sistema tecnologico, la tua auto ha già un primo
+                sistema di sicurezza — e sei tu.
               </p>
-              <p className="text-lg md:text-xl text-primary font-medium leading-snug">
-                Quella decisione resta sempre tua. Più ti affidi alla tecnologia per
-                compensare le tue disattenzioni, meno margine reale ti resta quando
-                serve davvero.
+              <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                Prossimo modulo → Il Conducente
               </p>
             </div>
           </div>
-        </div>
-      </Slide>
-
-      <Slide blockId="fattore-umano">
-        <div className="relative z-10 text-center px-6 max-w-3xl">
-          <motion.p {...fade} className="text-xl md:text-2xl text-foreground/80 leading-snug">
-            Nel prossimo modulo lasciamo l'auto da parte un momento. Parliamo di te:
-            come ti siedi, come guardi, quanto tempo hai davvero per reagire.
-          </motion.p>
-          <motion.p
-            {...fade}
-            className="mt-8 text-2xl md:text-4xl font-bold text-primary leading-snug"
-          >
-            Prima di essere un sistema tecnologico, la tua auto ha già un primo
-            sistema di sicurezza — e sei tu.
-          </motion.p>
-          <motion.p
-            {...fade}
-            className="mt-8 font-mono text-xs uppercase tracking-widest text-muted-foreground"
-          >
-            Prossimo modulo → Il Conducente
-          </motion.p>
         </div>
       </Slide>
     </div>
