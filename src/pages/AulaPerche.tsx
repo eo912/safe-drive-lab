@@ -480,35 +480,67 @@ const AulaPerche = () => {
         </div>
       </Free>
 
+      <Slide bg="black" blockId="cosa-e-sicurezza">
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-2xl md:text-4xl font-medium leading-snug text-foreground/90"
+          >
+            Sei sicuro alla guida. Traiettorie pulite, auto che spinge.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 1.2 }}
+            className="mt-8 text-3xl md:text-5xl font-bold text-primary"
+          >
+            Ti senti Schumacher.
+          </motion.p>
+        </div>
+      </Slide>
+
+      <Free blockId="cosa-e-sicurezza">
+        <div className="text-center">
+          <motion.p {...fade} className="text-xl md:text-2xl leading-relaxed text-foreground/85">
+            Davanti a te, un signore di 80 anni con la Panda dell'89.
+          </motion.p>
+          <motion.p
+            {...fadeQuick}
+            className="mt-8 text-2xl md:text-4xl font-bold text-primary leading-snug"
+          >
+            Il rischio non è nella tua guida. È nel contesto.
+          </motion.p>
+        </div>
+      </Free>
+
+      <Free blockId="cosa-e-sicurezza">
+        <div className="text-center">
+          <motion.p {...fade} className="text-xl md:text-2xl leading-relaxed text-foreground/85">
+            Per questo non è un corso per guidare meglio o più veloce.
+          </motion.p>
+          <motion.p
+            {...fadeQuick}
+            className="mt-6 text-xl md:text-2xl font-medium text-primary leading-relaxed"
+          >
+            È un corso per leggere il rischio vero — quello che non dipende da quanto sei
+            bravo.
+          </motion.p>
+        </div>
+      </Free>
+
       {/* ============================================================
-          BLOCCO 3 — CATENA DELL'URGENZA (interattivo)
+          BLOCCO 2 — CATENA DELL'URGENZA (interattivo)
           ============================================================ */}
 
       <Slide bg="darker" blockId="catena-urgenza">
         <CatenaUrgenzaScene />
       </Slide>
 
-      {/* ============================================================
-          BLOCCO 4 — RISCHIO PERCEPITO / REALE
-          ============================================================ */}
 
-      <Slide bg="black" blockId="rischio-percepito-reale">
-        <div className="relative z-10 text-center px-6 max-w-4xl">
-          <motion.h2 {...fade} className="text-4xl md:text-6xl font-bold leading-tight">
-            Rischio percepito. <span className="text-primary">Rischio reale.</span>
-          </motion.h2>
-        </div>
-      </Slide>
-
-      <Free blockId="rischio-percepito-reale">
-        <motion.p
-          {...fade}
-          className="text-xl md:text-2xl leading-relaxed text-foreground/85 text-center"
-        >
-          Su una strada che sembra facile, la percezione del rischio scende e la velocità
-          sale — anche se il rischio reale resta identico, o aumenta.
-        </motion.p>
-      </Free>
 
       {/* ============================================================
           BLOCCO 5 — IL FATTORE UMANO
