@@ -164,7 +164,63 @@ export const moduloUnoBlocks: ModuleBlock[] = [
   },
 ];
 
+// Blocchi del Modulo 2 — Sicurezza e Rischio
+export const moduloDueBlocks: ModuleBlock[] = [
+  {
+    id: "sicurezza-rischio",
+    index: 1,
+    expectedSeconds: 240,
+    title: "La sicurezza è una somma di decisioni",
+    kind: "intro",
+    hasExplanation: true,
+    notes:
+      "Sei decisioni: velocità, distanza, osservazione, condizioni del veicolo, adattamento al meteo, stato psicofisico. Nessuna da sola salva o condanna: è la somma. Chiedi in aula: quando vi sentite più sicuri alla guida — su una strada larga e dritta, o su una tortuosa di montagna? Quasi tutti diranno la prima: è l'aggancio per introdurre il rischio percepito.",
+  },
+  {
+    id: "rischio-percepito",
+    index: 2,
+    expectedSeconds: 180,
+    title: "Rischio reale vs rischio percepito",
+    kind: "riflessione",
+    hasExplanation: true,
+    notes:
+      "Esempio pratico: statale ampia con incrocio nascosto vs tornante stretto ma con visuale libera — stesso rischio oggettivo, percezione opposta. Se qualcuno racconta un episodio personale di «mi sentivo tranquillo e invece...», usalo: vale più di ogni slide. Chiudere con: il corso non insegna ad avere più paura, allena a leggere quello che c'è davvero.",
+  },
+  {
+    id: "cosa-non-e",
+    index: 3,
+    expectedSeconds: 90,
+    title: "Cosa NON è questo corso",
+    kind: "chiusura",
+    notes:
+      "Il pilota cerca il limite dell'auto, il conducente lo evita. Anche con un'auto perfetta si resta su una strada condivisa con persone che sbagliano, che sono distratte, che non ti hanno visto. Il rischio non è mai solo tuo e della tua auto.",
+  },
+  {
+    id: "catena-incidente",
+    index: 4,
+    expectedSeconds: 420,
+    title: "La catena dell'incidente",
+    kind: "scenario",
+    hasScenario: true,
+    hasOutcomes: true,
+    hasExplanation: true,
+    notes:
+      "Scenario narrativo, NON un quiz: nessun punteggio a schermo. Contesto: auto di 10 anni, gomme discrete, 22:00, due ore di guida, 40 minuti a casa, statale. Quattro nodi: stanchezza, notifica telefono (il chiamante è Mamma o Moglie, estratto a caso; se si rimanda, a volte il telefono risquilla e la scelta torna identica), pioggia improvvisa, imprevisto in curva. La probabilità di incidente si accumula in modo nascosto e l'esito è estratto a sorte ad ogni step: due erogazioni possono finire diverse a parità di scelte, ed è voluto. Sullo specchietto del telefono: se nessuno reagisce, rilancia a voce «avete visto quanti metri fate alla cieca solo per controllare chi vi chiama?». Per aule con molti utenti autostrada: stesso calcolo a 120 km/h, circa 67 metri, più della lunghezza di un campo da calcio. Chiudere SEMPRE con la riflessione guidata «in quale punto della catena si decideva davvero l'esito?»: nessuna risposta corretta. La probabilità accumulata resta solo nel log interno, mai in aula: serve a capire dove le persone rischiano di più, non a giudicare i singoli davanti al gruppo.",
+  },
+  {
+    id: "fattore-umano",
+    index: 5,
+    expectedSeconds: 180,
+    title: "Il fattore umano",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "Cintura, airbag e poggiatesta proteggono dopo l'impatto; altri sistemi intervengono mentre guidi. Non nominare ancora ABS/ESP/ASR in dettaglio: solo «sistemi che intervengono», il dettaglio tecnico arriva nel modulo dedicato al veicolo. Buon punto per un aneddoto personale su un intervento elettronico che ha aiutato ma non ha «salvato» da solo. Ponte al Modulo Il Conducente: prima di essere un sistema tecnologico, la tua auto ha già un primo sistema di sicurezza — e sei tu.",
+  },
+];
+
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-1-perche-un-corso": moduloUnoBlocks,
+  "modulo-2-sicurezza-e-rischio": moduloDueBlocks,
   "perche-la-guida-sicura": perchéBlocks,
 };
