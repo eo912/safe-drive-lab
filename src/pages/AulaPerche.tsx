@@ -546,30 +546,8 @@ const AulaPerche = () => {
         </div>
       </Free>
 
-      {/* ============================================================
-          BLOCCO 6 — COSA NON È QUESTO CORSO
-          ============================================================ */}
 
-      <Slide bg="black" blockId="cosa-non-e">
-        <div className="relative z-10 text-center px-6 max-w-4xl">
-          <motion.p
-            {...fadeQuick}
-            className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-6"
-          >
-            Cosa NON è questo corso
-          </motion.p>
-          <motion.h2 {...fade} className="text-2xl md:text-4xl font-semibold leading-snug">
-            Non è un corso di guida sportiva, né un addestramento a manovre estreme.
-          </motion.h2>
-          <motion.p
-            {...fadeQuick}
-            className="mt-8 text-base md:text-xl text-foreground/70 leading-relaxed"
-          >
-            Il pilota da competizione cerca il limite del veicolo. Il conducente
-            professionale lo evita.
-          </motion.p>
-        </div>
-      </Slide>
+
 
 
       {/* ============================================================
