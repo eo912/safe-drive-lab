@@ -68,7 +68,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "distrazione",
-    index: 9,
+    index: 6,
     expectedSeconds: 120,
     title: "Bastano pochi secondi",
     kind: "scenario",
@@ -80,7 +80,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "video-pov",
-    index: 10,
+    index: 7,
     expectedSeconds: 240,
     title: "Scenario POV — Distrazione",
     kind: "video",
@@ -91,7 +91,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "chiusura",
-    index: 11,
+    index: 8,
     expectedSeconds: 120,
     title: "Se il problema è umano…",
     kind: "chiusura",
@@ -100,7 +100,7 @@ export const perchéBlocks: ModuleBlock[] = [
   },
   {
     id: "cta",
-    index: 12,
+    index: 9,
     expectedSeconds: 90,
     title: "Verso il modulo successivo",
     kind: "cta",
