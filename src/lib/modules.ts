@@ -48,4 +48,10 @@ export const modules: Module[] = [
     short: "Ore al volante, pausa, veicolo allestito, immagine aziendale.",
     available: true,
   },
+  {
+    slug: "modulo-8-applicazione-est",
+    title: "Applicazione EST",
+    short: "Specializzazione Traforo del Monte Bianco: VST, catena, urgenza, emergenza.",
+    available: true,
+  },
 ];
