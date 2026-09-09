@@ -335,6 +335,60 @@ export const moduloSetteBlocks: ModuleBlock[] = [
   },
 ];
 
+// Blocchi del Modulo 8 — Applicazione EST (specializzazione Traforo del Monte Bianco)
+export const moduloOttoBlocks: ModuleBlock[] = [
+  {
+    id: "consegna-vst",
+    index: 1,
+    expectedSeconds: 240,
+    title: "Prendi in consegna il VST, non solo le chiavi",
+    kind: "intro",
+    hasExplanation: true,
+    notes:
+      "NOTA INTERNA: materiale di specializzazione per un solo cliente/contesto (Traforo del Monte Bianco), non fa parte del corso core standard. Presa in carico del VST ad inizio turno, coordinamento radio col PCC. Il controllo pre-partenza ha peso operativo diretto: un problema trovato ora è risolto in sicurezza; scoperto durante un intervento è un rischio aggiuntivo. Scorrere la checklist voce per voce; sul CAF chiarire che qui si verifica solo la dotazione — l'uso operativo appartiene alla formazione specifica.",
+  },
+  {
+    id: "catena-traforo",
+    index: 2,
+    expectedSeconds: 240,
+    title: "Stesso principio, conseguenze più grandi",
+    kind: "dati",
+    hasExplanation: true,
+    notes:
+      "Ambiente chiuso, traffico incanalato: la catena di eventi pesa di più. Punto chiave: il calo di attenzione nei momenti tranquilli (scorte di routine, trasferimenti ripetuti). La radio col PCC va gestita come qualsiasi distrazione. VST allestito = trasferimento di carico più marcato. In convoglio una frenata non anticipata si amplifica sui veicoli che seguono.",
+  },
+  {
+    id: "urgenza-non-fretta",
+    index: 3,
+    expectedSeconds: 300,
+    title: "Urgenza non è fretta",
+    kind: "scenario",
+    hasExplanation: true,
+    notes:
+      "Cambia il contesto operativo, non le leggi della fisica: obiettivo = minor tempo compatibile col controllo. Lampeggianti e sirena modificano lo stato psicofisico: più attivazione, più carico mentale, velocità involontaria non percepita, margini che si restringono, fissazione sull'obiettivo. Sull'errore frequente insistere: la contromisura è un margine deciso a mente fredda, non la convinzione di sapersi calmare.",
+  },
+  {
+    id: "essere-visti",
+    index: 4,
+    expectedSeconds: 240,
+    title: "Non dare mai per scontato di essere stato visto",
+    kind: "scenario",
+    hasExplanation: true,
+    notes:
+      "L'altro utente può essere distratto, non capire da dove arrivi, reagire in ritardo o male. Prima di impegnare lo spazio verificare che la reazione sia reale: un rallentamento vero, uno spostamento vero. I dispositivi segnalano la presenza, non liberano la strada: visibilità e percezione acustica sono limitate, specie in galleria.",
+  },
+  {
+    id: "margine-stretto",
+    index: 5,
+    expectedSeconds: 240,
+    title: "Stesso principio, margine più stretto",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "Regola pratica: mai impegnare uno spazio non verificabile. In galleria margini laterali limitati, mezzi pesanti, possibili veicoli fermi: adattare la velocità alla capacità di reazione altrui. Chiudere col richiamo ai moduli precedenti: la guida in emergenza non sospende i principi, li rende più importanti — osserva, anticipa, mantieni un margine, decidi con lucidità.",
+  },
+];
+
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-1-perche-un-corso": moduloUnoBlocks,
   "modulo-2-sicurezza-e-rischio": moduloDueBlocks,
@@ -343,5 +397,6 @@ export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-5-dinamica-del-veicolo": moduloCinqueBlocks,
   "modulo-6-tecniche-di-guida": moduloSeiBlocks,
   "modulo-7-guida-professionale": moduloSetteBlocks,
+  "modulo-8-applicazione-est": moduloOttoBlocks,
 };
 

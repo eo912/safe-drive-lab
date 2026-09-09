@@ -50,6 +50,12 @@ const modules = [
     desc: "Ore al volante, pausa, veicolo allestito, immagine aziendale.",
     path: "/aula/modulo-7-guida-professionale",
   },
+  {
+    icon: Car,
+    title: "Applicazione EST",
+    desc: "Specializzazione Traforo del Monte Bianco: VST, urgenza, emergenza.",
+    path: "/aula/modulo-8-applicazione-est",
+  },
 ];
 
 const ModulesSection = () => {
