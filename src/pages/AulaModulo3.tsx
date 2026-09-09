@@ -377,13 +377,14 @@ const AulaModulo3 = () => {
         <HotspotScene
           illustrationLabel="Visuale frontale del conducente attraverso il parabrezza, prospettiva soggettiva, con specchietto retrovisore (placeholder)"
           hotspots={HOTSPOT_VISIONE}
+          compact
         >
           {/* Tempo di reazione — stesso stile dello specchietto del Modulo 2 */}
-          <div className="w-full max-w-3xl mx-auto rounded-lg border border-primary/60 bg-background/90 px-6 py-6">
-            <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">
+          <div className="w-full max-w-3xl mx-auto rounded-lg border border-primary/60 bg-background/90 px-5 py-4">
+            <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
               Il tempo di reazione
             </p>
-            <p className="text-base md:text-lg leading-relaxed text-foreground/85">
+            <p className="text-base leading-relaxed text-foreground/85">
               Tra il momento in cui vedi un pericolo e il momento in cui inizi
               davvero a reagire passano in media{" "}
               <span className="text-primary font-semibold">0,7–1,5 secondi</span>.
