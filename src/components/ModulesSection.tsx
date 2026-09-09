@@ -77,7 +77,7 @@ const ModulesSection = () => {
             Scegli da dove iniziare
           </h2>
           <p className="text-muted-foreground">
-            Sette moduli. Un obiettivo: capire prima di agire.
+            Otto moduli. Un obiettivo: capire prima di agire.
           </p>
         </motion.div>
 
