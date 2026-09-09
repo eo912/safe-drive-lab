@@ -50,6 +50,12 @@ const modules = [
     desc: "Ore al volante, pausa, veicolo allestito, immagine aziendale.",
     path: "/aula/modulo-7-guida-professionale",
   },
+  {
+    icon: Car,
+    title: "Applicazione EST",
+    desc: "Specializzazione Traforo del Monte Bianco: VST, urgenza, emergenza.",
+    path: "/aula/modulo-8-applicazione-est",
+  },
 ];
 
 const ModulesSection = () => {
@@ -71,7 +77,7 @@ const ModulesSection = () => {
             Scegli da dove iniziare
           </h2>
           <p className="text-muted-foreground">
-            Sette moduli. Un obiettivo: capire prima di agire.
+            Otto moduli. Un obiettivo: capire prima di agire.
           </p>
         </motion.div>
 
