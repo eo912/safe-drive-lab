@@ -8,7 +8,7 @@ export type Module = {
 export const modules: Module[] = [
   {
     slug: "modulo-1-perche-un-corso",
-    title: "Perché un corso",
+    title: "Le Tre Leve",
     short: "Le tre leve, i numeri, il perché siamo qui.",
     available: true,
   },
@@ -19,45 +19,15 @@ export const modules: Module[] = [
     available: true,
   },
   {
-    slug: "perche-la-guida-sicura",
-    title: "Cultura della Sicurezza",
-    short: "Rischio, prevenzione, catena degli eventi.",
-    available: true,
-  },
-  {
     slug: "modulo-3-il-conducente",
     title: "Il Conducente",
     short: "Posizione di guida, visione, distrazione e stanchezza.",
     available: true,
   },
   {
-    slug: "il-veicolo",
+    slug: "modulo-4-il-veicolo",
     title: "Il Veicolo",
     short: "Pneumatici, freni, sistemi elettronici, controlli.",
-    available: false,
-  },
-  {
-    slug: "dinamica-del-veicolo",
-    title: "Dinamica del Veicolo",
-    short: "Aderenza, trasferimenti di carico, frenata, curva.",
-    available: false,
-  },
-  {
-    slug: "tecniche-di-guida",
-    title: "Tecniche di Guida",
-    short: "Anticipazione, distanza, fluidità, gestione della curva.",
-    available: false,
-  },
-  {
-    slug: "guida-professionale",
-    title: "Guida Professionale",
-    short: "Pianificazione, pressione operativa, prevedibilità.",
-    available: false,
-  },
-  {
-    slug: "applicazione-est",
-    title: "Applicazione EST",
-    short: "Applicazione dei moduli al contesto operativo EST.",
     available: false,
   },
 ];

@@ -12,104 +12,7 @@ export type ModuleBlock = {
   notes: string;
 };
 
-// Blocchi del Modulo 01 — Perché la guida sicura
-export const perchéBlocks: ModuleBlock[] = [
-  {
-    id: "hero",
-    index: 1,
-    expectedSeconds: 90,
-    title: "La realtà della strada",
-    kind: "intro",
-    hasExplanation: true,
-    notes:
-      "Apertura. Tono reale, niente drammatizzazione. Introdurre con qualcosa tipo: «Prima di guardare i numeri, fermiamoci un attimo. Quando pensiamo a un incidente immaginiamo qualcosa di raro, lontano, che capita agli altri. I dati raccontano un'altra storia.» Pausa lunga prima di passare ai numeri.",
-  },
-  {
-    id: "cosa-e-sicurezza",
-    index: 2,
-    expectedSeconds: 180,
-    title: "Cos'è la sicurezza",
-    kind: "dati",
-    hasExplanation: true,
-    notes:
-      "«La sicurezza non è uno stato: è una somma di decisioni.» Passare in rassegna le sei voci: velocità scelta, distanza mantenuta, qualità dell'osservazione, condizioni del veicolo, adattamento al meteo, stato psicofisico. Poi l'esempio Schumacher/Panda: «Sei sicuro alla guida, traiettorie pulite, ti senti Schumacher — e davanti hai un signore di 80 anni con la Panda dell'89. Il rischio non è nella tua guida, è nel contesto.» Chiudere chiarendo cosa NON è questo corso: non serve a guidare meglio o più veloce, serve a leggere il rischio vero, quello che non dipende da quanto sei bravo.",
-  },
-  {
-    id: "catena-urgenza",
-    index: 3,
-    expectedSeconds: 150,
-    title: "La catena dell'urgenza",
-    kind: "scenario",
-    hasScenario: true,
-    hasExplanation: true,
-    notes:
-      "Scena interattiva a due nodi. 1) Sono le 22, mancano 40 minuti a casa. 2) Il tratto lo fai talmente tante volte che ormai è automatico. Per ciascun nodo far scegliere all'aula fra interrompere e proseguire. Attenzione al ritmo: se si prosegue non succede nulla di visibile, il tono resta tranquillo («vedi, non è successo niente») e si passa al nodo dopo. Solo proseguendo su entrambi i nodi arriva l'esito secco: «Tac. Incidente.» Se si è interrotto almeno una volta, l'esito è «A casa. Sano e salvo.» con la spiegazione della scelta che ha rotto la catena. Usare Ricomincia per provare percorsi diversi.",
-  },
-  {
-    id: "fattore-umano",
-    index: 4,
-    expectedSeconds: 90,
-    title: "Il fattore umano",
-    kind: "chiusura",
-    hasExplanation: true,
-    notes:
-      "«La tecnologia alza il margine di sicurezza. Non lo sostituisce.» ABS, ESP, ADAS aiutano, ma la decisione — quando frenare, quanta velocità tenere — resta di chi guida. Ponte verso il modulo Il Conducente.",
-  },
-  {
-    id: "guidare-lavoro",
-    index: 5,
-    expectedSeconds: 150,
-    title: "Guidare è lavoro",
-    kind: "riflessione",
-    hasExplanation: true,
-    hasDeepDive: true,
-    notes:
-      "Punto chiave per il pubblico aziendale. «Quando guidi per lavoro, stai lavorando. Il rischio è parte dell'attività». Gli incidenti in itinere e in missione sono tra le prime cause di infortunio sul lavoro. Approfondimento INAIL disponibile.",
-  },
-  {
-    id: "distrazione",
-    index: 6,
-    expectedSeconds: 120,
-    title: "Bastano pochi secondi",
-    kind: "scenario",
-    hasScenario: true,
-    hasOutcomes: true,
-    hasExplanation: true,
-    notes:
-      "Introduzione al video. Chiedere prima: «Quanti metri si percorrono in 2 secondi a 50 km/h?» (≈ 28 metri). Far rispondere prima di mostrare.",
-  },
-  {
-    id: "video-pov",
-    index: 7,
-    expectedSeconds: 240,
-    title: "Scenario POV — Distrazione",
-    kind: "video",
-    hasOutcomes: true,
-    hasExplanation: true,
-    notes:
-      "Far guardare in silenzio. Niente commenti durante. Alla fine: pausa di 3-5 secondi prima di parlare. Chiedere: «Cosa avete visto per primo?» e «Quante volte oggi hai guardato il telefono in macchina, anche solo per un attimo?». Da ricordare: non serve un evento eccezionale, bastano i 2 secondi sbagliati nel posto sbagliato.",
-  },
-  {
-    id: "chiusura",
-    index: 8,
-    expectedSeconds: 120,
-    title: "Se il problema è umano…",
-    kind: "chiusura",
-    notes:
-      "Sintesi. Spostare il focus dalla strada al comportamento. Preparare il passaggio al Modulo 02 (Il conducente).",
-  },
-  {
-    id: "cta",
-    index: 9,
-    expectedSeconds: 90,
-    title: "Verso il modulo successivo",
-    kind: "cta",
-    notes:
-      "Chiusura operativa. Annunciare il prossimo blocco didattico. Se è la fine della sessione: dare 1 azione concreta da provare nei prossimi 7 giorni.",
-  },
-];
-
-// Blocchi del Modulo 1 — Perché un corso
+// Blocchi del Modulo 1a — Le Tre Leve
 export const moduloUnoBlocks: ModuleBlock[] = [
   {
     id: "copertina",
@@ -238,5 +141,4 @@ export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-1-perche-un-corso": moduloUnoBlocks,
   "modulo-2-sicurezza-e-rischio": moduloDueBlocks,
   "modulo-3-il-conducente": moduloTreBlocks,
-  "perche-la-guida-sicura": perchéBlocks,
 };
