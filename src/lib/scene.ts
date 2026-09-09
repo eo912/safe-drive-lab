@@ -12,8 +12,8 @@ import type { ModuleBlock } from "./moduleBlocks";
  * Aula, interazione, media collegati, note istruttore e tempo previsto.
  *
  * Questa è una definizione di SOLO STRUTTURA DATI: nessun cambiamento di UI.
- * I componenti Aula esistenti (AulaPerche, ecc.) restano invariati e
- * continuano a renderizzare i blocchi attuali. Le Scene vengono derivate dai
+ * I componenti Aula esistenti continuano a renderizzare i blocchi attuali.
+ * Le Scene vengono derivate dai
  * `ModuleBlock` tramite `buildScenesFromBlocks`, in modo che la regia
  * istruttore possa indicizzarle, ordinarle e gestirne tempo / contenuti
  * collegati / note in modo uniforme.
@@ -68,7 +68,7 @@ export type SceneInteraction =
  * questo campo potrà essere sostituito da un componente dedicato.
  */
 export type SceneAulaRef = {
-  /** id del blocco renderizzato in `AulaPerche` (es. "hero", "numeri"). */
+  /** id del blocco renderizzato nella pagina Aula del modulo. */
   blockId: string;
   /** step interno del blocco. Default: "intro". */
   step: AulaStep;
