@@ -42,4 +42,10 @@ export const modules: Module[] = [
     short: "Anticipare, comandi progressivi, sequenza in curva, margini diversi.",
     available: true,
   },
+  {
+    slug: "modulo-7-guida-professionale",
+    title: "Guida Professionale",
+    short: "Ore al volante, pausa, veicolo allestito, immagine aziendale.",
+    available: true,
+  },
 ];

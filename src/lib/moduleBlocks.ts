@@ -147,7 +147,7 @@ export const moduloQuattroBlocks: ModuleBlock[] = [
     kind: "intro",
     hasExplanation: true,
     notes:
-      "Schermata a hotspot: pressione, battistrada, aquaplaning, gomme estive, gomme invernali. Far cliccare un punto alla volta. Sottolineare che l'area di contatto totale con la strada è grande quanto quattro palmi di mano, e che ogni manovra passa da lì. Sulla pressione: si controlla a freddo, non dopo un'ora di viaggio.",
+      "Schermata a hotspot: pressione, battistrada, aquaplaning (FR: aquaplanage), gomme estive, gomme invernali. Far cliccare un punto alla volta. Sottolineare che l'area di contatto totale con la strada è grande quanto quattro palmi di mano, e che ogni manovra passa da lì. Sulla pressione: si controlla a freddo, non dopo un'ora di viaggio.",
   },
   {
     id: "freni",
@@ -202,7 +202,7 @@ export const moduloCinqueBlocks: ModuleBlock[] = [
     kind: "intro",
     hasExplanation: true,
     notes:
-      "In frenata il peso va in avanti (i freni anteriori lavorano di più), in accelerazione indietro, in curva verso l'esterno. Non è un difetto: è fisica normale, ma cambia istante per istante l'aderenza disponibile su ciascuna ruota.",
+      "In frenata il peso va in avanti (i freni anteriori lavorano di più), in accelerazione indietro, in curva verso l'esterno. Non è un difetto: è fisica normale, ma cambia istante per istante l'aderenza (FR: adhérence) disponibile su ciascuna ruota.",
   },
   {
     id: "budget-aderenza",
@@ -212,7 +212,7 @@ export const moduloCinqueBlocks: ModuleBlock[] = [
     kind: "dati",
     hasExplanation: true,
     notes:
-      "Metafora del budget: 100 di aderenza per ruota. Se ne usi 80 per frenare ne restano 20 per sterzare. Frenata, sterzata e accelerazione vanno separate nel tempo: prima freni, poi sterzi. Frenare forte e sterzare forte insieme è la combinazione più critica.",
+      "Metafora del budget: 100 di aderenza (FR: adhérence) per ruota. Se ne usi 80 per frenare ne restano 20 per sterzare. Frenata, sterzata e accelerazione vanno separate nel tempo: prima freni, poi sterzi. Frenare forte e sterzare forte insieme è la combinazione più critica.",
   },
   {
     id: "sottosterzo-sovrasterzo",
@@ -222,7 +222,7 @@ export const moduloCinqueBlocks: ModuleBlock[] = [
     kind: "scenario",
     hasExplanation: true,
     notes:
-      "Sottosterzo: l'avantreno perde aderenza, l'auto allarga; si corregge riducendo l'input, non sterzando di più. Sovrasterzo: il retrotreno perde aderenza, rischio testacoda; controsterzo dolce. L'obiettivo non è la tecnica sportiva ma riconoscerli per tempo: con velocità adeguata quasi mai si presentano.",
+      "Sottosterzo (FR: sous-virage): l'avantreno perde aderenza (FR: adhérence), l'auto allarga; si corregge riducendo l'input, non sterzando di più. Sovrasterzo (FR: survirage): il retrotreno perde aderenza, rischio testacoda; controsterzo dolce. L'obiettivo non è la tecnica sportiva ma riconoscerli per tempo: con velocità adeguata quasi mai si presentano.",
   },
   {
     id: "spazio-arresto",
@@ -243,7 +243,7 @@ export const moduloCinqueBlocks: ModuleBlock[] = [
     kind: "chiusura",
     hasExplanation: true,
     notes:
-      "Bagnato (primi minuti di pioggia i più critici), freddo anche su asciutto, neve/ghiaccio con aderenza ridotta di un ordine di grandezza. Le transizioni improvvise (tunnel, ombra di un ponte, chiazza d'olio) sono i punti più insidiosi. Veicolo pesante o baricentro alto aggrava tutto. Chiudere collegando al modulo Il Veicolo: aderenza e mezzo si leggono insieme.",
+      "Bagnato (primi minuti di pioggia i più critici), freddo anche su asciutto, neve/ghiaccio con aderenza (FR: adhérence) ridotta di un ordine di grandezza. Le transizioni improvvise (tunnel, ombra di un ponte, chiazza d'olio) sono i punti più insidiosi. Veicolo pesante o baricentro alto aggrava tutto. Chiudere collegando al modulo Il Veicolo: aderenza e mezzo si leggono insieme.",
   },
 ];
 
@@ -291,6 +291,50 @@ export const moduloSeiBlocks: ModuleBlock[] = [
   },
 ];
 
+// Blocchi del Modulo 7 — Guida Professionale
+export const moduloSetteBlocks: ModuleBlock[] = [
+  {
+    id: "ore-al-volante",
+    index: 1,
+    expectedSeconds: 240,
+    title: "Le stesse regole, molte più ore",
+    kind: "intro",
+    hasExplanation: true,
+    notes:
+      "Chi guida per lavoro ripete gli stessi percorsi o affronta condizioni sempre diverse: il rischio è la routine che abbassa la vigilanza. Pianificazione: tempi realistici, non ottimistici — la fretta iniziale contamina l'intero servizio.",
+  },
+  {
+    id: "pausa-prevedibilita",
+    index: 2,
+    expectedSeconds: 240,
+    title: "La pausa non è una debolezza, è parte del lavoro",
+    kind: "dati",
+    hasExplanation: true,
+    notes:
+      "Riconoscere i primi segnali di calo di attenzione è responsabilità professionale, non cedimento. Comportamento prevedibile: velocità costanti, intenzioni segnalate con anticipo, nessuna manovra improvvisa — la prevedibilità è una misura di sicurezza.",
+  },
+  {
+    id: "veicolo-allestito",
+    index: 3,
+    expectedSeconds: 240,
+    title: "Non è la tua utilitaria di famiglia",
+    kind: "scenario",
+    hasExplanation: true,
+    notes:
+      "Allestimenti e carichi modificano peso, baricentro e ingombri: adattare velocità in curva, distanze di frenata e margini. Sotto pressione operativa il professionista dimostra la capacità arrivando senza incidenti, non andando più veloce.",
+  },
+  {
+    id: "riepilogo-professionale",
+    index: 4,
+    expectedSeconds: 180,
+    title: "Non guidi solo per te",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "Il veicolo aziendale è anche immagine dell'organizzazione. Chiudere leggendo il riepilogo voce per voce: pianificazione, regolarità, gestione della stanchezza, comunicazione delle intenzioni, conoscenza del veicolo allestito, prevedibilità sotto pressione.",
+  },
+];
+
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-1-perche-un-corso": moduloUnoBlocks,
   "modulo-2-sicurezza-e-rischio": moduloDueBlocks,
@@ -298,5 +342,6 @@ export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-4-il-veicolo": moduloQuattroBlocks,
   "modulo-5-dinamica-del-veicolo": moduloCinqueBlocks,
   "modulo-6-tecniche-di-guida": moduloSeiBlocks,
+  "modulo-7-guida-professionale": moduloSetteBlocks,
 };
 

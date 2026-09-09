@@ -105,8 +105,8 @@ export function SimulationControls({
         value={config.esp}
         onSelect={(v) => set("esp", v)}
         options={[
-          { value: true, label: "ON" },
-          { value: false, label: "OFF" },
+          { value: true, label: "Attivo" },
+          { value: false, label: "Disattivo" },
         ]}
       />
       <Group<Phenomenon>
