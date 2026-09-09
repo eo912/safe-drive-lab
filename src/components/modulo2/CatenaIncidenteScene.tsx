@@ -67,6 +67,31 @@ const NODI: Nodo[] = [
 
 const PROB_MIN = 0.1;
 
+/** Cause esterne dell'incidente, coerenti col nodo in cui scatta l'esito. */
+const CAUSE_ESTERNE: Record<string, string[]> = {
+  stanchezza: [
+    "L'auto davanti ha frenato di colpo.",
+    "Un animale ha attraversato all'improvviso.",
+  ],
+  notifica: [
+    "Qualcuno ti ha tagliato la strada.",
+    "Un veicolo è uscito da una laterale senza dare la precedenza.",
+  ],
+  pioggia: [
+    "Il veicolo davanti ha inchiodato sull'asfalto bagnato.",
+    "Un pedone ha attraversato dove non te lo aspettavi.",
+  ],
+  imprevisto: [
+    "Un'auto in senso opposto ha invaso la corsia.",
+    "Un altro veicolo non ha rispettato la precedenza.",
+  ],
+};
+
+const causaPerNodo = (id: string) => {
+  const lista = CAUSE_ESTERNE[id] ?? CAUSE_ESTERNE.stanchezza;
+  return lista[Math.floor(Math.random() * lista.length)];
+};
+
 type Fase = "intro" | "nodi" | "esito" | "riflessione";
 
 /**
@@ -80,10 +105,12 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
   const [esito, setEsito] = useState<"casa" | "incidente" | null>(null);
   const [secondaChiamata, setSecondaChiamata] = useState(false);
   const [specchietto, setSpecchietto] = useState(false);
+  const [causa, setCausa] = useState<string | null>(null);
 
   // stato NASCOSTO
   const probRef = useRef(0.2);
   const logRef = useRef<string[]>([]);
+  const rischioseRef = useRef(0);
 
   const [chiamante, setChiamante] = useState(() =>
     Math.random() < 0.5 ? "Mamma" : "Moglie",
@@ -96,6 +123,8 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
     setEsito(null);
     setSecondaChiamata(false);
     setSpecchietto(false);
+    setCausa(null);
+    rischioseRef.current = 0;
     setChiamante(Math.random() < 0.5 ? "Mamma" : "Moglie");
     setFase("intro");
   };
@@ -113,6 +142,7 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
   const avanza = () => {
     // estrazione casuale pesata sulla probabilità corrente, ad ogni step
     if (Math.random() < probRef.current) {
+      setCausa(causaPerNodo(NODI[idx].id));
       setEsito("incidente");
       setFase("esito");
       return;
@@ -128,6 +158,7 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
   const scegli = (scelta: Scelta, i: number) => {
     const primoStep = idx === 0 && !secondaChiamata;
     const extra = secondaChiamata && scelta.rischiosa;
+    if (scelta.rischiosa) rischioseRef.current += 1;
 
     if (primoStep) {
       registra(`stanchezza:${scelta.rischiosa ? "rischiosa" : "prudente"}`, scelta.rischiosa ? 0.2 : 0);
@@ -149,6 +180,7 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
       setSecondaChiamata(true);
       // l'estrazione avviene comunque su questo step
       if (Math.random() < probRef.current) {
+        setCausa(causaPerNodo(nodo.id));
         setEsito("incidente");
         setFase("esito");
       }
@@ -226,8 +258,7 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
             />
             <div className="text-left">
               <p className="text-lg md:text-2xl leading-snug text-foreground/90">
-                Hai un'auto di 10 anni. Gomme discrete, non nuove. Sono le 22:00.
-                Guidi da due ore. Mancano 40 minuti a casa. Strada statale.
+                Stai rientrando a casa. Mancano 40 minuti. Guidi da due ore.
               </p>
               {level !== "preview" && (
                 <button
@@ -330,12 +361,16 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
                   esito === "casa" ? "text-primary" : "text-destructive"
                 }`}
               >
-                {esito === "casa" ? "Sei arrivato a casa." : "Non ce l'hai fatta."}
+                {esito === "casa"
+                  ? "Dopo qualche imprevisto lungo la strada, sei arrivato a casa."
+                  : "Non ce l'hai fatta."}
               </p>
               <p className="mt-4 text-base md:text-lg leading-snug text-foreground/80">
                 {esito === "casa"
-                  ? "Stessa strada, stesse condizioni. Questa volta la catena si è fermata prima."
-                  : "Stessa strada, stesse condizioni. Questa volta la catena è arrivata fino in fondo."}
+                  ? "Stessa strada, stesse condizioni. Qualche imprevisto c'è stato: questa volta la catena si è fermata prima."
+                  : rischioseRef.current === 0
+                    ? `${causa ?? ""} Non dipendeva dalle tue scelte: il rischio non è mai a zero, e non dipende solo da te.`
+                    : `${causa ?? ""} Stessa strada, stesse condizioni. Questa volta la catena è arrivata fino in fondo.`}
               </p>
               <button
                 type="button"
