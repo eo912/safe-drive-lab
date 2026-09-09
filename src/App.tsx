@@ -13,6 +13,7 @@ import AulaModulo2 from "./pages/AulaModulo2.tsx";
 import AulaModulo3 from "./pages/AulaModulo3.tsx";
 import AulaModulo4 from "./pages/AulaModulo4.tsx";
 import AulaModulo5 from "./pages/AulaModulo5.tsx";
+import AulaModulo6 from "./pages/AulaModulo6.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
