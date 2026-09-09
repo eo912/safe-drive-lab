@@ -31,7 +31,7 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children }: Props) =
   const [active, setActive] = useState<Hotspot | null>(null);
 
   return (
-    <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 py-8">
+    <div className="relative z-10 w-full flex-1 min-h-0 overflow-y-auto px-6 md:px-12 py-8">
       <div className="max-w-6xl mx-auto flex flex-col gap-6 min-h-full justify-center">
         {/* Illustrazione + hotspot */}
         <div className="relative w-full">
