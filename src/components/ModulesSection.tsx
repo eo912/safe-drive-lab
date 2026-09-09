@@ -38,6 +38,12 @@ const modules = [
     desc: "Trasferimenti di carico, aderenza, spazi di arresto.",
     path: "/aula/modulo-5-dinamica-del-veicolo",
   },
+  {
+    icon: Car,
+    title: "Tecniche di Guida",
+    desc: "Anticipare, comandi progressivi, sequenza in curva.",
+    path: "/aula/modulo-6-tecniche-di-guida",
+  },
 ];
 
 const ModulesSection = () => {
@@ -59,7 +65,7 @@ const ModulesSection = () => {
             Scegli da dove iniziare
           </h2>
           <p className="text-muted-foreground">
-            Cinque moduli. Un obiettivo: capire prima di agire.
+            Sei moduli. Un obiettivo: capire prima di agire.
           </p>
         </motion.div>
 
