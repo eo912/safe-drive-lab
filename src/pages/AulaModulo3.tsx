@@ -325,8 +325,8 @@ const AulaModulo3 = () => {
       {/* ============================================================
           BLOCCO 1 — PRIMA ANCORA DELLA TECNOLOGIA, CI SEI TU
           ============================================================ */}
-      <Slide bg="black" blockId="posizione-guida" className="items-stretch">
-        <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 pt-8">
+      <Slide bg="black" blockId="posizione-guida" className="items-stretch flex-col">
+        <div className="relative z-10 w-full px-6 md:px-12 pt-8">
           <div className="max-w-6xl mx-auto flex flex-col gap-4">
             <div className="text-center">
               <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-3">
@@ -355,8 +355,8 @@ const AulaModulo3 = () => {
       {/* ============================================================
           BLOCCO 2 — LA VISIONE
           ============================================================ */}
-      <Slide bg="darker" blockId="visione" className="items-stretch">
-        <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 pt-8">
+      <Slide bg="darker" blockId="visione" className="items-stretch flex-col">
+        <div className="relative z-10 w-full px-6 md:px-12 pt-8">
           <div className="max-w-6xl mx-auto flex flex-col gap-4">
             <div className="text-center">
               <h2 className="text-2xl md:text-4xl font-bold leading-tight">
