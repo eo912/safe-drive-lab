@@ -38,6 +38,12 @@ const modules = [
     desc: "Trasferimenti di carico, aderenza, spazi di arresto.",
     path: "/aula/modulo-5-dinamica-del-veicolo",
   },
+  {
+    icon: Car,
+    title: "Tecniche di Guida",
+    desc: "Anticipare, comandi progressivi, sequenza in curva.",
+    path: "/aula/modulo-6-tecniche-di-guida",
+  },
 ];
 
 const ModulesSection = () => {

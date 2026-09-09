@@ -247,11 +247,56 @@ export const moduloCinqueBlocks: ModuleBlock[] = [
   },
 ];
 
+// Blocchi del Modulo 6 — Tecniche di Guida
+export const moduloSeiBlocks: ModuleBlock[] = [
+  {
+    id: "anticipare",
+    index: 1,
+    expectedSeconds: 240,
+    title: "Guidare è decidere in anticipo, non reagire",
+    kind: "intro",
+    hasExplanation: true,
+    notes:
+      "Guardare avanti nel tempo, non solo nello spazio: «cosa potrebbe succedere nei prossimi secondi». Regola dei secondi: punto fisso, 2-3 secondi di distanza; con pioggia o scarsa visibilità raddoppiare il margine. Far provare il conteggio «milleuno, milledue» su un punto di riferimento.",
+  },
+  {
+    id: "comandi-progressivi",
+    index: 2,
+    expectedSeconds: 240,
+    title: "Comandi progressivi, non a scatti",
+    kind: "dati",
+    hasExplanation: true,
+    notes:
+      "Fluidità = gradualità su acceleratore, freno e volante. Non solo comfort: meglio aderenza, meno usura, margine di reazione sempre disponibile. Collegare al budget di aderenza del Modulo 5: la manovra brusca spende tutto il budget in una volta.",
+  },
+  {
+    id: "sequenza-curva",
+    index: 3,
+    expectedSeconds: 240,
+    title: "Si frena prima, si sterza in curva, si accelera dopo",
+    kind: "scenario",
+    hasExplanation: true,
+    notes:
+      "Sequenza: osserva il raggio, riduci prima di entrare, traiettoria stabile, riprendi l'acceleratore dopo il punto più stretto. Errore frequente: entrare troppo veloci e frenare a metà curva. Blocco previsto per l'integrazione del simulatore interattivo: la zona visiva è modulare (FlexMediaPlaceholder).",
+  },
+  {
+    id: "margini-diversi",
+    index: 4,
+    expectedSeconds: 240,
+    title: "La stessa tecnica, margini diversi",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "Sequenza cambio direzione: specchio, indicatore, controllo angolo cieco, manovra. La tecnica va adattata alle condizioni con margini più ampi. Chiudere col ponte al modulo successivo: quando guidare diventa il tuo lavoro — ore al volante, ripetizione, pressione operativa.",
+  },
+];
+
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-1-perche-un-corso": moduloUnoBlocks,
   "modulo-2-sicurezza-e-rischio": moduloDueBlocks,
   "modulo-3-il-conducente": moduloTreBlocks,
   "modulo-4-il-veicolo": moduloQuattroBlocks,
   "modulo-5-dinamica-del-veicolo": moduloCinqueBlocks,
+  "modulo-6-tecniche-di-guida": moduloSeiBlocks,
 };
 
