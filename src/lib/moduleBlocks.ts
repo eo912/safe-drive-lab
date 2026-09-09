@@ -192,10 +192,66 @@ export const moduloQuattroBlocks: ModuleBlock[] = [
   },
 ];
 
+// Blocchi del Modulo 5 — Dinamica del Veicolo
+export const moduloCinqueBlocks: ModuleBlock[] = [
+  {
+    id: "peso-trasferimenti",
+    index: 1,
+    expectedSeconds: 300,
+    title: "Il peso non sta mai fermo",
+    kind: "intro",
+    hasExplanation: true,
+    notes:
+      "In frenata il peso va in avanti (i freni anteriori lavorano di più), in accelerazione indietro, in curva verso l'esterno. Non è un difetto: è fisica normale, ma cambia istante per istante l'aderenza disponibile su ciascuna ruota.",
+  },
+  {
+    id: "budget-aderenza",
+    index: 2,
+    expectedSeconds: 300,
+    title: "Ogni ruota ha un budget. Non puoi spenderlo due volte",
+    kind: "dati",
+    hasExplanation: true,
+    notes:
+      "Metafora del budget: 100 di aderenza per ruota. Se ne usi 80 per frenare ne restano 20 per sterzare. Frenata, sterzata e accelerazione vanno separate nel tempo: prima freni, poi sterzi. Frenare forte e sterzare forte insieme è la combinazione più critica.",
+  },
+  {
+    id: "sottosterzo-sovrasterzo",
+    index: 3,
+    expectedSeconds: 300,
+    title: "Quando l'auto non fa quello che chiedi",
+    kind: "scenario",
+    hasExplanation: true,
+    notes:
+      "Sottosterzo: l'avantreno perde aderenza, l'auto allarga; si corregge riducendo l'input, non sterzando di più. Sovrasterzo: il retrotreno perde aderenza, rischio testacoda; controsterzo dolce. L'obiettivo non è la tecnica sportiva ma riconoscerli per tempo: con velocità adeguata quasi mai si presentano.",
+  },
+  {
+    id: "spazio-arresto",
+    index: 4,
+    expectedSeconds: 300,
+    title: "Pochi km/h in più, molto più spazio per fermarti",
+    kind: "dati",
+    hasExplanation: true,
+    hasDeepDive: true,
+    notes:
+      "Spazio di arresto = reazione + frenata; la frenata cresce col quadrato della velocità (raddoppiare la velocità → ×4). Collegare al tempo di reazione del Modulo 3. Frenata quotidiana progressiva; emergenza: pressione decisa a fondo, con ABS tenere premuto senza pompare e continuare a sterzare.",
+  },
+  {
+    id: "aderenza-condizioni",
+    index: 5,
+    expectedSeconds: 300,
+    title: "La strada non è sempre la stessa strada",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "Bagnato (primi minuti di pioggia i più critici), freddo anche su asciutto, neve/ghiaccio con aderenza ridotta di un ordine di grandezza. Le transizioni improvvise (tunnel, ombra di un ponte, chiazza d'olio) sono i punti più insidiosi. Veicolo pesante o baricentro alto aggrava tutto. Chiudere collegando al modulo Il Veicolo: aderenza e mezzo si leggono insieme.",
+  },
+];
+
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-1-perche-un-corso": moduloUnoBlocks,
   "modulo-2-sicurezza-e-rischio": moduloDueBlocks,
   "modulo-3-il-conducente": moduloTreBlocks,
   "modulo-4-il-veicolo": moduloQuattroBlocks,
+  "modulo-5-dinamica-del-veicolo": moduloCinqueBlocks,
 };
 

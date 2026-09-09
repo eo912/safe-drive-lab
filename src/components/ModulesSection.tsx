@@ -32,7 +32,12 @@ const modules = [
     desc: "Pneumatici, freni, sistemi elettronici, controlli.",
     path: "/aula/modulo-4-il-veicolo",
   },
-
+  {
+    icon: Car,
+    title: "Dinamica del Veicolo",
+    desc: "Trasferimenti di carico, aderenza, spazi di arresto.",
+    path: "/aula/modulo-5-dinamica-del-veicolo",
+  },
 ];
 
 const ModulesSection = () => {
