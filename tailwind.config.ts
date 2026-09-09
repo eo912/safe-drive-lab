@@ -16,6 +16,21 @@ export default {
       fontFamily: {
         sans: ['Manrope', 'system-ui', 'sans-serif'],
       },
+      // Scala tipografica maggiorata per proiezione in aula
+      fontSize: {
+        xs: ["0.875rem", { lineHeight: "1.25rem" }],
+        sm: ["1.0625rem", { lineHeight: "1.5rem" }],
+        base: ["1.1875rem", { lineHeight: "1.75rem" }],
+        lg: ["1.3125rem", { lineHeight: "1.9rem" }],
+        xl: ["1.5rem", { lineHeight: "2rem" }],
+        "2xl": ["1.875rem", { lineHeight: "2.35rem" }],
+        "3xl": ["2.25rem", { lineHeight: "2.6rem" }],
+        "4xl": ["2.75rem", { lineHeight: "3rem" }],
+        "5xl": ["3.5rem", { lineHeight: "1.1" }],
+        "6xl": ["4.25rem", { lineHeight: "1.08" }],
+        "7xl": ["5rem", { lineHeight: "1.05" }],
+      },
+
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
