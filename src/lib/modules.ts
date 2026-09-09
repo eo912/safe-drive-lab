@@ -27,7 +27,8 @@ export const modules: Module[] = [
   {
     slug: "modulo-4-il-veicolo",
     title: "Il Veicolo",
-    short: "Pneumatici, freni, sistemi elettronici, controlli.",
-    available: false,
+    short: "Pneumatici, freni, sospensioni, sistemi elettronici, controlli.",
+    available: true,
   },
+
 ];
