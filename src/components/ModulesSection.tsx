@@ -30,8 +30,9 @@ const modules = [
     icon: Car,
     title: "Il Veicolo",
     desc: "Pneumatici, freni, sistemi elettronici, controlli.",
-    path: null,
+    path: "/aula/modulo-4-il-veicolo",
   },
+
 ];
 
 const ModulesSection = () => {

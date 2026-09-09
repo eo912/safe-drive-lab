@@ -137,8 +137,65 @@ export const moduloTreBlocks: ModuleBlock[] = [
   },
 ];
 
+// Blocchi del Modulo 4 — Il Veicolo
+export const moduloQuattroBlocks: ModuleBlock[] = [
+  {
+    id: "pneumatici",
+    index: 1,
+    expectedSeconds: 300,
+    title: "Tutto passa da un palmo di mano per ruota",
+    kind: "intro",
+    hasExplanation: true,
+    notes:
+      "Schermata a hotspot: pressione, battistrada, aquaplaning, gomme estive, gomme invernali. Far cliccare un punto alla volta. Sottolineare che l'area di contatto totale con la strada è grande quanto quattro palmi di mano, e che ogni manovra passa da lì. Sulla pressione: si controlla a freddo, non dopo un'ora di viaggio.",
+  },
+  {
+    id: "freni",
+    index: 2,
+    expectedSeconds: 240,
+    title: "Fermare una tonnellata in pochi metri",
+    kind: "dati",
+    hasExplanation: true,
+    hasDeepDive: true,
+    notes:
+      "Quattro pastiglie grandi come un mazzo di carte fermano più di una tonnellata; la forza diventa calore. Fading in discesa: pedale premuto ma frenata che risponde meno; rimedio è far lavorare il motore. SUGGERIMENTO per l'istruttore, NON a schermo: fermare un'auto significa smaltire un'enorme quantità di energia cinetica in pochi secondi, tutta concentrata sull'attrito tra pastiglia e disco. Utile se in aula c'è qualcuno con curiosità tecnica o formazione meccanica.",
+  },
+  {
+    id: "sterzo-sospensioni",
+    index: 3,
+    expectedSeconds: 180,
+    title: "Quello che non vedi, finché non serve",
+    kind: "scenario",
+    hasExplanation: true,
+    notes:
+      "Le sospensioni tengono la ruota a contatto con l'asfalto. Un ammortizzatore usurato non si percepisce nella guida normale: emerge solo in frenata forte, curva stretta o sterzata d'emergenza. Buon punto per chiedere chi ha mai fatto controllare gli ammortizzatori.",
+  },
+  {
+    id: "sistemi-elettronici",
+    index: 4,
+    expectedSeconds: 240,
+    title: "Gestiscono l'aderenza che c'è. Non la creano dal nulla",
+    kind: "dati",
+    hasExplanation: true,
+    notes:
+      "ABS, ESP, ASR: cosa fanno e cosa non fanno. Riprendere il Modulo 2 (fattore umano): sono sistemi che intervengono mentre guidi, qui arriva il dettaglio tecnico promesso. Insistere sull'errore comune: spostano il limite, non aumentano il margine per l'imprevisto.",
+  },
+  {
+    id: "prima-di-partire",
+    index: 5,
+    expectedSeconds: 180,
+    title: "Un problema trovato prima è un problema risolto",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "Luci: servono soprattutto a essere visti. Carico: sposta il baricentro e in frenata brusca diventa un pericolo in movimento nell'abitacolo. Scorrere la checklist pre-partenza voce per voce e chiedere quante di queste vengono fatte davvero prima di partire.",
+  },
+];
+
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-1-perche-un-corso": moduloUnoBlocks,
   "modulo-2-sicurezza-e-rischio": moduloDueBlocks,
   "modulo-3-il-conducente": moduloTreBlocks,
+  "modulo-4-il-veicolo": moduloQuattroBlocks,
 };
+
