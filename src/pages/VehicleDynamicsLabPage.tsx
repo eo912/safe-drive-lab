@@ -11,7 +11,7 @@ export default function VehicleDynamicsLabPage() {
           Vehicle Dynamics Lab
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Simulatore didattico — Milestone A: scena statica.
+          Simulatore didattico in costruzione — scena statica.
         </p>
       </header>
       <VehicleDynamicsLab />
