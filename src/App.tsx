@@ -58,6 +58,12 @@ const App = () => (
             path="/aula/modulo-6-tecniche-di-guida"
             element={<AulaModulo6 />}
           />
+          <Route
+            path="/lab/vehicle-dynamics"
+            element={<VehicleDynamicsLabPage />}
+          />
+
+
 
 
 
