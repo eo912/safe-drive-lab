@@ -311,9 +311,19 @@ const AulaModulo2 = () => {
                 </span>
               </p>
             </div>
+          </div>
+        </div>
+      </Slide>
 
+      {/* ============================================================
+          BLOCCO 1B — RISCHIO (schermata separata)
+          ============================================================ */}
+      <Slide bg="black" blockId="sicurezza-rischio" className="items-stretch">
+        <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 py-8">
+          <div className="max-w-6xl mx-auto flex flex-col gap-8 justify-center min-h-full">
             {/* Rischio reale vs percepito */}
             <div className="flex flex-col gap-4">
+
               <div className="text-center">
                 <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary">
                   Rischio reale vs rischio percepito
