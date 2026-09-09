@@ -15,7 +15,6 @@ import AulaModulo4 from "./pages/AulaModulo4.tsx";
 import AulaModulo5 from "./pages/AulaModulo5.tsx";
 import AulaModulo6 from "./pages/AulaModulo6.tsx";
 import AulaModulo7 from "./pages/AulaModulo7.tsx";
-import VehicleDynamicsLabPage from "./pages/VehicleDynamicsLabPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -63,14 +62,6 @@ const App = () => (
             path="/aula/modulo-7-guida-professionale"
             element={<AulaModulo7 />}
           />
-          <Route
-            path="/lab/vehicle-dynamics"
-            element={<VehicleDynamicsLabPage />}
-          />
-
-
-
-
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
