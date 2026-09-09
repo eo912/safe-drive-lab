@@ -44,6 +44,12 @@ const modules = [
     desc: "Anticipare, comandi progressivi, sequenza in curva.",
     path: "/aula/modulo-6-tecniche-di-guida",
   },
+  {
+    icon: Car,
+    title: "Guida Professionale",
+    desc: "Ore al volante, pausa, veicolo allestito, immagine aziendale.",
+    path: "/aula/modulo-7-guida-professionale",
+  },
 ];
 
 const ModulesSection = () => {
@@ -65,7 +71,7 @@ const ModulesSection = () => {
             Scegli da dove iniziare
           </h2>
           <p className="text-muted-foreground">
-            Sei moduli. Un obiettivo: capire prima di agire.
+            Sette moduli. Un obiettivo: capire prima di agire.
           </p>
         </motion.div>
 
