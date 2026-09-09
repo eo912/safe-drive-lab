@@ -30,5 +30,10 @@ export const modules: Module[] = [
     short: "Pneumatici, freni, sospensioni, sistemi elettronici, controlli.",
     available: true,
   },
-
+  {
+    slug: "modulo-5-dinamica-del-veicolo",
+    title: "Dinamica del Veicolo",
+    short: "Trasferimenti di carico, aderenza, sottosterzo e sovrasterzo, spazi di arresto.",
+    available: true,
+  },
 ];

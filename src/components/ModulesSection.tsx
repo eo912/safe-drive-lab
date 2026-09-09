@@ -32,7 +32,12 @@ const modules = [
     desc: "Pneumatici, freni, sistemi elettronici, controlli.",
     path: "/aula/modulo-4-il-veicolo",
   },
-
+  {
+    icon: Car,
+    title: "Dinamica del Veicolo",
+    desc: "Trasferimenti di carico, aderenza, spazi di arresto.",
+    path: "/aula/modulo-5-dinamica-del-veicolo",
+  },
 ];
 
 const ModulesSection = () => {
@@ -54,7 +59,7 @@ const ModulesSection = () => {
             Scegli da dove iniziare
           </h2>
           <p className="text-muted-foreground">
-            Quattro moduli. Un obiettivo: capire prima di agire.
+            Cinque moduli. Un obiettivo: capire prima di agire.
           </p>
         </motion.div>
 
