@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,9 +7,7 @@ import Index from "./pages/Index.tsx";
 import Aula from "./pages/Aula.tsx";
 import Istruttore from "./pages/Istruttore.tsx";
 import IstruttoreModulo from "./pages/IstruttoreModulo.tsx";
-import PercheLaGuidaSicura from "./pages/PercheLaGuidaSicura.tsx";
 import PercheUnCorso from "./pages/PercheUnCorso.tsx";
-import AulaPerche from "./pages/AulaPerche.tsx";
 import AulaModulo1 from "./pages/AulaModulo1.tsx";
 import AulaModulo2 from "./pages/AulaModulo2.tsx";
 import AulaModulo3 from "./pages/AulaModulo3.tsx";
@@ -33,14 +31,6 @@ const App = () => (
             element={<PercheUnCorso />}
           />
           <Route
-            path="/modulo/perche-la-guida-sicura"
-            element={<PercheLaGuidaSicura />}
-          />
-          <Route
-            path="/aula/perche-la-guida-sicura"
-            element={<AulaPerche />}
-          />
-          <Route
             path="/aula/modulo-1-perche-un-corso"
             element={<AulaModulo1 />}
           />
@@ -51,11 +41,6 @@ const App = () => (
           <Route
             path="/aula/modulo-3-il-conducente"
             element={<AulaModulo3 />}
-          />
-          {/* Legacy redirect */}
-          <Route
-            path="/perche-la-guida-sicura"
-            element={<Navigate to="/modulo/perche-la-guida-sicura" replace />}
           />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

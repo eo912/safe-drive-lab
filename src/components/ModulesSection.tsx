@@ -3,48 +3,34 @@ import {
   ShieldCheck,
   User,
   Car,
-  Atom,
-  Wrench,
-  Briefcase,
-  Route,
+  Landmark,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const modules = [
   {
+    icon: Landmark,
+    title: "Le Tre Leve",
+    desc: "Stato, industria, educazione e numeri di oggi.",
+    path: "/modulo/perche-un-corso",
+  },
+  {
     icon: ShieldCheck,
-    title: "Cultura della Sicurezza",
-    desc: "Rischio, prevenzione, catena degli eventi.",
+    title: "Sicurezza e Rischio",
+    desc: "Contesto, catena dell'incidente e fattore umano.",
+    path: "/aula/modulo-2-sicurezza-e-rischio",
   },
   {
     icon: User,
     title: "Il Conducente",
     desc: "Postura, osservazione, attenzione, stato psicofisico.",
+    path: "/aula/modulo-3-il-conducente",
   },
   {
     icon: Car,
     title: "Il Veicolo",
     desc: "Pneumatici, freni, sistemi elettronici, controlli.",
-  },
-  {
-    icon: Atom,
-    title: "Dinamica del Veicolo",
-    desc: "Aderenza, trasferimenti di carico, frenata, curva.",
-  },
-  {
-    icon: Wrench,
-    title: "Tecniche di Guida",
-    desc: "Anticipazione, distanza, fluidità, gestione della curva.",
-  },
-  {
-    icon: Briefcase,
-    title: "Guida Professionale",
-    desc: "Pianificazione, pressione operativa, prevedibilità.",
-  },
-  {
-    icon: Route,
-    title: "Applicazione EST",
-    desc: "Applicazione dei moduli al contesto operativo EST.",
+    path: null,
   },
 ];
 
@@ -67,7 +53,7 @@ const ModulesSection = () => {
             Scegli da dove iniziare
           </h2>
           <p className="text-muted-foreground">
-            Sette percorsi. Un obiettivo: capire prima di agire.
+            Quattro moduli. Un obiettivo: capire prima di agire.
           </p>
         </motion.div>
 
@@ -79,11 +65,9 @@ const ModulesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="card-lab text-left cursor-pointer group"
+              className={`card-lab text-left group ${m.path ? "cursor-pointer" : "cursor-default opacity-50"}`}
               onClick={() => {
-                if (m.title === "Cultura della Sicurezza") {
-                  navigate("/perche-la-guida-sicura");
-                }
+                if (m.path) navigate(m.path);
               }}
             >
               <div className="flex items-start gap-4">
