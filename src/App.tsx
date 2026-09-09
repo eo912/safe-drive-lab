@@ -53,6 +53,11 @@ const App = () => (
             path="/aula/modulo-5-dinamica-del-veicolo"
             element={<AulaModulo5 />}
           />
+          <Route
+            path="/aula/modulo-6-tecniche-di-guida"
+            element={<AulaModulo6 />}
+          />
+
 
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
