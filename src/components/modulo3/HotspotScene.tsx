@@ -23,6 +23,8 @@ type Props = {
   hotspots: Hotspot[];
   /** Contenuto extra opzionale sotto l'illustrazione (stessa schermata) */
   children?: React.ReactNode;
+  /** Riduce l'ingombro verticale quando illustrazione e contenuti condividono la schermata */
+  compact?: boolean;
 };
 
 /**
@@ -30,16 +32,27 @@ type Props = {
  * con punti interattivi cliccabili che aprono un pannello di dettaglio
  * senza cambiare schermata.
  */
-export const HotspotScene = ({ illustrationLabel, hotspots, children }: Props) => {
+export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = false }: Props) => {
   const [active, setActive] = useState<Hotspot | null>(null);
   const [failedImages, setFailedImages] = useState<string[]>([]);
 
   return (
-    <div className="relative z-10 w-full flex-1 min-h-0 overflow-y-auto px-6 md:px-12 py-8">
-      <div className="max-w-6xl mx-auto flex flex-col gap-6 min-h-full justify-center">
+    <div
+      className={`relative z-10 w-full flex-1 min-h-0 px-6 md:px-12 ${
+        compact ? "overflow-hidden py-3" : "overflow-y-auto py-8"
+      }`}
+    >
+      <div
+        className={`max-w-6xl mx-auto flex flex-col min-h-full justify-center ${
+          compact ? "gap-2" : "gap-6"
+        }`}
+      >
         {/* Illustrazione + hotspot */}
         <div className="relative w-full">
-          <ImagePlaceholder label={illustrationLabel} className="h-[44vh] w-full" />
+          <ImagePlaceholder
+            label={illustrationLabel}
+            className={`${compact ? "h-[28vh] min-h-[180px]" : "h-[44vh]"} w-full`}
+          />
           {hotspots.map((h) => {
             const isActive = active?.id === h.id;
             return (
@@ -70,7 +83,7 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children }: Props) =
         </div>
 
         {/* Popup dettaglio */}
-        <div className="min-h-[9rem]">
+        <div className={compact ? "min-h-[5rem]" : "min-h-[9rem]"}>
           <AnimatePresence mode="wait">
             {active ? (
               <motion.div
@@ -122,7 +135,9 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children }: Props) =
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center font-mono text-xs md:text-sm uppercase tracking-widest text-muted-foreground py-6"
+                className={`text-center font-mono text-xs md:text-sm uppercase tracking-widest text-muted-foreground ${
+                  compact ? "py-3" : "py-6"
+                }`}
               >
                 Tocca un punto sull'illustrazione per scoprire di più
               </motion.p>
