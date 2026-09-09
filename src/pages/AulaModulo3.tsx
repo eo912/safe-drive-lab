@@ -63,6 +63,8 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
     y: 62,
     title: "Sedile",
     text: "Distanza dai pedali tale da poter premere il freno a fondo con il ginocchio leggermente flesso. Schienale che sostiene la schiena, non troppo reclinato.",
+    image: "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/6a/9a/e8/86/0b/v1_E10/E10ATODF.jpg?w=600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto",
+    imageAlt: "Regolazione della posizione del sedile di guida",
   },
   {
     id: "volante",
@@ -71,6 +73,8 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
     y: 55,
     title: "Volante",
     text: "Braccia leggermente flesse quando le mani sono sul volante, non tese. Mani in posizione 9 e 3 (o 8 e 4) — garantisce il massimo controllo e la corretta apertura dell'airbag.",
+    image: "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/a8/f1/d0/62/33/v1_E10/E10ALQJS.jpg?w=600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto",
+    imageAlt: "Corretta posizione delle mani sul volante",
   },
   {
     id: "poggiatesta",
@@ -79,6 +83,8 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
     y: 30,
     title: "Poggiatesta",
     text: "Regolato all'altezza degli occhi/parte superiore della testa, non del collo. È un dispositivo di sicurezza attivo, non un cuscino.",
+    image: "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/e9/ed/8e/21/6c/v1_E10/E109J4SY.jpg?w=600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto",
+    imageAlt: "Regolazione corretta del poggiatesta",
   },
   {
     id: "cintura",
@@ -87,6 +93,8 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
     y: 45,
     title: "Cintura",
     text: "Aderente, non attorcigliata. La fascia diagonale passa sulla clavicola, mai sul collo.",
+    image: "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/c0/e2/50/8b/79/v1_E10/E1075GAB.jpg?w=600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto",
+    imageAlt: "Posizionamento corretto della cintura di sicurezza",
   },
   {
     id: "specchi",
@@ -95,6 +103,8 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
     y: 22,
     title: "Specchi",
     text: "Si regolano prima di partire, mai durante la marcia. Gli specchietti esterni vanno aperti leggermente più «larghi» dell'istinto — riduce gli angoli ciechi laterali. Ma restano zone scoperte: prima di cambiare corsia serve sempre un'occhiata diretta, non solo lo specchio.",
+    image: "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/37/86/85/b5/40/v1_E10/E105QC1I.jpeg?w=600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto",
+    imageAlt: "Regolazione degli specchietti retrovisori",
   },
 ];
 

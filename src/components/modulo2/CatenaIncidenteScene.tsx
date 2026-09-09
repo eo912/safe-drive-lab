@@ -207,7 +207,7 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
   };
 
   return (
-    <div className="relative z-10 w-full h-full flex flex-col justify-center px-6 md:px-12 py-10 gap-6">
+    <div className="relative z-10 w-full h-full flex flex-col justify-between px-6 md:px-12 py-12 md:py-14 lg:py-16 gap-5 md:gap-6">
       <div className="text-center">
         <p className="font-mono text-sm uppercase tracking-[0.3em] text-primary">
           La catena dell'incidente

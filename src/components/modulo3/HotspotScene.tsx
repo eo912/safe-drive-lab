@@ -12,6 +12,9 @@ export type Hotspot = {
   y: number;
   title: string;
   text: string;
+  /** Immagine opzionale mostrata sopra il testo nel pannello di dettaglio */
+  image?: string;
+  imageAlt?: string;
 };
 
 type Props = {
@@ -75,22 +78,31 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children }: Props) =
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.25 }}
-                className="relative rounded-lg border border-primary/50 bg-card/80 px-6 py-5 md:px-8 md:py-6"
+                className="relative overflow-hidden rounded-lg border border-primary/50 bg-card/80"
               >
                 <button
                   type="button"
                   onClick={() => setActive(null)}
                   aria-label="Chiudi dettaglio"
-                  className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/80 text-muted-foreground backdrop-blur hover:text-foreground transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
-                <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
-                  {active.title}
-                </p>
-                <p className="text-base md:text-lg text-foreground/85 leading-relaxed max-w-4xl">
-                  {active.text}
-                </p>
+                {active.image && (
+                  <img
+                    src={active.image}
+                    alt={active.imageAlt ?? active.title}
+                    className="h-[18vh] min-h-36 w-full object-cover"
+                  />
+                )}
+                <div className="px-6 py-5 md:px-8 md:py-6">
+                  <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
+                    {active.title}
+                  </p>
+                  <p className="text-base md:text-lg text-foreground/85 leading-relaxed max-w-4xl">
+                    {active.text}
+                  </p>
+                </div>
               </motion.div>
             ) : (
               <motion.p
