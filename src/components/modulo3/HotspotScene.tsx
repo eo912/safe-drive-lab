@@ -32,6 +32,7 @@ type Props = {
  */
 export const HotspotScene = ({ illustrationLabel, hotspots, children }: Props) => {
   const [active, setActive] = useState<Hotspot | null>(null);
+  const [failedImages, setFailedImages] = useState<string[]>([]);
 
   return (
     <div className="relative z-10 w-full flex-1 min-h-0 overflow-y-auto px-6 md:px-12 py-8">
@@ -88,11 +89,22 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children }: Props) =
                 >
                   <X className="w-4 h-4" />
                 </button>
-                {active.image && (
+                {active.image && !failedImages.includes(active.id) && (
                   <img
                     src={active.image}
                     alt={active.imageAlt ?? active.title}
+                    onError={() =>
+                      setFailedImages((current) =>
+                        current.includes(active.id) ? current : [...current, active.id],
+                      )
+                    }
                     className="h-[18vh] min-h-36 w-full object-cover"
+                  />
+                )}
+                {active.image && failedImages.includes(active.id) && (
+                  <ImagePlaceholder
+                    label="Vista dagli specchietti retrovisori"
+                    className="h-[18vh] min-h-36 rounded-none border-x-0 border-t-0"
                   />
                 )}
                 <div className="px-6 py-5 md:px-8 md:py-6">

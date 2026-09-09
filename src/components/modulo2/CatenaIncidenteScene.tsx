@@ -207,7 +207,8 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
   };
 
   return (
-    <div className="relative z-10 w-full h-full flex flex-col justify-between px-6 md:px-12 py-12 md:py-14 lg:py-16 gap-5 md:gap-6">
+    <div className="relative z-10 w-full h-full overflow-y-auto overscroll-contain">
+      <div className="min-h-full flex flex-col justify-between px-6 md:px-12 pt-12 md:pt-14 lg:pt-16 pb-16 md:pb-20 lg:pb-24 gap-5 md:gap-6">
       <div className="text-center">
         <p className="font-mono text-sm uppercase tracking-[0.3em] text-primary">
           La catena dell'incidente
@@ -416,6 +417,7 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 };
