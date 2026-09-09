@@ -200,8 +200,43 @@ export const moduloDueBlocks: ModuleBlock[] = [
   },
 ];
 
+// Blocchi del Modulo 3 — Il Conducente
+export const moduloTreBlocks: ModuleBlock[] = [
+  {
+    id: "posizione-guida",
+    index: 1,
+    expectedSeconds: 300,
+    title: "Prima ancora della tecnologia, ci sei tu",
+    kind: "intro",
+    hasExplanation: true,
+    notes:
+      "Schermata a hotspot: illustrazione del conducente in abitacolo con 5 punti interattivi (sedile, volante, poggiatesta, cintura, specchi). Far cliccare un punto alla volta e leggere il dettaglio. Sugli specchi sottolineare: si regolano prima di partire, e anche ben regolati restano angoli ciechi — prima di cambiare corsia serve un'occhiata diretta.",
+  },
+  {
+    id: "visione",
+    index: 2,
+    expectedSeconds: 300,
+    title: "Il 90% di quello che sai sulla strada, lo sai perché lo vedi",
+    kind: "dati",
+    hasExplanation: true,
+    notes:
+      "Schermata a hotspot sulla visuale frontale: visione centrale, periferica, scanning. Poi il tempo di reazione: 0,7-1,5 secondi, che a 50 km/h significano circa 14 metri e a 90 km/h circa 25 metri prima di iniziare a frenare. Collegare allo specchietto dei metri già visto nel Modulo 2 (telefono).",
+  },
+  {
+    id: "distrazione",
+    index: 3,
+    expectedSeconds: 240,
+    title: "Bastano pochi secondi",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "Tre tipi di distrazione: visiva, manuale, cognitiva (la più insidiosa, invisibile dall'esterno). Stanchezza: i segnali evidenti sono già tardivi, l'unico rimedio è la pausa. Stress e fretta: il campo di attenzione si restringe, capita anche a chi guida da anni — va gestita, non ignorata.",
+  },
+];
+
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-1-perche-un-corso": moduloUnoBlocks,
   "modulo-2-sicurezza-e-rischio": moduloDueBlocks,
+  "modulo-3-il-conducente": moduloTreBlocks,
   "perche-la-guida-sicura": perchéBlocks,
 };

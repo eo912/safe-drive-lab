@@ -25,10 +25,10 @@ export const modules: Module[] = [
     available: true,
   },
   {
-    slug: "il-conducente",
+    slug: "modulo-3-il-conducente",
     title: "Il Conducente",
-    short: "Postura, osservazione, attenzione, stato psicofisico.",
-    available: false,
+    short: "Posizione di guida, visione, distrazione e stanchezza.",
+    available: true,
   },
   {
     slug: "il-veicolo",
