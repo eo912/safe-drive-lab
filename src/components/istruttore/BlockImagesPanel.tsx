@@ -3,6 +3,8 @@ import { Upload, Trash2, Images, X } from "lucide-react";
 import { studioCatalog } from "@/lib/studioCatalog";
 import {
   clearPlaceholderImage,
+  ICON_FOLDER,
+  iconIdFor,
   listLibrary,
   placeholderIdFor,
   setPlaceholderImage,
@@ -30,9 +32,11 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
   const folder = mod?.folder ?? "generico";
 
   const [library, setLibrary] = useState<LibraryItem[]>([]);
-  const [picker, setPicker] = useState<{ id: string; label: string } | null>(
-    null,
-  );
+  const [picker, setPicker] = useState<{
+    id: string;
+    label: string;
+    folder: string;
+  } | null>(null);
 
   const refreshLibrary = () => listLibrary().then(setLibrary);
 
@@ -51,7 +55,7 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
         </p>
       </div>
 
-      {!block || block.placeholders.length === 0 ? (
+      {!block || (block.placeholders.length === 0 && block.icons.length === 0) ? (
         <p className="text-xs text-muted-foreground">
           Nessun segnaposto immagine in questa schermata.
         </p>
@@ -62,16 +66,36 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
               key={p.label}
               folder={folder}
               label={p.label}
-              onPick={(id) => setPicker({ id, label: p.label })}
+              onPick={(id) => setPicker({ id, label: p.label, folder })}
             />
           ))}
+        </div>
+      )}
+
+      {block && block.icons.length > 0 && (
+        <div className="mt-6 border-t border-border/60 pt-4">
+          <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground mb-3">
+            Icone delle tessere
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {block.icons.map((ic) => (
+              <IconCard
+                key={ic.label}
+                folder={folder}
+                label={ic.label}
+                onPick={(id) =>
+                  setPicker({ id, label: ic.label, folder: ICON_FOLDER })
+                }
+              />
+            ))}
+          </div>
         </div>
       )}
 
       {picker && (
         <LibraryDialog
           library={library}
-          folder={folder}
+          folder={picker.folder}
           label={picker.label}
           onUploaded={refreshLibrary}
           onSelect={async (path) => {
@@ -81,6 +105,84 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
           onClose={() => setPicker(null)}
         />
       )}
+    </div>
+  );
+};
+
+/**
+ * Tessera con icona: caricamento di una singola icona (PNG/SVG) o scelta
+ * dalla libreria icone. Formato piccolo, distinto dalle foto grandi.
+ */
+const IconCard = ({
+  folder,
+  label,
+  onPick,
+}: {
+  folder: string;
+  label: string;
+  onPick: (id: string) => void;
+}) => {
+  const id = iconIdFor(folder, label);
+  const url = usePlaceholderImage(id);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <div className="rounded-lg border border-border/60 bg-background/60 p-3 flex items-center gap-3">
+      <div className="w-12 h-12 shrink-0 rounded-md border border-border/50 bg-muted/20 flex items-center justify-center overflow-hidden">
+        {url ? (
+          <img src={url} alt={label} className="w-full h-full object-contain" />
+        ) : (
+          <span className="font-mono text-[9px] text-muted-foreground">icona</span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-foreground/85 truncate">{label}</p>
+        <div className="mt-1.5 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => fileRef.current?.click()}
+            className="rounded-md border border-primary/60 bg-primary/10 px-2 py-1 text-[11px] text-primary hover:bg-primary/20 disabled:opacity-50"
+          >
+            {busy ? "Caricamento…" : "Carica icona"}
+          </button>
+          <button
+            type="button"
+            onClick={() => onPick(id)}
+            className="rounded-md border border-border px-2 py-1 text-[11px] text-foreground/80 hover:text-foreground"
+          >
+            Libreria icone
+          </button>
+          {url && (
+            <button
+              type="button"
+              onClick={() => clearPlaceholderImage(id)}
+              className="rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground"
+            >
+              Rimuovi
+            </button>
+          )}
+        </div>
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*,.svg"
+        className="hidden"
+        onChange={async (e) => {
+          const f = e.target.files?.[0];
+          e.target.value = "";
+          if (!f) return;
+          setBusy(true);
+          try {
+            const path = await uploadImage(f, ICON_FOLDER);
+            await setPlaceholderImage(id, path);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
     </div>
   );
 };

@@ -18,6 +18,8 @@ export type StudioBlock = {
   title: string;
   notes: string;
   placeholders: StudioPlaceholder[];
+  /** Etichette delle tessere che usano un'icona invece di una foto. */
+  icons: StudioPlaceholder[];
 };
 
 export type StudioModule = {
@@ -138,6 +140,23 @@ const PLACEHOLDERS: Record<string, Record<string, string[]>> = {
   },
 };
 
+/**
+ * Tessere con icona (niente foto): per ciascuna si può assegnare
+ * un'icona caricata nella libreria icone.
+ */
+const ICONS: Record<string, Record<string, string[]>> = {
+  "modulo-2": {
+    "sicurezza-rischio": [
+      "La velocità che scegli",
+      "La distanza che mantieni",
+      "Quanto osservi davvero la strada",
+      "Le condizioni del tuo veicolo",
+      "Come ti adatti al meteo",
+      "Il tuo stato psicofisico",
+    ],
+  },
+};
+
 /** Cartella storage/prefisso id ricavata dallo slug del modulo. */
 export const folderForSlug = (slug: string) => {
   const m = slug.match(/modulo-(\d+[a-z]?)/i);
@@ -147,11 +166,13 @@ export const folderForSlug = (slug: string) => {
 export const studioCatalog: StudioModule[] = modules.map((mod) => {
   const folder = folderForSlug(mod.slug);
   const byBlock = PLACEHOLDERS[folder] ?? {};
+  const iconsByBlock = ICONS[folder] ?? {};
   const blocks = (blocksBySlug[mod.slug] ?? []).map((b) => ({
     blockId: b.id,
     title: b.title,
     notes: b.notes,
     placeholders: (byBlock[b.id] ?? []).map((label) => ({ label })),
+    icons: (iconsByBlock[b.id] ?? []).map((label) => ({ label })),
   }));
   return {
     slug: mod.slug,

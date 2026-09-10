@@ -21,6 +21,7 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { CatenaIncidenteScene } from "@/components/modulo2/CatenaIncidenteScene";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
+import { EditableIcon } from "@/components/edit/EditableIcon";
 
 const MODULO = "modulo-2-sicurezza-e-rischio";
 
@@ -312,7 +313,11 @@ const AulaModulo2 = () => {
                     key={label}
                     className="rounded-lg border border-border/60 bg-card/70 px-3 py-3 flex items-center gap-3"
                   >
-                    <Icon className="w-5 h-5 text-primary shrink-0" aria-hidden />
+                    <EditableIcon
+                      label={label}
+                      fallback={Icon}
+                      className="w-5 h-5 text-primary shrink-0"
+                    />
                     <p className="text-xs md:text-sm font-medium leading-snug">
                       <span className="font-mono text-[10px] text-muted-foreground mr-2">
                         0{i + 1}
