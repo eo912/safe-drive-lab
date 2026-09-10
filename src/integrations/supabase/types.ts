@@ -14,7 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      placeholder_images: {
+        Row: {
+          image_url: string
+          placeholder_id: string
+          updated_at: string
+        }
+        Insert: {
+          image_url: string
+          placeholder_id: string
+          updated_at?: string
+        }
+        Update: {
+          image_url?: string
+          placeholder_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
