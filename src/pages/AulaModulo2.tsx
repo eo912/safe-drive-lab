@@ -49,7 +49,7 @@ const Slide = ({
       : bg === "card"
         ? "hsl(var(--card))"
         : bg === "black"
-          ? level === "full" ? "hsl(220 22% 4%)" : "#000"
+          ? "#000"
           : undefined;
 
   return (
