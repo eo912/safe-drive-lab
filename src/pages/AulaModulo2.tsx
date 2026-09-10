@@ -125,7 +125,13 @@ const AulaModulo2 = () => {
       }
     });
     const nextIdx = Math.max(0, Math.min(sections.length - 1, currentIdx + delta));
-    if (nextIdx === currentIdx) return;
+    if (nextIdx === currentIdx) {
+      // Air mouse: fine modulo -> se esiste un link "Modulo successivo", seguilo.
+      if (delta > 0) {
+        scroller.querySelector<HTMLAnchorElement>("[data-modulo-next]")?.click();
+      }
+      return;
+    }
     isAnimatingRef.current = true;
     sections[nextIdx].scrollIntoView({ behavior: "smooth", block: "start" });
     window.setTimeout(() => {
