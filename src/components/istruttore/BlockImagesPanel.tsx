@@ -109,6 +109,84 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
   );
 };
 
+/**
+ * Tessera con icona: caricamento di una singola icona (PNG/SVG) o scelta
+ * dalla libreria icone. Formato piccolo, distinto dalle foto grandi.
+ */
+const IconCard = ({
+  folder,
+  label,
+  onPick,
+}: {
+  folder: string;
+  label: string;
+  onPick: (id: string) => void;
+}) => {
+  const id = iconIdFor(folder, label);
+  const url = usePlaceholderImage(id);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <div className="rounded-lg border border-border/60 bg-background/60 p-3 flex items-center gap-3">
+      <div className="w-12 h-12 shrink-0 rounded-md border border-border/50 bg-muted/20 flex items-center justify-center overflow-hidden">
+        {url ? (
+          <img src={url} alt={label} className="w-full h-full object-contain" />
+        ) : (
+          <span className="font-mono text-[9px] text-muted-foreground">icona</span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-foreground/85 truncate">{label}</p>
+        <div className="mt-1.5 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => fileRef.current?.click()}
+            className="rounded-md border border-primary/60 bg-primary/10 px-2 py-1 text-[11px] text-primary hover:bg-primary/20 disabled:opacity-50"
+          >
+            {busy ? "Caricamento…" : "Carica icona"}
+          </button>
+          <button
+            type="button"
+            onClick={() => onPick(id)}
+            className="rounded-md border border-border px-2 py-1 text-[11px] text-foreground/80 hover:text-foreground"
+          >
+            Libreria icone
+          </button>
+          {url && (
+            <button
+              type="button"
+              onClick={() => clearPlaceholderImage(id)}
+              className="rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground"
+            >
+              Rimuovi
+            </button>
+          )}
+        </div>
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*,.svg"
+        className="hidden"
+        onChange={async (e) => {
+          const f = e.target.files?.[0];
+          e.target.value = "";
+          if (!f) return;
+          setBusy(true);
+          try {
+            const path = await uploadImage(f, ICON_FOLDER);
+            await setPlaceholderImage(id, path);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
+    </div>
+  );
+};
+
 const PlaceholderCard = ({
   folder,
   label,
