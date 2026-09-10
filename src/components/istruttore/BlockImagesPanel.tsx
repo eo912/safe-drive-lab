@@ -70,10 +70,29 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
         </div>
       )}
 
+      {block && block.icons.length > 0 && (
+        <div className="mt-6 border-t border-border/60 pt-4">
+          <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground mb-3">
+            Icone delle tessere
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {block.icons.map((ic) => (
+              <IconCard
+                key={ic.label}
+                label={ic.label}
+                onPick={(id) =>
+                  setPicker({ id, label: ic.label, folder: ICON_FOLDER })
+                }
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {picker && (
         <LibraryDialog
           library={library}
-          folder={folder}
+          folder={picker.folder}
           label={picker.label}
           onUploaded={refreshLibrary}
           onSelect={async (path) => {
