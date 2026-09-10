@@ -999,6 +999,13 @@ const IstruttoreModulo = () => {
                     onProjectOverlay={projectMedia}
                   />
 
+                  <BlockImagesPanel
+                    modulo={slug}
+                    blocco={previewState.blocco}
+                  />
+
+
+
                   <div className="rounded-md border border-border p-4 bg-card/40">
                     <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground mb-3">
                       Tempo previsto · slide attiva
