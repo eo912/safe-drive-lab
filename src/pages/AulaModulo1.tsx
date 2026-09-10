@@ -45,7 +45,7 @@ const Slide = ({
       : bg === "card"
         ? "hsl(var(--card))"
         : bg === "black"
-          ? "hsl(220 22% 4%)"
+          ? "#000"
           : undefined;
 
   return (
@@ -160,7 +160,15 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div
-                className={`absolute inset-0 ${active ? "bg-background/55" : "bg-background/75"}`}
+                className={`absolute inset-0 ${
+                  level === "full"
+                    ? active
+                      ? "bg-background/55"
+                      : "bg-background/75"
+                    : active
+                      ? "bg-background/30"
+                      : "bg-background/60"
+                }`}
                 aria-hidden
               />
               <div className="relative z-10 h-full flex flex-col justify-end p-5">
