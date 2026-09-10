@@ -961,7 +961,7 @@ const IstruttoreModulo = () => {
               </aside>
 
               <main className="p-4 sm:p-6 md:p-8 min-w-0 overflow-y-auto">
-                <div className="max-w-3xl mx-auto space-y-6">
+                <div className="max-w-5xl mx-auto space-y-6">
                   <div>
                     <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
                       Studio · costruzione corso
