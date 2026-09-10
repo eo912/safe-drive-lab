@@ -86,7 +86,7 @@ export const AulaPauseScreen = ({
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-0 z-[95] overflow-hidden bg-black"
+      className={`fixed inset-0 z-[95] overflow-hidden ${simplified ? "bg-black" : "bg-background"}`}
       style={{
         opacity,
         transition: `opacity ${FADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
@@ -110,12 +110,20 @@ export const AulaPauseScreen = ({
         />
         {/* Overlay tonale minimo per leggibilità del testo */}
         <div className="absolute inset-0" style={{ background: atm.overlay }} />
+        {!simplified && (
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-background/25 via-background/15 to-background/75"
+            aria-hidden
+          />
+        )}
         {/* Vignette delicata per profondità */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(120% 90% at 50% 40%, transparent 55%, hsl(0 0% 0% / 0.45) 100%)",
+               simplified
+                 ? "radial-gradient(120% 90% at 50% 40%, transparent 55%, hsl(0 0% 0% / 0.45) 100%)"
+                 : "radial-gradient(120% 90% at 50% 40%, transparent 48%, hsl(220 22% 4% / 0.68) 100%)",
           }}
         />
       </div>
@@ -125,13 +133,13 @@ export const AulaPauseScreen = ({
         <div className="flex items-end justify-between gap-6 max-w-[1600px] mx-auto">
           <div>
             <p
-              className="font-mono text-[10px] tracking-[0.45em] uppercase text-white/55 mb-2"
+              className={`font-mono text-[10px] tracking-[0.45em] uppercase mb-2 ${simplified ? "text-white/55" : "text-foreground/80"}`}
               style={{ textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}
             >
               Intervallo
             </p>
             <h2
-              className="text-3xl sm:text-4xl font-light text-white/90 leading-none"
+              className={`text-3xl sm:text-4xl leading-none ${simplified ? "font-light text-white/90" : "font-bold text-foreground"}`}
               style={{
                 textShadow: "0 2px 18px rgba(0,0,0,0.55)",
                 letterSpacing: "0.04em",
@@ -141,7 +149,7 @@ export const AulaPauseScreen = ({
             </h2>
           </div>
           <p
-            className="text-xs sm:text-sm text-white/65 font-light tracking-wide text-right"
+            className={`text-xs sm:text-sm tracking-wide text-right ${simplified ? "text-white/65 font-light" : "text-foreground/90 font-semibold"}`}
             style={{ textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}
           >
             {pauseMinutes

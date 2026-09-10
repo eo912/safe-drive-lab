@@ -259,7 +259,7 @@ const AulaModulo4 = () => {
     <div
       ref={scrollerRef}
       data-render-level={renderLevel}
-      className={`bg-background text-foreground fixed inset-0 overflow-y-auto snap-y snap-mandatory overscroll-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+      className={`${embedMode ? "" : "aula-projection"} bg-background text-foreground fixed inset-0 overflow-y-auto snap-y snap-mandatory overscroll-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
         embedMode ? "pointer-events-none" : ""
       }`}
       style={{ scrollBehavior: embedMode ? "auto" : "smooth" }}
@@ -295,7 +295,7 @@ const AulaModulo4 = () => {
       )}
 
       {!embedMode && aulaState.blackout && (
-        <div className="fixed inset-0 z-[9999] bg-black" aria-hidden="true" />
+        <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />
       )}
 
       {!embedMode && <SyncDebugOverlay side="aula" live={aulaState} />}
