@@ -42,6 +42,28 @@ export const placeholderIdFor = (folder: string, label: string) =>
 export const placeholderId = (label: string) =>
   placeholderIdFor(currentModuleFolder(), label);
 
+/** Identificativo stabile di una singola icona (tessere, pittogrammi). */
+export const iconIdFor = (folder: string, label: string) =>
+  `${folder}::icon::${slugify(label)}`;
+
+/** Identificativo icona nel modulo corrente. */
+export const iconId = (label: string) => iconIdFor(currentModuleFolder(), label);
+
+/** Cartella storage dedicata alle icone. */
+export const ICON_FOLDER = "icone";
+
+/** Contatore che cambia a ogni modifica delle associazioni immagine. */
+export const usePlaceholderVersion = () => {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    const sync = () => setV((n) => n + 1);
+    window.addEventListener(EVT, sync);
+    if (!loaded) loadAll();
+    return () => window.removeEventListener(EVT, sync);
+  }, []);
+  return v;
+};
+
 const loadAll = () => {
   if (loading) return loading;
   loading = (async () => {
@@ -84,7 +106,7 @@ export const clearPlaceholderImage = async (id: string) => {
 };
 
 export const listLibrary = async () => {
-  const folders = ["modulo-1", "modulo-2", "modulo-3", "modulo-4", "modulo-5", "modulo-6", "modulo-7", "modulo-8", "generico"];
+  const folders = ["modulo-1", "modulo-2", "modulo-3", "modulo-4", "modulo-5", "modulo-6", "modulo-7", "modulo-8", "icone", "generico"];
   const out: { path: string; url: string }[] = [];
   for (const f of folders) {
     const { data } = await supabase.storage.from(BUCKET).list(f, { limit: 100 });
