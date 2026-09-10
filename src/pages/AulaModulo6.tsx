@@ -9,6 +9,7 @@ import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { FlexMediaPlaceholder } from "@/components/modulo6/FlexMediaPlaceholder";
+import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 
 const MODULO = "modulo-6-tecniche-di-guida";
 
@@ -450,6 +451,7 @@ const AulaModulo6 = () => {
             </div>
           </div>
         </div>
+        <ModuloNextNav to="/aula/modulo-7-guida-professionale" label="Modulo successivo" />
       </Slide>
     </div>
   );

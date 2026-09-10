@@ -14,6 +14,7 @@ import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
+import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 
 const MODULO = "modulo-1-perche-un-corso";
 
@@ -561,6 +562,7 @@ const AulaModulo1 = () => {
             ma il lavoro non è finito, ed è anche per questo che siete qui.
           </span>
         </motion.p>
+        <ModuloNextNav to="/aula/modulo-2-sicurezza-e-rischio" label="Modulo successivo" />
       </Free>
 
       {/* ZOOM INFOGRAFICA */}

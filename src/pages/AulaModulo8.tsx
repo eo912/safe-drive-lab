@@ -9,6 +9,7 @@ import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
+import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 
 const MODULO = "modulo-8-applicazione-est";
 
@@ -523,6 +524,7 @@ const AulaModulo8 = () => {
             </div>
           </div>
         </div>
+        <ModuloNextNav to="/aula" label="Torna all'indice moduli" backToIndex />
       </Slide>
     </div>
   );

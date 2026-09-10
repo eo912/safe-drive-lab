@@ -10,6 +10,7 @@ import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { HotspotScene, type Hotspot } from "@/components/modulo3/HotspotScene";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
+import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 
 const MODULO = "modulo-4-il-veicolo";
 
@@ -535,6 +536,7 @@ const AulaModulo4 = () => {
             </div>
           </div>
         </div>
+        <ModuloNextNav to="/aula/modulo-5-dinamica-del-veicolo" label="Modulo successivo" />
       </Slide>
     </div>
   );

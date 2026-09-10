@@ -18,6 +18,7 @@ import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { CatenaIncidenteScene } from "@/components/modulo2/CatenaIncidenteScene";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
+import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 
 const MODULO = "modulo-2-sicurezza-e-rischio";
 
@@ -442,6 +443,7 @@ const AulaModulo2 = () => {
             </div>
           </div>
         </div>
+        <ModuloNextNav to="/aula/modulo-3-il-conducente" label="Modulo successivo" />
       </Slide>
     </div>
   );
