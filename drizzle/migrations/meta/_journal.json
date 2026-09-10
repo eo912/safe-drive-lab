@@ -8,6 +8,13 @@
       "when": 1789076829080,
       "tag": "0000_create_placeholder_images",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789076855866,
+      "tag": "0001_course_images_storage_policies",
+      "breakpoints": true
     }
   ]
 }
