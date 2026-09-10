@@ -81,6 +81,7 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
             {block.icons.map((ic) => (
               <IconCard
                 key={ic.label}
+                folder={folder}
                 label={ic.label}
                 onPick={(id) =>
                   setPicker({ id, label: ic.label, folder: ICON_FOLDER })
