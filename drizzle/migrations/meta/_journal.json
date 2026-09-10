@@ -15,6 +15,13 @@
       "when": 1789076855866,
       "tag": "0001_course_images_storage_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789077634550,
+      "tag": "0002_course_images_delete_policy",
+      "breakpoints": true
     }
   ]
 }

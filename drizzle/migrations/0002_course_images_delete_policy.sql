@@ -1,0 +1,1 @@
+CREATE POLICY "course-images delete" ON storage.objects FOR DELETE TO anon, authenticated USING (bucket_id = 'course-images');
