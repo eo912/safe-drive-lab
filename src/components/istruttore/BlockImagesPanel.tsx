@@ -139,18 +139,10 @@ const IconCard = ({
         <div className="mt-1.5 flex flex-wrap gap-2">
           <button
             type="button"
-            disabled={busy}
-            onClick={() => fileRef.current?.click()}
-            className="rounded-md border border-primary/60 bg-primary/10 px-2 py-1 text-[11px] text-primary hover:bg-primary/20 disabled:opacity-50"
-          >
-            {busy ? "Caricamento…" : "Carica icona"}
-          </button>
-          <button
-            type="button"
             onClick={() => onPick(id)}
-            className="rounded-md border border-border px-2 py-1 text-[11px] text-foreground/80 hover:text-foreground"
+            className="rounded-md border border-primary/60 bg-primary/10 px-2 py-1 text-[11px] text-primary hover:bg-primary/20"
           >
-            Libreria icone
+            Scegli icona
           </button>
           {url && (
             <button
@@ -163,24 +155,6 @@ const IconCard = ({
           )}
         </div>
       </div>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*,.svg"
-        className="hidden"
-        onChange={async (e) => {
-          const f = e.target.files?.[0];
-          e.target.value = "";
-          if (!f) return;
-          setBusy(true);
-          try {
-            const path = await uploadImage(f, ICON_FOLDER);
-            await setPlaceholderImage(id, path);
-          } finally {
-            setBusy(false);
-          }
-        }}
-      />
     </div>
   );
 };
