@@ -55,7 +55,7 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
         </p>
       </div>
 
-      {!block || block.placeholders.length === 0 ? (
+      {!block || (block.placeholders.length === 0 && block.icons.length === 0) ? (
         <p className="text-xs text-muted-foreground">
           Nessun segnaposto immagine in questa schermata.
         </p>
@@ -66,7 +66,7 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
               key={p.label}
               folder={folder}
               label={p.label}
-              onPick={(id) => setPicker({ id, label: p.label })}
+              onPick={(id) => setPicker({ id, label: p.label, folder })}
             />
           ))}
         </div>
