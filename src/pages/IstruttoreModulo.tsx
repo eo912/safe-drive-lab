@@ -47,6 +47,7 @@ import { ContentDrawer } from "@/components/istruttore/ContentDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { SceneMediaPanel } from "@/components/istruttore/SceneMediaPanel";
 import { BlockImagesPanel } from "@/components/istruttore/BlockImagesPanel";
+import { StudioLivePreview } from "@/components/istruttore/StudioLivePreview";
 import { AulaStatusBadge } from "@/components/istruttore/AulaStatusBadge";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { EmbedPayload } from "@/lib/sceneMedia";
