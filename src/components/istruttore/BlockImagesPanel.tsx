@@ -215,20 +215,11 @@ const PlaceholderCard = ({
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            disabled={busy}
-            onClick={() => fileRef.current?.click()}
-            className="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20 disabled:opacity-50"
-          >
-            <Upload className="w-3.5 h-3.5" />
-            {busy ? "Caricamento…" : "Carica immagine"}
-          </button>
-          <button
-            type="button"
             onClick={() => onPick(id)}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs text-foreground/80 hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20"
           >
             <Images className="w-3.5 h-3.5" />
-            Scegli dalla libreria
+            Scegli immagine
           </button>
           {url && (
             <button
@@ -241,17 +232,6 @@ const PlaceholderCard = ({
             </button>
           )}
         </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) upload(f);
-            e.target.value = "";
-          }}
-        />
       </div>
     </div>
   );
