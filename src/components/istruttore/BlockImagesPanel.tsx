@@ -32,9 +32,11 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
   const folder = mod?.folder ?? "generico";
 
   const [library, setLibrary] = useState<LibraryItem[]>([]);
-  const [picker, setPicker] = useState<{ id: string; label: string } | null>(
-    null,
-  );
+  const [picker, setPicker] = useState<{
+    id: string;
+    label: string;
+    folder: string;
+  } | null>(null);
 
   const refreshLibrary = () => listLibrary().then(setLibrary);
 
