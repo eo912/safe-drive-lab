@@ -140,6 +140,23 @@ const PLACEHOLDERS: Record<string, Record<string, string[]>> = {
   },
 };
 
+/**
+ * Tessere con icona (niente foto): per ciascuna si può assegnare
+ * un'icona caricata nella libreria icone.
+ */
+const ICONS: Record<string, Record<string, string[]>> = {
+  "modulo-2": {
+    "sicurezza-rischio": [
+      "La velocità che scegli",
+      "La distanza che mantieni",
+      "Quanto osservi davvero la strada",
+      "Le condizioni del tuo veicolo",
+      "Come ti adatti al meteo",
+      "Il tuo stato psicofisico",
+    ],
+  },
+};
+
 /** Cartella storage/prefisso id ricavata dallo slug del modulo. */
 export const folderForSlug = (slug: string) => {
   const m = slug.match(/modulo-(\d+[a-z]?)/i);
