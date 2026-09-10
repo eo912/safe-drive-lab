@@ -17,10 +17,13 @@ import AulaModulo6 from "./pages/AulaModulo6.tsx";
 import AulaModulo7 from "./pages/AulaModulo7.tsx";
 import AulaModulo8 from "./pages/AulaModulo8.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import { useEditModeHotkey } from "@/lib/editMode";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useEditModeHotkey();
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
