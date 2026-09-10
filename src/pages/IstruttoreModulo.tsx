@@ -47,6 +47,7 @@ import { ContentDrawer } from "@/components/istruttore/ContentDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { SceneMediaPanel } from "@/components/istruttore/SceneMediaPanel";
 import { BlockImagesPanel } from "@/components/istruttore/BlockImagesPanel";
+import { StudioLivePreview } from "@/components/istruttore/StudioLivePreview";
 import { AulaStatusBadge } from "@/components/istruttore/AulaStatusBadge";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { EmbedPayload } from "@/lib/sceneMedia";
@@ -961,7 +962,7 @@ const IstruttoreModulo = () => {
               </aside>
 
               <main className="p-4 sm:p-6 md:p-8 min-w-0 overflow-y-auto">
-                <div className="max-w-3xl mx-auto space-y-6">
+                <div className="max-w-5xl mx-auto space-y-6">
                   <div>
                     <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
                       Studio · costruzione corso
@@ -998,6 +999,13 @@ const IstruttoreModulo = () => {
                     step={previewState.step}
                     onPublishEmbeds={publishEmbeds}
                     onProjectOverlay={projectMedia}
+                  />
+
+                  <StudioLivePreview
+                    modulo={slug}
+                    blocco={previewState.blocco}
+                    step={previewState.step}
+                    title={active.title}
                   />
 
                   <BlockImagesPanel
