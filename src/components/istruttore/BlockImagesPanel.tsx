@@ -124,8 +124,6 @@ const IconCard = ({
 }) => {
   const id = iconIdFor(folder, label);
   const url = usePlaceholderImage(id);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState(false);
 
   return (
     <div className="rounded-lg border border-border/60 bg-background/60 p-3 flex items-center gap-3">
