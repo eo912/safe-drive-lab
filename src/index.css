@@ -73,6 +73,29 @@
 }
 
 @layer components {
+  /* Taratura esclusiva della finestra Aula per proiettori a bassa luminosità. */
+  .aula-projection {
+    --background: 220 22% 6%;
+    --foreground: 40 12% 98%;
+    --card-foreground: 40 12% 98%;
+    --muted-foreground: 220 8% 72%;
+    --primary: 39 100% 54%;
+    --accent: 38 94% 50%;
+    --glow: 39 100% 54%;
+  }
+
+  .aula-projection :where(h1, h2, h3, h4) {
+    font-weight: 700;
+  }
+
+  .aula-projection :where(p, li):not(.font-mono) {
+    font-weight: 500;
+  }
+
+  .aula-projection :where(p, li)[class*="text-foreground/"] {
+    color: hsl(var(--foreground) / 0.96) !important;
+  }
+
   .section-full {
     @apply min-h-screen w-full flex flex-col justify-center;
   }

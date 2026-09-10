@@ -45,7 +45,7 @@ const Slide = ({
       : bg === "card"
         ? "hsl(var(--card))"
         : bg === "black"
-          ? "#000"
+          ? "hsl(220 22% 4%)"
           : undefined;
 
   return (
@@ -160,7 +160,7 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div
-                className={`absolute inset-0 ${active ? "bg-background/30" : "bg-background/60"}`}
+                className={`absolute inset-0 ${active ? "bg-background/55" : "bg-background/75"}`}
                 aria-hidden
               />
               <div className="relative z-10 h-full flex flex-col justify-end p-5">
@@ -374,7 +374,7 @@ const AulaModulo1 = () => {
     <div
       ref={scrollerRef}
       data-render-level={renderLevel}
-      className={`bg-background text-foreground fixed inset-0 overflow-y-auto snap-y snap-mandatory overscroll-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+      className={`${embedMode ? "" : "aula-projection"} bg-background text-foreground fixed inset-0 overflow-y-auto snap-y snap-mandatory overscroll-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
         embedMode ? "pointer-events-none" : ""
       }`}
       style={{ scrollBehavior: embedMode ? "auto" : "smooth" }}
@@ -410,7 +410,7 @@ const AulaModulo1 = () => {
       )}
 
       {!embedMode && aulaState.blackout && (
-        <div className="fixed inset-0 z-[9999] bg-black" aria-hidden="true" />
+        <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />
       )}
 
       {!embedMode && <SyncDebugOverlay side="aula" live={aulaState} />}
@@ -582,7 +582,7 @@ const AulaModulo1 = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-6"
+            className="fixed inset-0 z-[200] bg-background/95 flex items-center justify-center p-6"
             onClick={() => setZoomed(false)}
           >
             <button

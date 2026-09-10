@@ -32,7 +32,7 @@ export const AulaEmbedLayer = ({ embeds }: Props) => {
               <img
                 src={r.url}
                 alt={r.title}
-                className="w-full h-full object-contain bg-black"
+                className="w-full h-full object-contain bg-background"
               />
             )}
             {r.kind === "video" && (
@@ -42,7 +42,7 @@ export const AulaEmbedLayer = ({ embeds }: Props) => {
                 playsInline
                 autoPlay={e.autoplay}
                 muted={e.autoplay}
-                className="w-full h-full bg-black"
+                className="w-full h-full bg-background"
               />
             )}
             {r.kind === "pdf" && (
