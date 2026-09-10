@@ -10,6 +10,7 @@ import leveStato from "@/assets/tre-leve-stato.jpg";
 import leveIndustria from "@/assets/tre-leve-industria.jpg";
 import leveEducazione from "@/assets/tre-leve-educazione.jpg";
 import { useAulaSubscriber, useAulaHeartbeat } from "@/lib/aulaSync";
+import { useVisibleBlock } from "@/lib/aulaVisibleBlock";
 import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
@@ -247,9 +248,12 @@ const AulaModulo1 = () => {
 
   const isPaused = embedMode ? embedPaused : aulaState.paused || forcePauseFromUrl;
 
+  // Posizione REALE visibile in Aula (anche dopo scroll manuale locale).
+  const visibleBlock = useVisibleBlock(scrollerRef, aulaState.blocco, !embedMode);
+
   useAulaHeartbeat(!embedMode, {
     modulo: MODULO,
-    blocco: aulaState.blocco,
+    blocco: visibleBlock,
     step: aulaState.step,
     paused: Boolean(isPaused),
     pauseAtmosphere: aulaState.pauseAtmosphere,

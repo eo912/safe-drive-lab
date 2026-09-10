@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import { useAulaSubscriber, useAulaHeartbeat } from "@/lib/aulaSync";
+import { useVisibleBlock } from "@/lib/aulaVisibleBlock";
 import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
@@ -154,9 +155,12 @@ const AulaModulo3 = () => {
 
   const isPaused = embedMode ? embedPaused : aulaState.paused || forcePauseFromUrl;
 
+  // Posizione REALE visibile in Aula (anche dopo scroll manuale locale).
+  const visibleBlock = useVisibleBlock(scrollerRef, aulaState.blocco, !embedMode);
+
   useAulaHeartbeat(!embedMode, {
     modulo: MODULO,
-    blocco: aulaState.blocco,
+    blocco: visibleBlock,
     step: aulaState.step,
     paused: Boolean(isPaused),
     pauseAtmosphere: aulaState.pauseAtmosphere,
