@@ -3,6 +3,8 @@ import { Upload, Trash2, Images, X } from "lucide-react";
 import { studioCatalog } from "@/lib/studioCatalog";
 import {
   clearPlaceholderImage,
+  ICON_FOLDER,
+  iconIdFor,
   listLibrary,
   placeholderIdFor,
   setPlaceholderImage,
