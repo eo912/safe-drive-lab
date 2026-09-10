@@ -46,6 +46,7 @@ import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
 import { ContentDrawer } from "@/components/istruttore/ContentDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { SceneMediaPanel } from "@/components/istruttore/SceneMediaPanel";
+import { BlockImagesPanel } from "@/components/istruttore/BlockImagesPanel";
 import { AulaStatusBadge } from "@/components/istruttore/AulaStatusBadge";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { EmbedPayload } from "@/lib/sceneMedia";
@@ -998,6 +999,13 @@ const IstruttoreModulo = () => {
                     onPublishEmbeds={publishEmbeds}
                     onProjectOverlay={projectMedia}
                   />
+
+                  <BlockImagesPanel
+                    modulo={slug}
+                    blocco={previewState.blocco}
+                  />
+
+
 
                   <div className="rounded-md border border-border p-4 bg-card/40">
                     <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-muted-foreground mb-3">
