@@ -124,8 +124,6 @@ const IconCard = ({
 }) => {
   const id = iconIdFor(folder, label);
   const url = usePlaceholderImage(id);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState(false);
 
   return (
     <div className="rounded-lg border border-border/60 bg-background/60 p-3 flex items-center gap-3">
@@ -141,18 +139,10 @@ const IconCard = ({
         <div className="mt-1.5 flex flex-wrap gap-2">
           <button
             type="button"
-            disabled={busy}
-            onClick={() => fileRef.current?.click()}
-            className="rounded-md border border-primary/60 bg-primary/10 px-2 py-1 text-[11px] text-primary hover:bg-primary/20 disabled:opacity-50"
-          >
-            {busy ? "Caricamento…" : "Carica icona"}
-          </button>
-          <button
-            type="button"
             onClick={() => onPick(id)}
-            className="rounded-md border border-border px-2 py-1 text-[11px] text-foreground/80 hover:text-foreground"
+            className="rounded-md border border-primary/60 bg-primary/10 px-2 py-1 text-[11px] text-primary hover:bg-primary/20"
           >
-            Libreria icone
+            Scegli icona
           </button>
           {url && (
             <button
@@ -165,24 +155,6 @@ const IconCard = ({
           )}
         </div>
       </div>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*,.svg"
-        className="hidden"
-        onChange={async (e) => {
-          const f = e.target.files?.[0];
-          e.target.value = "";
-          if (!f) return;
-          setBusy(true);
-          try {
-            const path = await uploadImage(f, ICON_FOLDER);
-            await setPlaceholderImage(id, path);
-          } finally {
-            setBusy(false);
-          }
-        }}
-      />
     </div>
   );
 };
@@ -198,18 +170,6 @@ const PlaceholderCard = ({
 }) => {
   const id = placeholderIdFor(folder, label);
   const url = usePlaceholderImage(id);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState(false);
-
-  const upload = async (file: File) => {
-    setBusy(true);
-    try {
-      const path = await uploadImage(file, folder);
-      await setPlaceholderImage(id, path);
-    } finally {
-      setBusy(false);
-    }
-  };
 
   return (
     <div className="rounded-lg border border-border/60 bg-background/60 overflow-hidden">
@@ -227,20 +187,11 @@ const PlaceholderCard = ({
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            disabled={busy}
-            onClick={() => fileRef.current?.click()}
-            className="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20 disabled:opacity-50"
-          >
-            <Upload className="w-3.5 h-3.5" />
-            {busy ? "Caricamento…" : "Carica immagine"}
-          </button>
-          <button
-            type="button"
             onClick={() => onPick(id)}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs text-foreground/80 hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20"
           >
             <Images className="w-3.5 h-3.5" />
-            Scegli dalla libreria
+            Scegli immagine
           </button>
           {url && (
             <button
@@ -253,17 +204,6 @@ const PlaceholderCard = ({
             </button>
           )}
         </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) upload(f);
-            e.target.value = "";
-          }}
-        />
       </div>
     </div>
   );
