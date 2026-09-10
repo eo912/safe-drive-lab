@@ -16,6 +16,7 @@ import AulaModulo5 from "./pages/AulaModulo5.tsx";
 import AulaModulo6 from "./pages/AulaModulo6.tsx";
 import AulaModulo7 from "./pages/AulaModulo7.tsx";
 import AulaModulo8 from "./pages/AulaModulo8.tsx";
+import Studio from "./pages/Studio.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { useEditModeHotkey } from "@/lib/editMode";
 
@@ -32,6 +33,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/aula" element={<Aula />} />
+          <Route path="/studio" element={<Studio />} />
           <Route path="/istruttore" element={<Istruttore />} />
           <Route path="/istruttore/:slug" element={<IstruttoreModulo />} />
           <Route
