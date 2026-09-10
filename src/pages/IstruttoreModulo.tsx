@@ -1000,6 +1000,13 @@ const IstruttoreModulo = () => {
                     onProjectOverlay={projectMedia}
                   />
 
+                  <StudioLivePreview
+                    modulo={slug}
+                    blocco={previewState.blocco}
+                    step={previewState.step}
+                    title={active.title}
+                  />
+
                   <BlockImagesPanel
                     modulo={slug}
                     blocco={previewState.blocco}
