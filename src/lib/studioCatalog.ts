@@ -18,6 +18,8 @@ export type StudioBlock = {
   title: string;
   notes: string;
   placeholders: StudioPlaceholder[];
+  /** Etichette delle tessere che usano un'icona invece di una foto. */
+  icons: StudioPlaceholder[];
 };
 
 export type StudioModule = {
