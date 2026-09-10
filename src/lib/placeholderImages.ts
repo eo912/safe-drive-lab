@@ -34,9 +34,13 @@ export const currentModuleFolder = () => {
   return m ? `modulo-${m[1]}` : "generico";
 };
 
+/** Identificativo stabile del singolo segnaposto, cartella esplicita. */
+export const placeholderIdFor = (folder: string, label: string) =>
+  `${folder}::${slugify(label)}`;
+
 /** Identificativo stabile del singolo segnaposto. */
 export const placeholderId = (label: string) =>
-  `${currentModuleFolder()}::${slugify(label)}`;
+  placeholderIdFor(currentModuleFolder(), label);
 
 const loadAll = () => {
   if (loading) return loading;
