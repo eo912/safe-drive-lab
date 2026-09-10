@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { useAulaSubscriber, useAulaHeartbeat } from "@/lib/aulaSync";
 import { useVisibleBlock } from "@/lib/aulaVisibleBlock";
+import { prevModuleAulaUrl, useEnterAtLastSection } from "@/lib/aulaModuleNav";
 import { AulaMediaOverlay } from "@/components/aula/AulaMediaOverlay";
 import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
@@ -166,6 +167,10 @@ const AulaModulo4 = () => {
       // Air mouse: fine modulo -> se esiste un link "Modulo successivo", seguilo.
       if (delta > 0) {
         scroller.querySelector<HTMLAnchorElement>("[data-modulo-next]")?.click();
+      } else if (delta < 0) {
+        // Inizio modulo -> torna all'ultima scheda del modulo precedente (se esiste).
+        const prevUrl = prevModuleAulaUrl(MODULO);
+        if (prevUrl) navigate(prevUrl);
       }
       return;
     }
@@ -174,7 +179,9 @@ const AulaModulo4 = () => {
     window.setTimeout(() => {
       isAnimatingRef.current = false;
     }, 600);
-  }, []);
+  }, [navigate]);
+
+  useEnterAtLastSection(scrollerRef, !embedMode);
 
   useEffect(() => {
     const target = embedMode ? embedBlocco : aulaState.blocco;
