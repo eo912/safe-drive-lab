@@ -198,18 +198,6 @@ const PlaceholderCard = ({
 }) => {
   const id = placeholderIdFor(folder, label);
   const url = usePlaceholderImage(id);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState(false);
-
-  const upload = async (file: File) => {
-    setBusy(true);
-    try {
-      const path = await uploadImage(file, folder);
-      await setPlaceholderImage(id, path);
-    } finally {
-      setBusy(false);
-    }
-  };
 
   return (
     <div className="rounded-lg border border-border/60 bg-background/60 overflow-hidden">
