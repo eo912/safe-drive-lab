@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   IstruttoreNav,
   IstruttoreNavMobile,
@@ -38,6 +38,7 @@ import {
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
+import { openAulaWindow } from "@/lib/aulaWindow";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
 import { NotesDrawer } from "@/components/istruttore/NotesDrawer";
@@ -74,6 +75,7 @@ const KindLabel: Record<ModuleBlock["kind"], string> = {
 
 const IstruttoreModulo = () => {
   const { slug = "" } = useParams();
+  const navigate = useNavigate();
   // (navigate non più necessario: la pagina sta in /istruttore/:slug)
 
   const module = useMemo(() => modules.find((m) => m.slug === slug), [slug]);
@@ -96,7 +98,6 @@ const IstruttoreModulo = () => {
   // LIVE: scaletta e suggerimenti collassabili (default chiusi durante conduzione)
   const [liveTimelineOpen, setLiveTimelineOpen] = useState(false);
   const [liveTipsOpen, setLiveTipsOpen] = useState(false);
-  const aulaWindowRef = useRef<Window | null>(null);
 
   // View attiva (LIVE / STUDIO / ARCHIVIO / SESSIONE) sincronizzata con la URL.
   const [searchParams, setSearchParams] = useSearchParams();
@@ -377,26 +378,28 @@ const IstruttoreModulo = () => {
     // non viene "spinto" automaticamente nulla che l'istruttore non abbia inviato.
     const initial = liveState ?? previewState;
     const url = `/aula/${slug}?blocco=${initial.blocco}&step=${initial.step}`;
-    const existing = aulaWindowRef.current;
-    if (existing && !existing.closed) {
-      existing.focus();
-      return;
-    }
-    // Apertura come popup dedicato: niente toolbar, dimensione proiettore.
-    // Se il browser ignora le feature, apre comunque una nuova finestra/tab.
-    const features = [
-      "popup=yes",
-      "noopener=no", // serve per mantenere il riferimento e poter chiamare focus()
-      `width=${Math.min(window.screen.availWidth, 1920)}`,
-      `height=${Math.min(window.screen.availHeight, 1080)}`,
-      "left=0",
-      "top=0",
-      "menubar=no",
-      "toolbar=no",
-      "location=no",
-      "status=no",
-    ].join(",");
-    aulaWindowRef.current = window.open(url, "aula-safedrivelab", features);
+    // Riferimento condiviso: riusa sempre la finestra Aula gia' proiettata.
+    openAulaWindow(url);
+  };
+
+  // Modulo successivo nella sequenza definita in src/lib/modules.ts
+  const currentModuleIndex = modules.findIndex((m) => m.slug === slug);
+  const nextModule =
+    currentModuleIndex >= 0 ? modules[currentModuleIndex + 1] : undefined;
+  const nextModuleFirstBlock = nextModule
+    ? blocksBySlug[nextModule.slug]?.[0]
+    : undefined;
+
+  const goToNextModule = () => {
+    if (!nextModule) return;
+    const firstId = nextModuleFirstBlock?.id ?? "";
+    // 1) porta la finestra Aula gia' aperta sul nuovo modulo (stessa finestra)
+    openAulaWindow(
+      `/aula/${nextModule.slug}?blocco=${firstId}&step=intro`,
+      true,
+    );
+    // 2) sposta anche la Regia sul nuovo modulo
+    navigate(`/istruttore/${nextModule.slug}`);
   };
 
   // Contenuto Timeline (riusato in colonna desktop e in drawer mobile)
@@ -852,6 +855,27 @@ const IstruttoreModulo = () => {
                       </span>
                     )}
                   </div>
+
+                  {mode === "regia" && !nextBlock && nextModule && (
+                    <div className="mt-6 flex items-center justify-between gap-4 p-4 rounded-md border border-primary/30 bg-primary/5">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-primary mb-1">
+                          Modulo successivo
+                        </p>
+                        <p className="text-sm text-foreground/90 truncate">
+                          {nextModule.title}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={goToNextModule}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary/10 text-primary text-xs font-medium uppercase tracking-wider hover:bg-primary/20 transition-colors shrink-0"
+                      >
+                        Passa al modulo
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
 
                   {mode === "regia" && nextBlock && (
                     <div className="mt-6 flex items-center justify-between gap-4 p-4 rounded-md border border-primary/30 bg-primary/5">
