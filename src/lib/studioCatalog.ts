@@ -166,11 +166,13 @@ export const folderForSlug = (slug: string) => {
 export const studioCatalog: StudioModule[] = modules.map((mod) => {
   const folder = folderForSlug(mod.slug);
   const byBlock = PLACEHOLDERS[folder] ?? {};
+  const iconsByBlock = ICONS[folder] ?? {};
   const blocks = (blocksBySlug[mod.slug] ?? []).map((b) => ({
     blockId: b.id,
     title: b.title,
     notes: b.notes,
     placeholders: (byBlock[b.id] ?? []).map((label) => ({ label })),
+    icons: (iconsByBlock[b.id] ?? []).map((label) => ({ label })),
   }));
   return {
     slug: mod.slug,
