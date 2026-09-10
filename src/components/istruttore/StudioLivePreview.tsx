@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Maximize2, X, Monitor } from "lucide-react";
 import type { AulaStep } from "@/lib/aulaSync";
+import { usePlaceholderVersion } from "@/lib/placeholderImages";
 
 const STAGE_W = 1280;
 const STAGE_H = 720;
@@ -21,7 +22,10 @@ type Props = {
  */
 export const StudioLivePreview = ({ modulo, blocco, step, title }: Props) => {
   const [expanded, setExpanded] = useState(false);
-  const src = `/aula/${modulo}?embed=mini&blocco=${blocco}&step=${step}`;
+  // Ogni modifica alle immagini cambia la versione: l'iframe si ricarica
+  // e l'anteprima mostra subito la foto/icona appena scelta.
+  const version = usePlaceholderVersion();
+  const src = `/aula/${modulo}?embed=mini&blocco=${blocco}&step=${step}&v=${version}`;
 
   return (
     <div className="rounded-md border border-border p-4 bg-card/40">
