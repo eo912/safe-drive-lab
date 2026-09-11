@@ -286,6 +286,7 @@ export const useAulaHeartbeat = (
         /* ignore */
       }
       heartbeatChannel?.postMessage(beat);
+      remoteSend("heartbeat", beat);
     };
     send();
     const id = window.setInterval(send, intervalMs);
