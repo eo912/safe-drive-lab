@@ -166,15 +166,11 @@ const ICONS: Record<string, Record<string, string[]>> = {
 const COVER_BRAND_PLACEHOLDERS: StudioPlaceholder[] = [
   { label: "Logo 1 — copertina Modulo 1a", folder: "brand" },
   { label: "Logo 2 — copertina Modulo 1a", folder: "brand" },
+  { label: "Logo SafeDriveLabs (homepage)", folder: "brand" },
 ];
 
 const WATERMARK_PLACEHOLDER: StudioPlaceholder = {
   label: "Logo Guida Sicura VDA (marchio schermate)",
-  folder: "brand",
-};
-
-const HOMEPAGE_BRAND_PLACEHOLDER: StudioPlaceholder = {
-  label: "Logo SafeDriveLabs (homepage)",
   folder: "brand",
 };
 
@@ -198,9 +194,6 @@ export const studioCatalog: StudioModule[] = modules.map((mod) => {
       placeholders: [
         ...(byBlock[b.id] ?? []).map((label) => ({ label })),
         ...(isFirstCourseCover ? COVER_BRAND_PLACEHOLDERS : [WATERMARK_PLACEHOLDER]),
-        ...(mod.slug === modules[0]?.slug && blockIndex === 1
-          ? [HOMEPAGE_BRAND_PLACEHOLDER]
-          : []),
       ],
       icons: (iconsByBlock[b.id] ?? []).map((label) => ({ label })),
     };
