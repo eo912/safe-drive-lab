@@ -3,14 +3,33 @@ import { Upload, Trash2, Images, X } from "lucide-react";
 import { studioCatalog } from "@/lib/studioCatalog";
 import {
   clearPlaceholderImage,
+  deleteLibraryImage,
   ICON_FOLDER,
   iconIdFor,
   listLibrary,
   placeholderIdFor,
+  placeholderIdsUsingPath,
   setPlaceholderImage,
   uploadImage,
   usePlaceholderImage,
 } from "@/lib/placeholderImages";
+
+/** Etichetta leggibile ("Modulo 2 · Il fattore umano") per un id segnaposto. */
+const describePlaceholderId = (id: string) => {
+  for (const m of studioCatalog) {
+    for (const b of m.blocks) {
+      for (const p of b.placeholders) {
+        if (placeholderIdFor(m.folder, p.label) === id)
+          return `${m.title} · ${b.title}`;
+      }
+      for (const ic of b.icons) {
+        if (iconIdFor(m.folder, ic.label) === id)
+          return `${m.title} · ${b.title} (icona ${ic.label})`;
+      }
+    }
+  }
+  return id;
+};
 
 type LibraryItem = { path: string; url: string };
 
@@ -98,6 +117,7 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
           folder={picker.folder}
           label={picker.label}
           onUploaded={refreshLibrary}
+          onDeleted={refreshLibrary}
           onSelect={async (path) => {
             await setPlaceholderImage(picker.id, path);
             setPicker(null);
@@ -215,6 +235,7 @@ const LibraryDialog = ({
   label,
   onSelect,
   onUploaded,
+  onDeleted,
   onClose,
 }: {
   library: LibraryItem[];
@@ -222,10 +243,30 @@ const LibraryDialog = ({
   label: string;
   onSelect: (path: string) => void;
   onUploaded: () => void;
+  onDeleted: () => void;
   onClose: () => void;
 }) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+
+  const onDelete = async (path: string) => {
+    const used = placeholderIdsUsingPath(path);
+    const message =
+      used.length > 0
+        ? `Questa immagine è usata in:\n\n${used
+            .map((id) => `• ${describePlaceholderId(id)}`)
+            .join("\n")}\n\nEliminandola quelle schermate torneranno senza immagine. Eliminare comunque?`
+        : "Eliminare questa immagine dalla libreria?";
+    if (!window.confirm(message)) return;
+    setBusy(true);
+    try {
+      await deleteLibraryImage(path);
+      onDeleted();
+    } finally {
+      setBusy(false);
+    }
+  };
+
 
   return (
     <div
@@ -284,21 +325,33 @@ const LibraryDialog = ({
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {library.map((img) => (
-              <button
+              <div
                 key={img.path}
-                type="button"
-                onClick={() => onSelect(img.path)}
-                className="rounded-md overflow-hidden border border-border/60 hover:border-primary"
+                className="group relative rounded-md overflow-hidden border border-border/60 hover:border-primary"
               >
-                <img
-                  src={img.url}
-                  alt={img.path}
-                  className="w-full h-28 object-cover"
-                />
-                <span className="block px-2 py-1 text-[10px] font-mono text-muted-foreground truncate">
-                  {img.path}
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onSelect(img.path)}
+                  className="block w-full text-left"
+                >
+                  <img
+                    src={img.url}
+                    alt={img.path}
+                    className="w-full h-28 object-cover"
+                  />
+                  <span className="block px-2 py-1 text-[10px] font-mono text-muted-foreground truncate">
+                    {img.path}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Elimina ${img.path}`}
+                  onClick={() => onDelete(img.path)}
+                  className="absolute top-1.5 right-1.5 rounded-md border border-destructive/60 bg-background/85 p-1.5 text-destructive opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100 hover:bg-destructive/15"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             ))}
           </div>
         )}

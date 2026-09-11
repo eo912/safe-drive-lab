@@ -120,6 +120,27 @@ export const listLibrary = async () => {
   return out;
 };
 
+/** Segnaposto attualmente associati a un file del bucket. */
+export const placeholderIdsUsingPath = (path: string) =>
+  Object.entries(paths)
+    .filter(([, p]) => p === path)
+    .map(([id]) => id);
+
+/**
+ * Elimina un file dalla libreria: rimuove il file dal bucket e azzera tutte le
+ * associazioni che lo usavano (i segnaposto tornano vuoti, senza errori).
+ */
+export const deleteLibraryImage = async (path: string) => {
+  const used = placeholderIdsUsingPath(path);
+  for (const id of used) delete paths[id];
+  delete signed[path];
+  emit();
+  if (used.length > 0) {
+    await supabase.from("placeholder_images").delete().in("placeholder_id", used);
+  }
+  await supabase.storage.from(BUCKET).remove([path]);
+};
+
 export const uploadImage = async (file: File, folder: string) => {
   const ext = file.name.split(".").pop() ?? "jpg";
   const path = `${folder}/${Date.now()}-${slugify(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
