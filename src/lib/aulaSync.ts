@@ -306,6 +306,14 @@ export const useAulaHeartbeatMonitor = (
   const [last, setLast] = useState<AulaHeartbeat | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
 
+  // Battito da un altro dispositivo: l'orologio è diverso, quindi lo
+  // normalizziamo sull'ora locale per il calcolo online/offline.
+  useRemoteListener(remoteHandlers.heartbeat, (b: AulaHeartbeat) => {
+    if (!b || b.modulo !== modulo) return;
+    setLast({ ...b, ts: Date.now() });
+  });
+
+
   useEffect(() => {
     const apply = (b: AulaHeartbeat) => {
       if (b.modulo !== modulo) return;
