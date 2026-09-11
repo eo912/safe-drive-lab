@@ -163,12 +163,20 @@ const ICONS: Record<string, Record<string, string[]>> = {
  * Loghi di marchio: gestiti dalla libreria come i segnaposto, ma con
  * cartella dedicata "brand" così restano validi ovunque nell'app.
  */
-const BRAND_PLACEHOLDERS: StudioPlaceholder[] = [
-  { label: "Logo SafeDriveLabs (homepage)", folder: "brand" },
+const COVER_BRAND_PLACEHOLDERS: StudioPlaceholder[] = [
   { label: "Logo 1 — copertina Modulo 1a", folder: "brand" },
   { label: "Logo 2 — copertina Modulo 1a", folder: "brand" },
-  { label: "Logo Guida Sicura VDA (marchio schermate)", folder: "brand" },
 ];
+
+const WATERMARK_PLACEHOLDER: StudioPlaceholder = {
+  label: "Logo Guida Sicura VDA (marchio schermate)",
+  folder: "brand",
+};
+
+const HOMEPAGE_BRAND_PLACEHOLDER: StudioPlaceholder = {
+  label: "Logo SafeDriveLabs (homepage)",
+  folder: "brand",
+};
 
 /** Cartella storage/prefisso id ricavata dallo slug del modulo. */
 export const folderForSlug = (slug: string) => {
@@ -180,18 +188,23 @@ export const studioCatalog: StudioModule[] = modules.map((mod) => {
   const folder = folderForSlug(mod.slug);
   const byBlock = PLACEHOLDERS[folder] ?? {};
   const iconsByBlock = ICONS[folder] ?? {};
-  const blocks = (blocksBySlug[mod.slug] ?? []).map((b) => ({
-    blockId: b.id,
-    title: b.title,
-    notes: b.notes,
-    placeholders: [
-      ...(byBlock[b.id] ?? []).map((label) => ({ label })),
-      ...(mod.slug === modules[0]?.slug && b.id === (blocksBySlug[mod.slug] ?? [])[0]?.id
-        ? BRAND_PLACEHOLDERS
-        : []),
-    ],
-    icons: (iconsByBlock[b.id] ?? []).map((label) => ({ label })),
-  }));
+  const moduleBlocks = blocksBySlug[mod.slug] ?? [];
+  const blocks = moduleBlocks.map((b, blockIndex) => {
+    const isFirstCourseCover = mod.slug === modules[0]?.slug && blockIndex === 0;
+    return {
+      blockId: b.id,
+      title: b.title,
+      notes: b.notes,
+      placeholders: [
+        ...(byBlock[b.id] ?? []).map((label) => ({ label })),
+        ...(isFirstCourseCover ? COVER_BRAND_PLACEHOLDERS : [WATERMARK_PLACEHOLDER]),
+        ...(mod.slug === modules[0]?.slug && blockIndex === 1
+          ? [HOMEPAGE_BRAND_PLACEHOLDER]
+          : []),
+      ],
+      icons: (iconsByBlock[b.id] ?? []).map((label) => ({ label })),
+    };
+  });
   return {
     slug: mod.slug,
     folder,
