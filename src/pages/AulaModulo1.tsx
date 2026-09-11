@@ -503,7 +503,7 @@ const AulaModulo1 = () => {
       <Free className="text-center" blockId="hook">
         <motion.p
           {...fade}
-          className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
+          className="text-3xl md:text-5xl lg:text-6xl font-semibold leading-tight text-foreground/90"
         >
           Non è un'idea nuova.
           <br />
