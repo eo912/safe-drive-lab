@@ -5,12 +5,12 @@ import { BrandLogoSlot } from "@/components/brand/BrandLogoSlot";
  * Non interferisce con i contenuti: è fisso, piccolo e non cliccabile.
  */
 export const AulaWatermark = () => (
-  <div className="fixed bottom-4 left-4 z-30 pointer-events-none opacity-60">
+  <div className="fixed bottom-4 left-4 z-30 pointer-events-none opacity-75">
     <BrandLogoSlot
       label="Logo Guida Sicura VDA (marchio schermate)"
       fallback="Guida Sicura VDA"
-      className="text-[9px] px-2 py-1"
-      imgClassName="h-8 w-auto object-contain"
+      className="text-[11px] px-3 py-1.5"
+      imgClassName="h-16 w-auto object-contain"
     />
   </div>
 );

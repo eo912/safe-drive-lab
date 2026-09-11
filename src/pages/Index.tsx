@@ -23,9 +23,12 @@ const Index = () => {
       {/* Content */}
       <main className="relative z-10 min-h-screen flex flex-col">
         <header className="px-6 pt-8">
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-muted-foreground">
-            Safe Drive Lab
-          </p>
+          <BrandLogoSlot
+            label="Logo SafeDriveLabs (homepage)"
+            fallback="SafeDriveLabs"
+            className="text-sm"
+            imgClassName="h-20 md:h-24 w-auto object-contain"
+          />
         </header>
 
         <div className="flex-1 flex items-center justify-center px-6">
@@ -44,13 +47,6 @@ const Index = () => {
               Safe Drive Lab
             </p>
 
-            <div className="flex items-center justify-center mb-8">
-              <BrandLogoSlot
-                label="Logo SafeDriveLabs (homepage)"
-                fallback="SafeDriveLabs"
-                imgClassName="h-9 w-auto object-contain opacity-90"
-              />
-            </div>
 
             <div className="glow-line max-w-xs mx-auto mb-8" />
 
