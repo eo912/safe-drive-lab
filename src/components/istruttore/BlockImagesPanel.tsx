@@ -303,21 +303,33 @@ const LibraryDialog = ({
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {library.map((img) => (
-              <button
+              <div
                 key={img.path}
-                type="button"
-                onClick={() => onSelect(img.path)}
-                className="rounded-md overflow-hidden border border-border/60 hover:border-primary"
+                className="group relative rounded-md overflow-hidden border border-border/60 hover:border-primary"
               >
-                <img
-                  src={img.url}
-                  alt={img.path}
-                  className="w-full h-28 object-cover"
-                />
-                <span className="block px-2 py-1 text-[10px] font-mono text-muted-foreground truncate">
-                  {img.path}
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onSelect(img.path)}
+                  className="block w-full text-left"
+                >
+                  <img
+                    src={img.url}
+                    alt={img.path}
+                    className="w-full h-28 object-cover"
+                  />
+                  <span className="block px-2 py-1 text-[10px] font-mono text-muted-foreground truncate">
+                    {img.path}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Elimina ${img.path}`}
+                  onClick={() => onDelete(img.path)}
+                  className="absolute top-1.5 right-1.5 rounded-md border border-destructive/60 bg-background/85 p-1.5 text-destructive opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100 hover:bg-destructive/15"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             ))}
           </div>
         )}
