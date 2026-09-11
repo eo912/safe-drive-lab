@@ -234,6 +234,7 @@ const LibraryDialog = ({
   label,
   onSelect,
   onUploaded,
+  onDeleted,
   onClose,
 }: {
   library: LibraryItem[];
@@ -241,10 +242,30 @@ const LibraryDialog = ({
   label: string;
   onSelect: (path: string) => void;
   onUploaded: () => void;
+  onDeleted: () => void;
   onClose: () => void;
 }) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+
+  const onDelete = async (path: string) => {
+    const used = placeholderIdsUsingPath(path);
+    const message =
+      used.length > 0
+        ? `Questa immagine è usata in:\n\n${used
+            .map((id) => `• ${describePlaceholderId(id)}`)
+            .join("\n")}\n\nEliminandola quelle schermate torneranno senza immagine. Eliminare comunque?`
+        : "Eliminare questa immagine dalla libreria?";
+    if (!window.confirm(message)) return;
+    setBusy(true);
+    try {
+      await deleteLibraryImage(path);
+      onDeleted();
+    } finally {
+      setBusy(false);
+    }
+  };
+
 
   return (
     <div
