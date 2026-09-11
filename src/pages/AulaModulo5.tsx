@@ -245,8 +245,9 @@ const AulaModulo5 = () => {
 
       {!embedMode && !isPaused && aulaState.embeds && aulaState.embeds.length > 0 && (
         <AulaEmbedLayer embeds={aulaState.embeds} />
-        <AulaWatermark />
       )}
+
+      {!embedMode && !isPaused && <AulaWatermark />}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />
