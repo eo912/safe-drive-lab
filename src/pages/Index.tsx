@@ -47,13 +47,6 @@ const Index = () => {
               Safe Drive Lab
             </p>
 
-            <div className="flex items-center justify-center mb-8">
-              <BrandLogoSlot
-                label="Logo SafeDriveLabs (homepage)"
-                fallback="SafeDriveLabs"
-                imgClassName="h-9 w-auto object-contain opacity-90"
-              />
-            </div>
 
             <div className="glow-line max-w-xs mx-auto mb-8" />
 
