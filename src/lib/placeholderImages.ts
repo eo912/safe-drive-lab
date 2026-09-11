@@ -74,10 +74,39 @@ const loadAll = () => {
       paths = Object.fromEntries(data.map((r) => [r.placeholder_id, r.image_url]));
     }
     loaded = true;
+    loading = null;
     emit();
   })();
   return loading;
 };
+
+/** Rilegge dal database tutte le associazioni, ignorando la cache. */
+export const refreshPlaceholders = async () => {
+  loading = null;
+  loaded = false;
+  await loadAll();
+};
+
+// Aggiornamento automatico: altre finestre (Aula, Regia) restano allineate.
+if (typeof window !== "undefined") {
+  supabase
+    .channel("placeholder-images-sync")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "placeholder_images" },
+      () => {
+        refreshPlaceholders();
+      },
+    )
+    .subscribe();
+
+  window.addEventListener("focus", () => {
+    if (loaded) refreshPlaceholders();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && loaded) refreshPlaceholders();
+  });
+}
 
 const resolveSigned = async (path: string) => {
   if (signed[path]) return signed[path];
