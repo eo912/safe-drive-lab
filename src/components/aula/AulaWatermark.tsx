@@ -9,8 +9,8 @@ export const AulaWatermark = () => (
     <BrandLogoSlot
       label="Logo Guida Sicura VDA (marchio schermate)"
       fallback="Guida Sicura VDA"
-      className="text-[11px] px-3 py-1.5"
-      imgClassName="h-16 w-auto object-contain"
+      className="text-[15px] px-4 py-2"
+      imgClassName="h-24 w-auto object-contain"
     />
   </div>
 );

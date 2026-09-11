@@ -16,6 +16,23 @@ export default {
       fontFamily: {
         sans: ['Manrope', 'system-ui', 'sans-serif'],
       },
+      // Scala tipografica moderata per lettura da TV a ~2 m:
+      // corpo +15/20%, titoli +10% rispetto ai default Tailwind.
+      fontSize: {
+        xs: ["0.875rem", { lineHeight: "1.25rem" }],
+        sm: ["1.025rem", { lineHeight: "1.5rem" }],
+        base: ["1.175rem", { lineHeight: "1.75rem" }],
+        lg: ["1.3rem", { lineHeight: "1.85rem" }],
+        xl: ["1.45rem", { lineHeight: "1.95rem" }],
+        "2xl": ["1.65rem", { lineHeight: "2.1rem" }],
+        "3xl": ["2.06rem", { lineHeight: "2.45rem" }],
+        "4xl": ["2.475rem", { lineHeight: "1.1" }],
+        "5xl": ["3.3rem", { lineHeight: "1" }],
+        "6xl": ["4.125rem", { lineHeight: "1" }],
+        "7xl": ["4.95rem", { lineHeight: "1" }],
+        "8xl": ["6.6rem", { lineHeight: "1" }],
+        "9xl": ["8.8rem", { lineHeight: "1" }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
