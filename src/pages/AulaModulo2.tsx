@@ -292,7 +292,7 @@ const AulaModulo2 = () => {
           ============================================================ */}
       <Slide bg="black" blockId="sicurezza-rischio" className="items-stretch">
         <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 py-8">
-          <div className="max-w-6xl mx-auto flex flex-col gap-8">
+          <div className="max-w-6xl mx-auto flex flex-col gap-8 justify-center min-h-full">
             {/* Titolo */}
             <div className="text-center">
               <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-4">
@@ -420,7 +420,7 @@ const AulaModulo2 = () => {
           ============================================================ */}
       <Slide bg="darker" blockId="fattore-umano" className="items-stretch">
         <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 py-8">
-          <div className="max-w-5xl mx-auto flex flex-col gap-8">
+          <div className="max-w-5xl mx-auto flex flex-col gap-8 justify-center min-h-full">
             <div className="text-center">
               <h2 className="text-3xl md:text-5xl font-bold leading-tight">
                 La tecnologia alza il margine.{" "}

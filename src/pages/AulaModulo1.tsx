@@ -134,9 +134,9 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
           src={leveEuropa}
           alt=""
           aria-hidden
-          className="w-8 h-8 rounded-full object-cover border border-primary/40"
+          className="w-12 h-12 rounded-full object-cover border border-primary/40 [filter:brightness(1.2)_contrast(1.1)_saturate(1.25)]"
         />
-        <p className="font-mono text-sm tracking-[0.3em] uppercase text-primary">
+        <p className="font-mono text-base md:text-lg tracking-[0.28em] uppercase text-primary font-semibold">
           2001 · Obiettivo: dimezzare i morti sulla strada
         </p>
       </div>
@@ -160,17 +160,17 @@ const TreLeveScene = ({ level }: { level: RenderLevel }) => {
                 src={l.img}
                 alt=""
                 aria-hidden
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover [filter:brightness(1.35)_contrast(1.15)_saturate(1.3)]"
               />
               <div
                 className={`absolute inset-0 ${
                   level === "full"
                     ? active
-                      ? "bg-background/55"
-                      : "bg-background/75"
+                      ? "bg-background/35"
+                      : "bg-background/55"
                     : active
-                      ? "bg-background/30"
-                      : "bg-background/60"
+                      ? "bg-background/20"
+                      : "bg-background/45"
                 }`}
                 aria-hidden
               />
