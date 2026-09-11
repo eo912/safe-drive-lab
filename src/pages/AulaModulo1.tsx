@@ -18,6 +18,7 @@ import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
+import { BrandLogoSlot } from "@/components/brand/BrandLogoSlot";
 
 const MODULO = "modulo-1-perche-un-corso";
 
@@ -425,7 +426,9 @@ const AulaModulo1 = () => {
         <AulaEmbedLayer embeds={aulaState.embeds} />
       )}
 
-      {!embedMode && !isPaused && <AulaWatermark />}
+      {!isPaused && (embedMode ? embedBlocco : visibleBlock) !== "copertina" && (
+        <AulaWatermark />
+      )}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />
@@ -457,6 +460,23 @@ const AulaModulo1 = () => {
             alt="Guida Sicura VDA"
             className="w-[70vw] max-w-3xl h-auto mx-auto"
           />
+          <motion.div
+            {...fade}
+            className="mt-6 flex items-center justify-center gap-5"
+          >
+            <BrandLogoSlot
+              label="Logo 1 — copertina Modulo 1a"
+              fallback="Logo 1"
+              className="min-w-28"
+              imgClassName="h-10 w-auto max-w-40 object-contain"
+            />
+            <BrandLogoSlot
+              label="Logo 2 — copertina Modulo 1a"
+              fallback="Logo 2"
+              className="min-w-28"
+              imgClassName="h-10 w-auto max-w-40 object-contain"
+            />
+          </motion.div>
         </div>
       </Slide>
 

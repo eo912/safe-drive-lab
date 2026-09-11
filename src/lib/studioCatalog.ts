@@ -165,7 +165,8 @@ const ICONS: Record<string, Record<string, string[]>> = {
  */
 const BRAND_PLACEHOLDERS: StudioPlaceholder[] = [
   { label: "Logo SafeDriveLabs (homepage)", folder: "brand" },
-  { label: "Logo PXP — P&P Experience (homepage)", folder: "brand" },
+  { label: "Logo 1 — copertina Modulo 1a", folder: "brand" },
+  { label: "Logo 2 — copertina Modulo 1a", folder: "brand" },
   { label: "Logo Guida Sicura VDA (marchio schermate)", folder: "brand" },
 ];
 

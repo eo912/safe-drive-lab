@@ -210,6 +210,7 @@ const PlaceholderCard = ({
           <button
             type="button"
             onClick={() => onPick(id)}
+            aria-haspopup="dialog"
             className="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20"
           >
             <Images className="w-3.5 h-3.5" />
@@ -272,6 +273,9 @@ const LibraryDialog = ({
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Libreria immagini — ${label}`}
       className="fixed inset-0 z-[200] bg-background/90 flex items-center justify-center p-6"
       onClick={onClose}
     >
