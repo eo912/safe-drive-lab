@@ -199,6 +199,27 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
 export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
   const [state, setState] = useState<AulaState>(() => readFromUrl(modulo, defaultBlocco));
   const lastTsRef = useRef(state.ts);
+  const lastRemoteTsRef = useRef(0);
+
+  // Comandi provenienti da un ALTRO dispositivo (PC regia → TV).
+  // Il timestamp arriva da un altro orologio: confrontiamo solo con l'ultimo
+  // messaggio remoto ricevuto, mai con quello locale.
+  useRemoteListener(remoteHandlers.state, (incoming: AulaState) => {
+    if (!incoming || incoming.modulo !== modulo) return;
+    if (incoming.ts < lastRemoteTsRef.current) return;
+    lastRemoteTsRef.current = incoming.ts;
+    lastTsRef.current = Date.now();
+    writeToUrl(incoming);
+    setState({ ...incoming, ts: lastTsRef.current });
+  });
+
+  // All'apertura la TV chiede alla Regia lo stato corrente.
+  useEffect(() => {
+    getRemoteChannel();
+    const id = window.setTimeout(() => remoteSend("request-state", { modulo }), 800);
+    return () => window.clearTimeout(id);
+  }, [modulo]);
+
 
   useEffect(() => {
     const apply = (incoming: AulaState) => {
