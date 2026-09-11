@@ -120,12 +120,21 @@ const resolveSigned = async (path: string) => {
 };
 
 export const setPlaceholderImage = async (id: string, path: string) => {
+  const previous = paths[id];
   paths[id] = path;
+  await resolveSigned(path);
   emit();
-  await supabase
+  const { error } = await supabase
     .from("placeholder_images")
     .upsert({ placeholder_id: id, image_url: path, updated_at: new Date().toISOString() });
-  await resolveSigned(path);
+  if (error) {
+    // Rollback ottimistico: l'interfaccia non mostra un'associazione inesistente.
+    if (previous) paths[id] = previous;
+    else delete paths[id];
+    emit();
+    throw error;
+  }
+  emit();
 };
 
 export const clearPlaceholderImage = async (id: string) => {
