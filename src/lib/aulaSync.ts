@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import type { Resource } from "./instructorTypes";
 import type { PauseAtmosphere } from "./pauseAtmosphere";
 import type { EmbedPayload } from "./sceneMedia";
@@ -51,6 +52,66 @@ const channel: BroadcastChannel | null =
     ? new BroadcastChannel(CHANNEL_NAME)
     : null;
 
+/* ------------------------------------------------------------------ *
+ * Livello REMOTO (dispositivi diversi: PC regia ↔ TV/proiettore).
+ * BroadcastChannel e localStorage funzionano solo sullo stesso browser:
+ * per far seguire la TV al PC serve un canale realtime condiviso.
+ * ------------------------------------------------------------------ */
+
+const REMOTE_ROOM = "safedrivelab-aula-live";
+
+const remoteHandlers = {
+  state: new Set<(s: AulaState) => void>(),
+  heartbeat: new Set<(h: AulaHeartbeat) => void>(),
+  request: new Set<() => void>(),
+};
+
+let remoteChannel: ReturnType<typeof supabase.channel> | null = null;
+
+const getRemoteChannel = () => {
+  if (typeof window === "undefined") return null;
+  if (remoteChannel) return remoteChannel;
+  remoteChannel = supabase
+    .channel(REMOTE_ROOM, { config: { broadcast: { self: false } } })
+    .on("broadcast", { event: "state" }, ({ payload }) => {
+      remoteHandlers.state.forEach((fn) => fn(payload as AulaState));
+    })
+    .on("broadcast", { event: "heartbeat" }, ({ payload }) => {
+      remoteHandlers.heartbeat.forEach((fn) => fn(payload as AulaHeartbeat));
+    })
+    .on("broadcast", { event: "request-state" }, () => {
+      remoteHandlers.request.forEach((fn) => fn());
+    });
+  remoteChannel.subscribe();
+  return remoteChannel;
+};
+
+const remoteSend = (event: string, payload: unknown) => {
+  const ch = getRemoteChannel();
+  if (!ch) return;
+  void Promise.resolve(ch.send({ type: "broadcast", event, payload })).catch(
+    () => {
+      /* offline: resta la sincronizzazione locale */
+    },
+  );
+};
+
+const useRemoteListener = <T,>(
+  set: Set<(v: T) => void>,
+  fn: (v: T) => void,
+) => {
+  const ref = useRef(fn);
+  ref.current = fn;
+  useEffect(() => {
+    const handler = (v: T) => ref.current(v);
+    getRemoteChannel();
+    set.add(handler as never);
+    return () => {
+      set.delete(handler as never);
+    };
+  }, [set]);
+};
+
 const readFromUrl = (modulo: string, fallbackBlocco: string): AulaState => {
   if (typeof window === "undefined") {
     return { modulo, blocco: fallbackBlocco, step: "intro", ts: Date.now() };
@@ -83,6 +144,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
   const initial = readFromUrl(modulo, defaultBlocco);
   const [previewState, setPreviewState] = useState<AulaState>(initial);
   const [liveState, setLiveState] = useState<AulaState | null>(null);
+  const lastPublishedRef = useRef<AulaState | null>(null);
 
   const setPreview = useCallback(
     (patch: Partial<Omit<AulaState, "ts" | "modulo">>) => {
@@ -112,12 +174,20 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           /* ignore */
         }
         channel?.postMessage(next);
+        remoteSend("state", next);
+        lastPublishedRef.current = next;
         setLiveState(next);
         return next;
       });
     },
     [modulo],
   );
+
+  // Una TV che si collega dopo chiede lo stato corrente: lo ri-trasmettiamo.
+  useRemoteListener(remoteHandlers.request, () => {
+    const last = lastPublishedRef.current;
+    if (last) remoteSend("state", last);
+  });
 
   return { previewState, liveState, setPreview, publish };
 };
@@ -129,6 +199,27 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
 export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
   const [state, setState] = useState<AulaState>(() => readFromUrl(modulo, defaultBlocco));
   const lastTsRef = useRef(state.ts);
+  const lastRemoteTsRef = useRef(0);
+
+  // Comandi provenienti da un ALTRO dispositivo (PC regia → TV).
+  // Il timestamp arriva da un altro orologio: confrontiamo solo con l'ultimo
+  // messaggio remoto ricevuto, mai con quello locale.
+  useRemoteListener(remoteHandlers.state, (incoming: AulaState) => {
+    if (!incoming || incoming.modulo !== modulo) return;
+    if (incoming.ts < lastRemoteTsRef.current) return;
+    lastRemoteTsRef.current = incoming.ts;
+    lastTsRef.current = Date.now();
+    writeToUrl(incoming);
+    setState({ ...incoming, ts: lastTsRef.current });
+  });
+
+  // All'apertura la TV chiede alla Regia lo stato corrente.
+  useEffect(() => {
+    getRemoteChannel();
+    const id = window.setTimeout(() => remoteSend("request-state", { modulo }), 800);
+    return () => window.clearTimeout(id);
+  }, [modulo]);
+
 
   useEffect(() => {
     const apply = (incoming: AulaState) => {
@@ -195,6 +286,7 @@ export const useAulaHeartbeat = (
         /* ignore */
       }
       heartbeatChannel?.postMessage(beat);
+      remoteSend("heartbeat", beat);
     };
     send();
     const id = window.setInterval(send, intervalMs);
@@ -213,6 +305,14 @@ export const useAulaHeartbeatMonitor = (
 ) => {
   const [last, setLast] = useState<AulaHeartbeat | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
+
+  // Battito da un altro dispositivo: l'orologio è diverso, quindi lo
+  // normalizziamo sull'ora locale per il calcolo online/offline.
+  useRemoteListener(remoteHandlers.heartbeat, (b: AulaHeartbeat) => {
+    if (!b || b.modulo !== modulo) return;
+    setLast({ ...b, ts: Date.now() });
+  });
+
 
   useEffect(() => {
     const apply = (b: AulaHeartbeat) => {
