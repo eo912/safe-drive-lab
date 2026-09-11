@@ -11,6 +11,8 @@ import { modules } from "@/lib/modules";
  */
 export type StudioPlaceholder = {
   label: string;
+  /** Cartella storage alternativa (es. loghi di marchio). */
+  folder?: string;
 };
 
 export type StudioBlock = {
@@ -157,6 +159,16 @@ const ICONS: Record<string, Record<string, string[]>> = {
   },
 };
 
+/**
+ * Loghi di marchio: gestiti dalla libreria come i segnaposto, ma con
+ * cartella dedicata "brand" così restano validi ovunque nell'app.
+ */
+const BRAND_PLACEHOLDERS: StudioPlaceholder[] = [
+  { label: "Logo SafeDriveLabs (homepage)", folder: "brand" },
+  { label: "Logo PXP — P&P Experience (homepage)", folder: "brand" },
+  { label: "Logo Guida Sicura VDA (marchio schermate)", folder: "brand" },
+];
+
 /** Cartella storage/prefisso id ricavata dallo slug del modulo. */
 export const folderForSlug = (slug: string) => {
   const m = slug.match(/modulo-(\d+[a-z]?)/i);
@@ -171,7 +183,12 @@ export const studioCatalog: StudioModule[] = modules.map((mod) => {
     blockId: b.id,
     title: b.title,
     notes: b.notes,
-    placeholders: (byBlock[b.id] ?? []).map((label) => ({ label })),
+    placeholders: [
+      ...(byBlock[b.id] ?? []).map((label) => ({ label })),
+      ...(mod.slug === modules[0]?.slug && b.id === (blocksBySlug[mod.slug] ?? [])[0]?.id
+        ? BRAND_PLACEHOLDERS
+        : []),
+    ],
     icons: (iconsByBlock[b.id] ?? []).map((label) => ({ label })),
   }));
   return {

@@ -106,7 +106,7 @@ export const clearPlaceholderImage = async (id: string) => {
 };
 
 export const listLibrary = async () => {
-  const folders = ["modulo-1", "modulo-2", "modulo-3", "modulo-4", "modulo-5", "modulo-6", "modulo-7", "modulo-8", "icone", "generico"];
+  const folders = ["modulo-1", "modulo-2", "modulo-3", "modulo-4", "modulo-5", "modulo-6", "modulo-7", "modulo-8", "icone", "brand", "generico"];
   const out: { path: string; url: string }[] = [];
   for (const f of folders) {
     const { data } = await supabase.storage.from(BUCKET).list(f, { limit: 100 });

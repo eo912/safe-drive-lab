@@ -21,6 +21,7 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { CatenaIncidenteScene } from "@/components/modulo2/CatenaIncidenteScene";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
+import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { EditableIcon } from "@/components/edit/EditableIcon";
 
 const MODULO = "modulo-2-sicurezza-e-rischio";
@@ -264,6 +265,8 @@ const AulaModulo2 = () => {
       {!embedMode && !isPaused && aulaState.embeds && aulaState.embeds.length > 0 && (
         <AulaEmbedLayer embeds={aulaState.embeds} />
       )}
+
+      {!embedMode && !isPaused && <AulaWatermark />}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />

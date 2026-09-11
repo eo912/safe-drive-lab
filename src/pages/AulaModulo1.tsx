@@ -17,6 +17,7 @@ import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
+import { AulaWatermark } from "@/components/aula/AulaWatermark";
 
 const MODULO = "modulo-1-perche-un-corso";
 
@@ -423,6 +424,8 @@ const AulaModulo1 = () => {
       {!embedMode && !isPaused && aulaState.embeds && aulaState.embeds.length > 0 && (
         <AulaEmbedLayer embeds={aulaState.embeds} />
       )}
+
+      {!embedMode && !isPaused && <AulaWatermark />}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />

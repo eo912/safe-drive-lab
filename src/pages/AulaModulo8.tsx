@@ -12,6 +12,7 @@ import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
+import { AulaWatermark } from "@/components/aula/AulaWatermark";
 
 const MODULO = "modulo-8-applicazione-est";
 
@@ -245,6 +246,8 @@ const AulaModulo8 = () => {
       {!embedMode && !isPaused && aulaState.embeds && aulaState.embeds.length > 0 && (
         <AulaEmbedLayer embeds={aulaState.embeds} />
       )}
+
+      {!embedMode && !isPaused && <AulaWatermark />}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />
