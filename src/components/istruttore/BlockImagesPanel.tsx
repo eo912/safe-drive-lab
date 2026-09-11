@@ -244,13 +244,14 @@ const LibraryDialog = ({
   library: LibraryItem[];
   folder: string;
   label: string;
-  onSelect: (path: string) => void;
+  onSelect: (path: string) => void | Promise<void>;
   onUploaded: () => void;
   onDeleted: () => void;
   onClose: () => void;
 }) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
   const onDelete = async (path: string) => {
     const used = placeholderIdsUsingPath(path);
@@ -314,15 +315,24 @@ const LibraryDialog = ({
             e.target.value = "";
             if (!f) return;
             setBusy(true);
+            setErr(null);
             try {
               const path = await uploadImage(f, folder);
+              // Associa subito il file al segnaposto, poi aggiorna la libreria:
+              // l'immagine compare senza ricaricare la pagina.
               onUploaded();
-              onSelect(path);
+              await onSelect(path);
+            } catch (e) {
+              setErr(
+                "Caricamento non riuscito. Riprova o scegli un file più piccolo.",
+              );
             } finally {
               setBusy(false);
             }
           }}
         />
+        {err && <p className="mb-4 text-xs text-destructive">{err}</p>}
+
 
         {library.length === 0 ? (
           <p className="text-sm text-muted-foreground">
