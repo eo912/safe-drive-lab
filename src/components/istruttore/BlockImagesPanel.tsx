@@ -31,7 +31,22 @@ const describePlaceholderId = (id: string) => {
   return id;
 };
 
-type LibraryItem = { path: string; url: string };
+type LibraryItem = { path: string; url: string; folder: string; name: string };
+
+/** Nome leggibile della cartella per le linguette della libreria. */
+const FOLDER_LABELS: Record<string, string> = {
+  brand: "Brand",
+  foto: "Foto",
+  "foto-da-valutare": "Foto da valutare",
+  grafiche: "Grafiche",
+  schemi: "Schemi",
+  icone: "Icone",
+  generico: "Generico",
+};
+
+const folderLabel = (f: string) =>
+  FOLDER_LABELS[f] ??
+  f.replace(/-/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 
 type Props = {
   /** Slug del modulo (es. modulo-3-il-conducente). */
