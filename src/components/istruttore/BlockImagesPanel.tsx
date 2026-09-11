@@ -244,7 +244,7 @@ const LibraryDialog = ({
   library: LibraryItem[];
   folder: string;
   label: string;
-  onSelect: (path: string) => void;
+  onSelect: (path: string) => void | Promise<void>;
   onUploaded: () => void;
   onDeleted: () => void;
   onClose: () => void;
@@ -320,8 +320,8 @@ const LibraryDialog = ({
               const path = await uploadImage(f, folder);
               // Associa subito il file al segnaposto, poi aggiorna la libreria:
               // l'immagine compare senza ricaricare la pagina.
-              await onSelect(path);
               onUploaded();
+              await onSelect(path);
             } catch (e) {
               setErr(
                 "Caricamento non riuscito. Riprova o scegli un file più piccolo.",
