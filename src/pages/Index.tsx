@@ -39,9 +39,22 @@ const Index = () => {
               <span className="text-foreground">VDA</span>
             </h1>
 
-            <p className="font-mono text-sm tracking-[0.25em] uppercase text-primary/80 mb-8">
+            <p className="font-mono text-sm tracking-[0.25em] uppercase text-primary/80 mb-6">
               Safe Drive Lab
             </p>
+
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <BrandLogoSlot
+                label="Logo SafeDriveLabs (homepage)"
+                fallback="SafeDriveLabs"
+                imgClassName="h-9 w-auto object-contain opacity-90"
+              />
+              <BrandLogoSlot
+                label="Logo PXP — P&P Experience (homepage)"
+                fallback="PXP"
+                imgClassName="h-9 w-auto object-contain opacity-90"
+              />
+            </div>
 
             <div className="glow-line max-w-xs mx-auto mb-8" />
 
