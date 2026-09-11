@@ -17,6 +17,7 @@ import { AulaEmbedLayer } from "@/components/aula/AulaEmbedLayer";
 import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
+import { AulaWatermark } from "@/components/aula/AulaWatermark";
 
 const MODULO = "modulo-1-perche-un-corso";
 

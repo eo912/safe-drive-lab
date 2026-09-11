@@ -12,6 +12,7 @@ import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
+import { AulaWatermark } from "@/components/aula/AulaWatermark";
 
 const MODULO = "modulo-5-dinamica-del-veicolo";
 

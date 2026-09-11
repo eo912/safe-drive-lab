@@ -13,6 +13,7 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { HotspotScene, type Hotspot } from "@/components/modulo3/HotspotScene";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
+import { AulaWatermark } from "@/components/aula/AulaWatermark";
 
 const MODULO = "modulo-3-il-conducente";
 

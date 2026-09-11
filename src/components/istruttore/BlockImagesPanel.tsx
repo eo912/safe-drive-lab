@@ -19,7 +19,7 @@ const describePlaceholderId = (id: string) => {
   for (const m of studioCatalog) {
     for (const b of m.blocks) {
       for (const p of b.placeholders) {
-        if (placeholderIdFor(m.folder, p.label) === id)
+        if (placeholderIdFor(p.folder ?? m.folder, p.label) === id)
           return `${m.title} · ${b.title}`;
       }
       for (const ic of b.icons) {
@@ -83,9 +83,11 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
           {block.placeholders.map((p) => (
             <PlaceholderCard
               key={p.label}
-              folder={folder}
+              folder={p.folder ?? folder}
               label={p.label}
-              onPick={(id) => setPicker({ id, label: p.label, folder })}
+              onPick={(id) =>
+                setPicker({ id, label: p.label, folder: p.folder ?? folder })
+              }
             />
           ))}
         </div>
