@@ -267,6 +267,15 @@ const LibraryDialog = ({
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [tab, setTab] = useState<string>("tutte");
+  const [q, setQ] = useState("");
+
+  const folders = Array.from(new Set(library.map((i) => i.folder))).sort();
+  const visible = library.filter(
+    (i) =>
+      (tab === "tutte" || i.folder === tab) &&
+      (q.trim() === "" || i.path.toLowerCase().includes(q.trim().toLowerCase())),
+  );
 
   const onDelete = async (path: string) => {
     const used = placeholderIdsUsingPath(path);
