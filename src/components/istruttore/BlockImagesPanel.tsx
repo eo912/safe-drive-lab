@@ -117,6 +117,7 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
           folder={picker.folder}
           label={picker.label}
           onUploaded={refreshLibrary}
+          onDeleted={refreshLibrary}
           onSelect={async (path) => {
             await setPlaceholderImage(picker.id, path);
             setPicker(null);
