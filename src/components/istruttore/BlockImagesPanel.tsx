@@ -357,14 +357,51 @@ const LibraryDialog = ({
         />
         {err && <p className="mb-4 text-xs text-destructive">{err}</p>}
 
+        <div className="mb-4 flex flex-wrap gap-2">
+          {["tutte", ...folders].map((f) => {
+            const count =
+              f === "tutte"
+                ? library.length
+                : library.filter((i) => i.folder === f).length;
+            return (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setTab(f)}
+                aria-pressed={tab === f}
+                className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                  tab === f
+                    ? "border-primary bg-primary/15 text-primary"
+                    : "border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {f === "tutte" ? "Tutte" : folderLabel(f)}{" "}
+                <span className="font-mono text-[10px] opacity-70">{count}</span>
+              </button>
+            );
+          })}
+        </div>
 
-        {library.length === 0 ? (
+        <input
+          type="search"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Cerca per nome file…"
+          aria-label="Cerca nella libreria"
+          className="mb-4 w-full rounded-md border border-border bg-background/60 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+        />
+
+        <p className="mb-3 font-mono text-[10px] text-muted-foreground">
+          {visible.length} immagini mostrate su {library.length} in archivio
+        </p>
+
+        {visible.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Nessuna immagine nell'archivio.
+            Nessuna immagine corrisponde alla ricerca.
           </p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {library.map((img) => (
+            {visible.map((img) => (
               <div
                 key={img.path}
                 className="group relative rounded-md overflow-hidden border border-border/60 hover:border-primary"
