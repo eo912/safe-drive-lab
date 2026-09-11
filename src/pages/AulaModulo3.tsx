@@ -324,7 +324,7 @@ const AulaModulo3 = () => {
         <AulaEmbedLayer embeds={aulaState.embeds} />
       )}
 
-      {!embedMode && !isPaused && <AulaWatermark />}
+      {!isPaused && <AulaWatermark />}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />

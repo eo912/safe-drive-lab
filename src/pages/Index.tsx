@@ -44,15 +44,10 @@ const Index = () => {
               Safe Drive Lab
             </p>
 
-            <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="flex items-center justify-center mb-8">
               <BrandLogoSlot
                 label="Logo SafeDriveLabs (homepage)"
                 fallback="SafeDriveLabs"
-                imgClassName="h-9 w-auto object-contain opacity-90"
-              />
-              <BrandLogoSlot
-                label="Logo PXP — P&P Experience (homepage)"
-                fallback="PXP"
                 imgClassName="h-9 w-auto object-contain opacity-90"
               />
             </div>
