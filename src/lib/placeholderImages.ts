@@ -143,19 +143,79 @@ export const clearPlaceholderImage = async (id: string) => {
   await supabase.from("placeholder_images").delete().eq("placeholder_id", id);
 };
 
-export const listLibrary = async () => {
-  const folders = ["modulo-1", "modulo-2", "modulo-3", "modulo-4", "modulo-5", "modulo-6", "modulo-7", "modulo-8", "icone", "brand", "generico", "foto", "grafiche", "schemi", "foto-da-valutare"];
-  const out: { path: string; url: string }[] = [];
-  for (const f of folders) {
-    const { data } = await supabase.storage.from(BUCKET).list(f, { limit: 100 });
-    for (const file of data ?? []) {
+/** Elenca tutti i file di una cartella, senza limite pratico (pagine da 1000). */
+const listFolderFiles = async (folder: string) => {
+  const names: string[] = [];
+  const PAGE = 1000;
+  for (let offset = 0; ; offset += PAGE) {
+    const { data } = await supabase.storage
+      .from(BUCKET)
+      .list(folder, { limit: PAGE, offset, sortBy: { column: "name", order: "asc" } });
+    const page = data ?? [];
+    for (const file of page) {
       if (file.name.startsWith(".")) continue;
-      const path = `${f}/${file.name}`;
-      const url = await resolveSigned(path);
-      if (url) out.push({ path, url });
+      // Le sottocartelle non hanno metadata: le ignoriamo qui.
+      if (!file.id) continue;
+      names.push(file.name);
+    }
+    if (page.length < PAGE) break;
+  }
+  return names;
+};
+
+/** Firma in blocco un elenco di percorsi e popola la cache. */
+const resolveSignedMany = async (allPaths: string[]) => {
+  const missing = allPaths.filter((p) => !signed[p]);
+  const CHUNK = 100;
+  for (let i = 0; i < missing.length; i += CHUNK) {
+    const chunk = missing.slice(i, i + CHUNK);
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
+    for (const row of data ?? []) {
+      if (row.path && row.signedUrl) signed[row.path] = row.signedUrl;
     }
   }
-  return out;
+  if (missing.length > 0) emit();
+};
+
+/**
+ * Tutti i file del bucket, scoprendo le cartelle dinamicamente: nessun elenco
+ * fisso, nessun limite basso. Ritorna anche la cartella di ogni file.
+ */
+export const listLibrary = async () => {
+  const { data: rootEntries } = await supabase.storage
+    .from(BUCKET)
+    .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
+
+  const folders = (rootEntries ?? [])
+    .filter((e) => !e.id && !e.name.startsWith("."))
+    .map((e) => e.name);
+
+  const perFolder = await Promise.all(
+    folders.map(async (f) => ({ folder: f, files: await listFolderFiles(f) })),
+  );
+
+  const out: { path: string; url: string; folder: string; name: string }[] = [];
+  const wanted: string[] = [];
+  for (const { folder, files } of perFolder) {
+    for (const name of files) {
+      const path = `${folder}/${name}`;
+      wanted.push(path);
+      out.push({ path, url: "", folder, name });
+    }
+  }
+
+  // File eventualmente presenti nella radice del bucket.
+  for (const e of rootEntries ?? []) {
+    if (e.id && !e.name.startsWith(".")) {
+      wanted.push(e.name);
+      out.push({ path: e.name, url: "", folder: "(radice)", name: e.name });
+    }
+  }
+
+  await resolveSignedMany(wanted);
+  return out
+    .map((f) => ({ ...f, url: signed[f.path] ?? "" }))
+    .filter((f) => f.url !== "");
 };
 
 /** Segnaposto attualmente associati a un file del bucket. */
