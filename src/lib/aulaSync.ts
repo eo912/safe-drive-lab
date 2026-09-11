@@ -173,12 +173,20 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           /* ignore */
         }
         channel?.postMessage(next);
+        remoteSend("state", next);
+        lastPublishedRef.current = next;
         setLiveState(next);
         return next;
       });
     },
     [modulo],
   );
+
+  // Una TV che si collega dopo chiede lo stato corrente: lo ri-trasmettiamo.
+  useRemoteListener(remoteHandlers.request, () => {
+    const last = lastPublishedRef.current;
+    if (last) remoteSend("state", last);
+  });
 
   return { previewState, liveState, setPreview, publish };
 };
