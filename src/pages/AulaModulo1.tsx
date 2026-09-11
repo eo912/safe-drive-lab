@@ -462,19 +462,19 @@ const AulaModulo1 = () => {
           />
           <motion.div
             {...fade}
-            className="mt-6 flex items-center justify-center gap-5"
+            className="mt-10 flex flex-wrap items-center justify-center gap-10"
           >
             <BrandLogoSlot
               label="Logo 1 — copertina Modulo 1a"
               fallback="Logo 1"
-              className="min-w-28"
-              imgClassName="h-10 w-auto max-w-40 object-contain"
+              className="min-w-40 text-xs"
+              imgClassName="h-24 md:h-28 w-auto max-w-[22rem] object-contain"
             />
             <BrandLogoSlot
               label="Logo 2 — copertina Modulo 1a"
               fallback="Logo 2"
-              className="min-w-28"
-              imgClassName="h-10 w-auto max-w-40 object-contain"
+              className="min-w-40 text-xs"
+              imgClassName="h-24 md:h-28 w-auto max-w-[22rem] object-contain"
             />
           </motion.div>
         </div>
