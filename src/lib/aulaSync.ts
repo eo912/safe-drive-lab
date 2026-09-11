@@ -51,6 +51,66 @@ const channel: BroadcastChannel | null =
     ? new BroadcastChannel(CHANNEL_NAME)
     : null;
 
+/* ------------------------------------------------------------------ *
+ * Livello REMOTO (dispositivi diversi: PC regia ↔ TV/proiettore).
+ * BroadcastChannel e localStorage funzionano solo sullo stesso browser:
+ * per far seguire la TV al PC serve un canale realtime condiviso.
+ * ------------------------------------------------------------------ */
+
+const REMOTE_ROOM = "safedrivelab-aula-live";
+
+const remoteHandlers = {
+  state: new Set<(s: AulaState) => void>(),
+  heartbeat: new Set<(h: AulaHeartbeat) => void>(),
+  request: new Set<() => void>(),
+};
+
+let remoteChannel: ReturnType<typeof supabase.channel> | null = null;
+
+const getRemoteChannel = () => {
+  if (typeof window === "undefined") return null;
+  if (remoteChannel) return remoteChannel;
+  remoteChannel = supabase
+    .channel(REMOTE_ROOM, { config: { broadcast: { self: false } } })
+    .on("broadcast", { event: "state" }, ({ payload }) => {
+      remoteHandlers.state.forEach((fn) => fn(payload as AulaState));
+    })
+    .on("broadcast", { event: "heartbeat" }, ({ payload }) => {
+      remoteHandlers.heartbeat.forEach((fn) => fn(payload as AulaHeartbeat));
+    })
+    .on("broadcast", { event: "request-state" }, () => {
+      remoteHandlers.request.forEach((fn) => fn());
+    });
+  remoteChannel.subscribe();
+  return remoteChannel;
+};
+
+const remoteSend = (event: string, payload: unknown) => {
+  const ch = getRemoteChannel();
+  if (!ch) return;
+  void Promise.resolve(ch.send({ type: "broadcast", event, payload })).catch(
+    () => {
+      /* offline: resta la sincronizzazione locale */
+    },
+  );
+};
+
+const useRemoteListener = <T,>(
+  set: Set<(v: T) => void>,
+  fn: (v: T) => void,
+) => {
+  const ref = useRef(fn);
+  ref.current = fn;
+  useEffect(() => {
+    const handler = (v: T) => ref.current(v);
+    getRemoteChannel();
+    set.add(handler as never);
+    return () => {
+      set.delete(handler as never);
+    };
+  }, [set]);
+};
+
 const readFromUrl = (modulo: string, fallbackBlocco: string): AulaState => {
   if (typeof window === "undefined") {
     return { modulo, blocco: fallbackBlocco, step: "intro", ts: Date.now() };
