@@ -300,6 +300,7 @@ const AulaModulo4 = () => {
 
       {!embedMode && !isPaused && aulaState.embeds && aulaState.embeds.length > 0 && (
         <AulaEmbedLayer embeds={aulaState.embeds} />
+        <AulaWatermark />
       )}
 
       {!embedMode && aulaState.blackout && (
