@@ -13,7 +13,7 @@ export const ImagePlaceholder = ({
 }) => (
   <EditableImageSlot label={label} className={className}>
     <div
-      className="w-full h-full flex items-center justify-center rounded-lg border border-dashed border-border/70 bg-muted/20 overflow-hidden"
+      className={`w-full flex items-center justify-center rounded-lg border border-dashed border-border/70 bg-muted/20 overflow-hidden ${className}`}
       role="img"
       aria-label={`Segnaposto immagine: ${label}`}
     >
