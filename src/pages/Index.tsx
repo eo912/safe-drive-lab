@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { GraduationCap, UserCog } from "lucide-react";
 import heroRoad from "@/assets/hero-road.jpg";
+import { BrandLogoSlot } from "@/components/brand/BrandLogoSlot";
 
 const Index = () => {
   return (
