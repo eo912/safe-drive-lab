@@ -251,6 +251,7 @@ const LibraryDialog = ({
 }) => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
   const onDelete = async (path: string) => {
     const used = placeholderIdsUsingPath(path);
