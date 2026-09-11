@@ -144,6 +144,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
   const initial = readFromUrl(modulo, defaultBlocco);
   const [previewState, setPreviewState] = useState<AulaState>(initial);
   const [liveState, setLiveState] = useState<AulaState | null>(null);
+  const lastPublishedRef = useRef<AulaState | null>(null);
 
   const setPreview = useCallback(
     (patch: Partial<Omit<AulaState, "ts" | "modulo">>) => {
