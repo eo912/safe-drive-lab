@@ -3,14 +3,33 @@ import { Upload, Trash2, Images, X } from "lucide-react";
 import { studioCatalog } from "@/lib/studioCatalog";
 import {
   clearPlaceholderImage,
+  deleteLibraryImage,
   ICON_FOLDER,
   iconIdFor,
   listLibrary,
   placeholderIdFor,
+  placeholderIdsUsingPath,
   setPlaceholderImage,
   uploadImage,
   usePlaceholderImage,
 } from "@/lib/placeholderImages";
+
+/** Etichetta leggibile ("Modulo 2 · Il fattore umano") per un id segnaposto. */
+const describePlaceholderId = (id: string) => {
+  for (const m of studioCatalog) {
+    for (const b of m.blocks) {
+      for (const p of b.placeholders) {
+        if (placeholderIdFor(m.folder, p.label) === id)
+          return `${m.title} · ${b.title}`;
+      }
+      for (const ic of b.icons) {
+        if (iconIdFor(m.folder, ic.label) === id)
+          return `${m.title} · ${b.title} (icona ${ic.label})`;
+      }
+    }
+  }
+  return id;
+};
 
 type LibraryItem = { path: string; url: string };
 
