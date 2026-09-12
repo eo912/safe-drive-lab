@@ -308,6 +308,15 @@ export const uploadImage = async (file: File, folder: string) => {
 
 /** URL pronto da mostrare per un segnaposto (null se non configurato). */
 export const usePlaceholderImage = (id: string) => {
+  const media = usePlaceholderMedia(id);
+  return media && media.kind === "image" ? media.url : null;
+};
+
+/**
+ * Contenuto associato al segnaposto: immagine, video caricato nel bucket
+ * oppure indirizzo esterno (YouTube o link diretto a un file).
+ */
+export const usePlaceholderMedia = (id: string): PlaceholderMedia | null => {
   const [, force] = useState(0);
   useEffect(() => {
     const sync = () => force((n) => n + 1);
@@ -316,10 +325,27 @@ export const usePlaceholderImage = (id: string) => {
     return () => window.removeEventListener(EVT, sync);
   }, []);
 
-  const path = paths[id];
-  useEffect(() => {
-    if (path && !signed[path]) resolveSigned(path);
-  }, [path]);
+  const raw = paths[id];
+  const storagePath =
+    raw && !raw.startsWith(EXTERNAL_PREFIX)
+      ? raw.replace(VIDEO_PREFIX, "")
+      : null;
 
-  return path ? (signed[path] ?? null) : null;
+  useEffect(() => {
+    if (storagePath && !signed[storagePath]) resolveSigned(storagePath);
+  }, [storagePath]);
+
+  if (!raw) return null;
+
+  if (raw.startsWith(EXTERNAL_PREFIX)) {
+    const url = raw.slice(EXTERNAL_PREFIX.length);
+    const yt = youtubeId(url);
+    if (yt) return { kind: "youtube", url: `https://www.youtube.com/embed/${yt}` };
+    return { kind: IMAGE_EXT.test(url) ? "image" : "video", url };
+  }
+
+  const url = storagePath ? (signed[storagePath] ?? null) : null;
+  if (!url) return null;
+  return { kind: raw.startsWith(VIDEO_PREFIX) ? "video" : "image", url };
 };
+
