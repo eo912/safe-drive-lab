@@ -42,6 +42,7 @@ import { openAulaWindow } from "@/lib/aulaWindow";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
 import { NotesDrawer } from "@/components/istruttore/NotesDrawer";
+import { BlockRefLink } from "@/components/istruttore/BlockRefLink";
 import { ArchiveDrawer } from "@/components/istruttore/ArchiveDrawer";
 import { ContentDrawer } from "@/components/istruttore/ContentDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
