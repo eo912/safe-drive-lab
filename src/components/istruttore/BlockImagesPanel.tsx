@@ -147,8 +147,13 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
           label={picker.label}
           onUploaded={refreshLibrary}
           onDeleted={refreshLibrary}
-          onSelect={async (path) => {
-            await setPlaceholderImage(picker.id, path);
+          onSelect={async (path, isVideo) => {
+            if (isVideo) await setPlaceholderVideoPath(picker.id, path);
+            else await setPlaceholderImage(picker.id, path);
+            setPicker(null);
+          }}
+          onExternal={async (url) => {
+            await setPlaceholderExternal(picker.id, url);
             setPicker(null);
           }}
           onClose={() => setPicker(null)}
