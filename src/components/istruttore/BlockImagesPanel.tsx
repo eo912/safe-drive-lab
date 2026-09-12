@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Upload, Trash2, Images, X } from "lucide-react";
+import { Upload, Trash2, Images, X, Film, Link2 } from "lucide-react";
 import { studioCatalog } from "@/lib/studioCatalog";
 import {
   clearPlaceholderImage,
@@ -9,9 +9,13 @@ import {
   listLibrary,
   placeholderIdFor,
   placeholderIdsUsingPath,
+  setPlaceholderExternal,
   setPlaceholderImage,
+  setPlaceholderVideoPath,
   uploadImage,
   usePlaceholderImage,
+  usePlaceholderMedia,
+  VIDEO_FOLDER,
 } from "@/lib/placeholderImages";
 
 /** Etichetta leggibile ("Modulo 2 · Il fattore umano") per un id segnaposto. */
@@ -31,7 +35,14 @@ const describePlaceholderId = (id: string) => {
   return id;
 };
 
-type LibraryItem = { path: string; url: string; folder: string; name: string };
+type LibraryItem = {
+  path: string;
+  url: string;
+  folder: string;
+  name: string;
+  isVideo: boolean;
+};
+
 
 /** Nome leggibile della cartella per le linguette della libreria. */
 const FOLDER_LABELS: Record<string, string> = {
