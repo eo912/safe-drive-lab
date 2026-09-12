@@ -119,10 +119,34 @@ const resolveSigned = async (path: string) => {
   return null;
 };
 
+/** Prefisso per un indirizzo esterno (YouTube, Drive, ecc.). */
+export const EXTERNAL_PREFIX = "ext::";
+/** Prefisso per un file video caricato nel bucket. */
+export const VIDEO_PREFIX = "video::";
+/** Cartella storage dedicata ai video caricati. */
+export const VIDEO_FOLDER = "video";
+
+export type PlaceholderMedia =
+  | { kind: "image"; url: string }
+  | { kind: "video"; url: string }
+  | { kind: "youtube"; url: string };
+
+/** Id del video YouTube, se l'indirizzo è di YouTube. */
+export const youtubeId = (url: string): string | null => {
+  const m = url.match(
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/,
+  );
+  return m ? m[1] : null;
+};
+
+const IMAGE_EXT = /\.(png|jpe?g|webp|gif|avif|svg)(\?|$)/i;
+
 export const setPlaceholderImage = async (id: string, path: string) => {
   const previous = paths[id];
   paths[id] = path;
-  await resolveSigned(path);
+  if (!path.startsWith(EXTERNAL_PREFIX)) {
+    await resolveSigned(path.replace(VIDEO_PREFIX, ""));
+  }
   emit();
   const { error } = await supabase
     .from("placeholder_images")
@@ -137,10 +161,44 @@ export const setPlaceholderImage = async (id: string, path: string) => {
   emit();
 };
 
+/** Associa un video: file già caricato nel bucket. */
+export const setPlaceholderVideoPath = (id: string, path: string) =>
+  setPlaceholderImage(id, `${VIDEO_PREFIX}${path}`);
+
+/** Associa un indirizzo esterno (YouTube o link diretto a un file). */
+export const setPlaceholderExternal = (id: string, url: string) =>
+  setPlaceholderImage(id, `${EXTERNAL_PREFIX}${url.trim()}`);
+
 export const clearPlaceholderImage = async (id: string) => {
   delete paths[id];
   emit();
   await supabase.from("placeholder_images").delete().eq("placeholder_id", id);
+};
+
+// ---------- Link di riferimento (solo istruttore) ----------
+
+/** Id stabile del link di riferimento di un blocco (mai mostrato in Aula). */
+export const refLinkId = (modulo: string, blocco: string) =>
+  `reflink::${modulo}::${blocco}`;
+
+/** Salva/aggiorna il link di riferimento del blocco. */
+export const setRefLink = (modulo: string, blocco: string, url: string) =>
+  setPlaceholderExternal(refLinkId(modulo, blocco), url);
+
+export const clearRefLink = (modulo: string, blocco: string) =>
+  clearPlaceholderImage(refLinkId(modulo, blocco));
+
+/** Link di riferimento salvato per il blocco (null se assente). */
+export const useRefLink = (modulo: string, blocco: string) => {
+  const [, force] = useState(0);
+  useEffect(() => {
+    const sync = () => force((n) => n + 1);
+    window.addEventListener(EVT, sync);
+    if (!loaded) loadAll();
+    return () => window.removeEventListener(EVT, sync);
+  }, []);
+  const raw = paths[refLinkId(modulo, blocco)];
+  return raw ? raw.replace(EXTERNAL_PREFIX, "") : null;
 };
 
 /** Elenca tutti i file di una cartella, senza limite pratico (pagine da 1000). */
