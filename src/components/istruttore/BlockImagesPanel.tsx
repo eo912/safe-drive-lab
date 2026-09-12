@@ -276,6 +276,7 @@ const LibraryDialog = ({
   folder,
   label,
   onSelect,
+  onExternal,
   onUploaded,
   onDeleted,
   onClose,
@@ -283,16 +284,20 @@ const LibraryDialog = ({
   library: LibraryItem[];
   folder: string;
   label: string;
-  onSelect: (path: string) => void | Promise<void>;
+  onSelect: (path: string, isVideo: boolean) => void | Promise<void>;
+  onExternal: (url: string) => void | Promise<void>;
   onUploaded: () => void;
   onDeleted: () => void;
   onClose: () => void;
 }) => {
   const fileRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [tab, setTab] = useState<string>("tutte");
   const [q, setQ] = useState("");
+  const [extUrl, setExtUrl] = useState("");
+
 
   const folders = Array.from(new Set(library.map((i) => i.folder))).sort();
   const visible = library.filter(
