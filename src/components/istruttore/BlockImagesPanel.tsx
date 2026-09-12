@@ -465,11 +465,13 @@ const LibraryDialog = ({
 
 
         <div className="mb-4 flex flex-wrap gap-2">
-          {["tutte", ...folders].map((f) => {
+          {["tutte", "solo-video", ...folders].map((f) => {
             const count =
               f === "tutte"
                 ? library.length
-                : library.filter((i) => i.folder === f).length;
+                : f === "solo-video"
+                  ? library.filter((i) => i.isVideo).length
+                  : library.filter((i) => i.folder === f).length;
             return (
               <button
                 key={f}
@@ -482,12 +484,17 @@ const LibraryDialog = ({
                     : "border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {f === "tutte" ? "Tutte" : folderLabel(f)}{" "}
+                {f === "tutte"
+                  ? "Tutte"
+                  : f === "solo-video"
+                    ? "Video"
+                    : folderLabel(f)}{" "}
                 <span className="font-mono text-[10px] opacity-70">{count}</span>
               </button>
             );
           })}
         </div>
+
 
         <input
           type="search"
