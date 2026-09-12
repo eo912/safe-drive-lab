@@ -349,15 +349,26 @@ const LibraryDialog = ({
           </button>
         </div>
 
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => fileRef.current?.click()}
-          className="mb-6 inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-4 py-2 text-sm text-primary hover:bg-primary/20 disabled:opacity-50"
-        >
-          <Upload className="w-4 h-4" />
-          {busy ? "Caricamento…" : "Carica una nuova immagine"}
-        </button>
+        <div className="mb-5 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => fileRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-4 py-2 text-sm text-primary hover:bg-primary/20 disabled:opacity-50"
+          >
+            <Upload className="w-4 h-4" />
+            {busy ? "Caricamento…" : "Carica una nuova immagine"}
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => videoRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-secondary/60 disabled:opacity-50"
+          >
+            <Film className="w-4 h-4" />
+            Carica un video
+          </button>
+        </div>
         <input
           ref={fileRef}
           type="file"
@@ -374,7 +385,7 @@ const LibraryDialog = ({
               // Associa subito il file al segnaposto, poi aggiorna la libreria:
               // l'immagine compare senza ricaricare la pagina.
               onUploaded();
-              await onSelect(path);
+              await onSelect(path, false);
             } catch (e) {
               setErr(
                 "Caricamento non riuscito. Riprova o scegli un file più piccolo.",
@@ -384,7 +395,68 @@ const LibraryDialog = ({
             }
           }}
         />
+        <input
+          ref={videoRef}
+          type="file"
+          accept="video/mp4,video/webm,video/quicktime"
+          className="hidden"
+          onChange={async (e) => {
+            const f = e.target.files?.[0];
+            e.target.value = "";
+            if (!f) return;
+            setBusy(true);
+            setErr(null);
+            try {
+              const path = await uploadImage(f, VIDEO_FOLDER);
+              onUploaded();
+              await onSelect(path, true);
+            } catch (e) {
+              setErr(
+                "Caricamento del video non riuscito. Prova con un file più leggero oppure incolla un indirizzo esterno.",
+              );
+            } finally {
+              setBusy(false);
+            }
+          }}
+        />
+
+        {/* Indirizzo esterno: YouTube o link diretto a un file video */}
+        <div className="mb-6 rounded-md border border-border/60 bg-background/50 p-3">
+          <p className="mb-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+            <Link2 className="w-3.5 h-3.5" />
+            Oppure incolla un indirizzo
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="url"
+              value={extUrl}
+              onChange={(e) => setExtUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=…  oppure link diretto al file"
+              aria-label="Indirizzo del video"
+              className="min-w-0 flex-1 rounded-md border border-border bg-background/60 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            />
+            <button
+              type="button"
+              disabled={busy || extUrl.trim() === ""}
+              onClick={async () => {
+                setBusy(true);
+                setErr(null);
+                try {
+                  await onExternal(extUrl);
+                } catch {
+                  setErr("Indirizzo non salvato. Riprova.");
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              className="rounded-md border border-primary/60 bg-primary/10 px-4 py-2 text-sm text-primary hover:bg-primary/20 disabled:opacity-50"
+            >
+              Usa questo
+            </button>
+          </div>
+        </div>
         {err && <p className="mb-4 text-xs text-destructive">{err}</p>}
+
 
         <div className="mb-4 flex flex-wrap gap-2">
           {["tutte", ...folders].map((f) => {
