@@ -52,6 +52,7 @@ const FOLDER_LABELS: Record<string, string> = {
   grafiche: "Grafiche",
   schemi: "Schemi",
   icone: "Icone",
+  video: "Video",
   generico: "Generico",
 };
 
