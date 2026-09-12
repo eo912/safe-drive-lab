@@ -478,11 +478,7 @@ const IstruttoreModulo = () => {
       <p className="text-sm text-foreground/70 leading-relaxed whitespace-pre-line">
         {active.notes}
       </p>
-      <div className="mt-6 pt-4 border-t border-border/60">
-        <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/70">
-          Suggerimenti didattici · mai visibili in Aula
-        </p>
-      </div>
+      <BlockRefLink modulo={module.slug} blocco={active.id} />
     </div>
   );
 
