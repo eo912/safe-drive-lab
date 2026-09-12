@@ -1,4 +1,4 @@
-import { placeholderId, usePlaceholderImage } from "@/lib/placeholderImages";
+import { placeholderId, usePlaceholderMedia } from "@/lib/placeholderImages";
 
 type Props = {
   /** Etichetta descrittiva del segnaposto: genera l'id stabile */
@@ -9,25 +9,43 @@ type Props = {
 };
 
 /**
- * Avvolge un segnaposto: se esiste un'immagine associata la mostra,
- * altrimenti lascia il segnaposto invariato.
+ * Avvolge un segnaposto: se esiste un contenuto associato (immagine o video)
+ * lo mostra, altrimenti lascia il segnaposto invariato.
  *
- * Nessun controllo di modifica in aula: le immagini si gestiscono
- * esclusivamente dalla pagina Studio (/studio).
+ * Nessun controllo di modifica in aula: i contenuti si gestiscono
+ * esclusivamente dallo Studio della Regia.
  */
 export const EditableImageSlot = ({ label, className = "", children }: Props) => {
-  const id = placeholderId(label);
-  const url = usePlaceholderImage(id);
+  const media = usePlaceholderMedia(placeholderId(label));
 
-  if (!url) return <>{children}</>;
+  if (!media) return <>{children}</>;
 
   return (
     <div className={`relative ${className}`}>
-      <img
-        src={url}
-        alt={label}
-        className="w-full h-full object-cover rounded-lg border border-border/50"
-      />
+      {media.kind === "image" && (
+        <img
+          src={media.url}
+          alt={label}
+          className="w-full h-full object-cover rounded-lg border border-border/50"
+        />
+      )}
+      {media.kind === "video" && (
+        <video
+          src={media.url}
+          controls
+          playsInline
+          className="w-full h-full object-cover rounded-lg border border-border/50 bg-background"
+        />
+      )}
+      {media.kind === "youtube" && (
+        <iframe
+          src={media.url}
+          title={label}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+          allowFullScreen
+          className="w-full h-full rounded-lg border border-border/50 bg-background"
+        />
+      )}
     </div>
   );
 };

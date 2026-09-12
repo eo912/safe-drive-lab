@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Upload, Trash2, Images, X } from "lucide-react";
+import { Upload, Trash2, Images, X, Film, Link2 } from "lucide-react";
 import { studioCatalog } from "@/lib/studioCatalog";
 import {
   clearPlaceholderImage,
@@ -9,9 +9,13 @@ import {
   listLibrary,
   placeholderIdFor,
   placeholderIdsUsingPath,
+  setPlaceholderExternal,
   setPlaceholderImage,
+  setPlaceholderVideoPath,
   uploadImage,
   usePlaceholderImage,
+  usePlaceholderMedia,
+  VIDEO_FOLDER,
 } from "@/lib/placeholderImages";
 
 /** Etichetta leggibile ("Modulo 2 · Il fattore umano") per un id segnaposto. */
@@ -31,7 +35,14 @@ const describePlaceholderId = (id: string) => {
   return id;
 };
 
-type LibraryItem = { path: string; url: string; folder: string; name: string };
+type LibraryItem = {
+  path: string;
+  url: string;
+  folder: string;
+  name: string;
+  isVideo: boolean;
+};
+
 
 /** Nome leggibile della cartella per le linguette della libreria. */
 const FOLDER_LABELS: Record<string, string> = {
@@ -41,6 +52,7 @@ const FOLDER_LABELS: Record<string, string> = {
   grafiche: "Grafiche",
   schemi: "Schemi",
   icone: "Icone",
+  video: "Video",
   generico: "Generico",
 };
 
@@ -135,8 +147,13 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
           label={picker.label}
           onUploaded={refreshLibrary}
           onDeleted={refreshLibrary}
-          onSelect={async (path) => {
-            await setPlaceholderImage(picker.id, path);
+          onSelect={async (path, isVideo) => {
+            if (isVideo) await setPlaceholderVideoPath(picker.id, path);
+            else await setPlaceholderImage(picker.id, path);
+            setPicker(null);
+          }}
+          onExternal={async (url) => {
+            await setPlaceholderExternal(picker.id, url);
             setPicker(null);
           }}
           onClose={() => setPicker(null)}
@@ -206,14 +223,21 @@ const PlaceholderCard = ({
   onPick: (id: string) => void;
 }) => {
   const id = placeholderIdFor(folder, label);
-  const url = usePlaceholderImage(id);
+  const media = usePlaceholderMedia(id);
 
   return (
     <div className="rounded-lg border border-border/60 bg-background/60 overflow-hidden">
       <div className="h-40 bg-muted/20 flex items-center justify-center">
-        {url ? (
-          <img src={url} alt={label} className="h-full w-full object-cover" />
-        ) : (
+        {media?.kind === "image" && (
+          <img src={media.url} alt={label} className="h-full w-full object-cover" />
+        )}
+        {media?.kind === "video" && (
+          <video src={media.url} controls className="h-full w-full object-cover" />
+        )}
+        {media?.kind === "youtube" && (
+          <iframe src={media.url} title={label} className="h-full w-full" />
+        )}
+        {!media && (
           <p className="px-4 text-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
             Segnaposto vuoto
           </p>
@@ -229,9 +253,9 @@ const PlaceholderCard = ({
             className="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20"
           >
             <Images className="w-3.5 h-3.5" />
-            Scegli immagine
+            Scegli immagine o video
           </button>
-          {url && (
+          {media && (
             <button
               type="button"
               onClick={() => clearPlaceholderImage(id)}
@@ -252,6 +276,7 @@ const LibraryDialog = ({
   folder,
   label,
   onSelect,
+  onExternal,
   onUploaded,
   onDeleted,
   onClose,
@@ -259,21 +284,31 @@ const LibraryDialog = ({
   library: LibraryItem[];
   folder: string;
   label: string;
-  onSelect: (path: string) => void | Promise<void>;
+  onSelect: (path: string, isVideo: boolean) => void | Promise<void>;
+  onExternal: (url: string) => void | Promise<void>;
   onUploaded: () => void;
   onDeleted: () => void;
   onClose: () => void;
 }) => {
   const fileRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [tab, setTab] = useState<string>("tutte");
   const [q, setQ] = useState("");
+  const [extUrl, setExtUrl] = useState("");
+
 
   const folders = Array.from(new Set(library.map((i) => i.folder))).sort();
+  const matchTab = (i: LibraryItem) =>
+    tab === "tutte"
+      ? true
+      : tab === "solo-video"
+        ? i.isVideo
+        : i.folder === tab;
   const visible = library.filter(
     (i) =>
-      (tab === "tutte" || i.folder === tab) &&
+      matchTab(i) &&
       (q.trim() === "" || i.path.toLowerCase().includes(q.trim().toLowerCase())),
   );
 
@@ -320,15 +355,26 @@ const LibraryDialog = ({
           </button>
         </div>
 
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => fileRef.current?.click()}
-          className="mb-6 inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-4 py-2 text-sm text-primary hover:bg-primary/20 disabled:opacity-50"
-        >
-          <Upload className="w-4 h-4" />
-          {busy ? "Caricamento…" : "Carica una nuova immagine"}
-        </button>
+        <div className="mb-5 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => fileRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-4 py-2 text-sm text-primary hover:bg-primary/20 disabled:opacity-50"
+          >
+            <Upload className="w-4 h-4" />
+            {busy ? "Caricamento…" : "Carica una nuova immagine"}
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => videoRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-secondary/60 disabled:opacity-50"
+          >
+            <Film className="w-4 h-4" />
+            Carica un video
+          </button>
+        </div>
         <input
           ref={fileRef}
           type="file"
@@ -345,7 +391,7 @@ const LibraryDialog = ({
               // Associa subito il file al segnaposto, poi aggiorna la libreria:
               // l'immagine compare senza ricaricare la pagina.
               onUploaded();
-              await onSelect(path);
+              await onSelect(path, false);
             } catch (e) {
               setErr(
                 "Caricamento non riuscito. Riprova o scegli un file più piccolo.",
@@ -355,14 +401,77 @@ const LibraryDialog = ({
             }
           }}
         />
+        <input
+          ref={videoRef}
+          type="file"
+          accept="video/mp4,video/webm,video/quicktime"
+          className="hidden"
+          onChange={async (e) => {
+            const f = e.target.files?.[0];
+            e.target.value = "";
+            if (!f) return;
+            setBusy(true);
+            setErr(null);
+            try {
+              const path = await uploadImage(f, VIDEO_FOLDER);
+              onUploaded();
+              await onSelect(path, true);
+            } catch (e) {
+              setErr(
+                "Caricamento del video non riuscito. Prova con un file più leggero oppure incolla un indirizzo esterno.",
+              );
+            } finally {
+              setBusy(false);
+            }
+          }}
+        />
+
+        {/* Indirizzo esterno: YouTube o link diretto a un file video */}
+        <div className="mb-6 rounded-md border border-border/60 bg-background/50 p-3">
+          <p className="mb-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+            <Link2 className="w-3.5 h-3.5" />
+            Oppure incolla un indirizzo
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="url"
+              value={extUrl}
+              onChange={(e) => setExtUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=…  oppure link diretto al file"
+              aria-label="Indirizzo del video"
+              className="min-w-0 flex-1 rounded-md border border-border bg-background/60 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+            />
+            <button
+              type="button"
+              disabled={busy || extUrl.trim() === ""}
+              onClick={async () => {
+                setBusy(true);
+                setErr(null);
+                try {
+                  await onExternal(extUrl);
+                } catch {
+                  setErr("Indirizzo non salvato. Riprova.");
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              className="rounded-md border border-primary/60 bg-primary/10 px-4 py-2 text-sm text-primary hover:bg-primary/20 disabled:opacity-50"
+            >
+              Usa questo
+            </button>
+          </div>
+        </div>
         {err && <p className="mb-4 text-xs text-destructive">{err}</p>}
 
+
         <div className="mb-4 flex flex-wrap gap-2">
-          {["tutte", ...folders].map((f) => {
+          {["tutte", "solo-video", ...folders].map((f) => {
             const count =
               f === "tutte"
                 ? library.length
-                : library.filter((i) => i.folder === f).length;
+                : f === "solo-video"
+                  ? library.filter((i) => i.isVideo).length
+                  : library.filter((i) => i.folder === f).length;
             return (
               <button
                 key={f}
@@ -375,12 +484,17 @@ const LibraryDialog = ({
                     : "border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {f === "tutte" ? "Tutte" : folderLabel(f)}{" "}
+                {f === "tutte"
+                  ? "Tutte"
+                  : f === "solo-video"
+                    ? "Video"
+                    : folderLabel(f)}{" "}
                 <span className="font-mono text-[10px] opacity-70">{count}</span>
               </button>
             );
           })}
         </div>
+
 
         <input
           type="search"
@@ -392,12 +506,12 @@ const LibraryDialog = ({
         />
 
         <p className="mb-3 font-mono text-[10px] text-muted-foreground">
-          {visible.length} immagini mostrate su {library.length} in archivio
+          {visible.length} file mostrati su {library.length} in archivio
         </p>
 
         {visible.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Nessuna immagine corrisponde alla ricerca.
+            Nessun file corrisponde alla ricerca.
           </p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -408,18 +522,29 @@ const LibraryDialog = ({
               >
                 <button
                   type="button"
-                  onClick={() => onSelect(img.path)}
+                  onClick={() => onSelect(img.path, img.isVideo)}
                   className="block w-full text-left"
                 >
-                  <img
-                    src={img.url}
-                    alt={img.path}
-                    className="w-full h-28 object-cover"
-                  />
+                  {img.isVideo ? (
+                    <video
+                      src={img.url}
+                      muted
+                      preload="metadata"
+                      className="w-full h-28 object-cover bg-background"
+                    />
+                  ) : (
+                    <img
+                      src={img.url}
+                      alt={img.path}
+                      className="w-full h-28 object-cover"
+                    />
+                  )}
                   <span className="block px-2 py-1 text-[10px] font-mono text-muted-foreground truncate">
+                    {img.isVideo ? "▶ " : ""}
                     {img.path}
                   </span>
                 </button>
+
                 <button
                   type="button"
                   aria-label={`Elimina ${img.path}`}

@@ -119,10 +119,34 @@ const resolveSigned = async (path: string) => {
   return null;
 };
 
+/** Prefisso per un indirizzo esterno (YouTube, Drive, ecc.). */
+export const EXTERNAL_PREFIX = "ext::";
+/** Prefisso per un file video caricato nel bucket. */
+export const VIDEO_PREFIX = "video::";
+/** Cartella storage dedicata ai video caricati. */
+export const VIDEO_FOLDER = "video";
+
+export type PlaceholderMedia =
+  | { kind: "image"; url: string }
+  | { kind: "video"; url: string }
+  | { kind: "youtube"; url: string };
+
+/** Id del video YouTube, se l'indirizzo è di YouTube. */
+export const youtubeId = (url: string): string | null => {
+  const m = url.match(
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/,
+  );
+  return m ? m[1] : null;
+};
+
+const IMAGE_EXT = /\.(png|jpe?g|webp|gif|avif|svg)(\?|$)/i;
+
 export const setPlaceholderImage = async (id: string, path: string) => {
   const previous = paths[id];
   paths[id] = path;
-  await resolveSigned(path);
+  if (!path.startsWith(EXTERNAL_PREFIX)) {
+    await resolveSigned(path.replace(VIDEO_PREFIX, ""));
+  }
   emit();
   const { error } = await supabase
     .from("placeholder_images")
@@ -137,10 +161,44 @@ export const setPlaceholderImage = async (id: string, path: string) => {
   emit();
 };
 
+/** Associa un video: file già caricato nel bucket. */
+export const setPlaceholderVideoPath = (id: string, path: string) =>
+  setPlaceholderImage(id, `${VIDEO_PREFIX}${path}`);
+
+/** Associa un indirizzo esterno (YouTube o link diretto a un file). */
+export const setPlaceholderExternal = (id: string, url: string) =>
+  setPlaceholderImage(id, `${EXTERNAL_PREFIX}${url.trim()}`);
+
 export const clearPlaceholderImage = async (id: string) => {
   delete paths[id];
   emit();
   await supabase.from("placeholder_images").delete().eq("placeholder_id", id);
+};
+
+// ---------- Link di riferimento (solo istruttore) ----------
+
+/** Id stabile del link di riferimento di un blocco (mai mostrato in Aula). */
+export const refLinkId = (modulo: string, blocco: string) =>
+  `reflink::${modulo}::${blocco}`;
+
+/** Salva/aggiorna il link di riferimento del blocco. */
+export const setRefLink = (modulo: string, blocco: string, url: string) =>
+  setPlaceholderExternal(refLinkId(modulo, blocco), url);
+
+export const clearRefLink = (modulo: string, blocco: string) =>
+  clearPlaceholderImage(refLinkId(modulo, blocco));
+
+/** Link di riferimento salvato per il blocco (null se assente). */
+export const useRefLink = (modulo: string, blocco: string) => {
+  const [, force] = useState(0);
+  useEffect(() => {
+    const sync = () => force((n) => n + 1);
+    window.addEventListener(EVT, sync);
+    if (!loaded) loadAll();
+    return () => window.removeEventListener(EVT, sync);
+  }, []);
+  const raw = paths[refLinkId(modulo, blocco)];
+  return raw ? raw.replace(EXTERNAL_PREFIX, "") : null;
 };
 
 /** Elenca tutti i file di una cartella, senza limite pratico (pagine da 1000). */
@@ -214,14 +272,21 @@ export const listLibrary = async () => {
 
   await resolveSignedMany(wanted);
   return out
-    .map((f) => ({ ...f, url: signed[f.path] ?? "" }))
+    .map((f) => ({
+      ...f,
+      url: signed[f.path] ?? "",
+      isVideo: VIDEO_EXT.test(f.name),
+    }))
     .filter((f) => f.url !== "");
 };
+
+/** Estensioni riconosciute come video nella libreria. */
+export const VIDEO_EXT = /\.(mp4|webm|mov|m4v)$/i;
 
 /** Segnaposto attualmente associati a un file del bucket. */
 export const placeholderIdsUsingPath = (path: string) =>
   Object.entries(paths)
-    .filter(([, p]) => p === path)
+    .filter(([, p]) => p.replace(VIDEO_PREFIX, "") === path)
     .map(([id]) => id);
 
 /**
@@ -250,6 +315,15 @@ export const uploadImage = async (file: File, folder: string) => {
 
 /** URL pronto da mostrare per un segnaposto (null se non configurato). */
 export const usePlaceholderImage = (id: string) => {
+  const media = usePlaceholderMedia(id);
+  return media && media.kind === "image" ? media.url : null;
+};
+
+/**
+ * Contenuto associato al segnaposto: immagine, video caricato nel bucket
+ * oppure indirizzo esterno (YouTube o link diretto a un file).
+ */
+export const usePlaceholderMedia = (id: string): PlaceholderMedia | null => {
   const [, force] = useState(0);
   useEffect(() => {
     const sync = () => force((n) => n + 1);
@@ -258,10 +332,27 @@ export const usePlaceholderImage = (id: string) => {
     return () => window.removeEventListener(EVT, sync);
   }, []);
 
-  const path = paths[id];
-  useEffect(() => {
-    if (path && !signed[path]) resolveSigned(path);
-  }, [path]);
+  const raw = paths[id];
+  const storagePath =
+    raw && !raw.startsWith(EXTERNAL_PREFIX)
+      ? raw.replace(VIDEO_PREFIX, "")
+      : null;
 
-  return path ? (signed[path] ?? null) : null;
+  useEffect(() => {
+    if (storagePath && !signed[storagePath]) resolveSigned(storagePath);
+  }, [storagePath]);
+
+  if (!raw) return null;
+
+  if (raw.startsWith(EXTERNAL_PREFIX)) {
+    const url = raw.slice(EXTERNAL_PREFIX.length);
+    const yt = youtubeId(url);
+    if (yt) return { kind: "youtube", url: `https://www.youtube.com/embed/${yt}` };
+    return { kind: IMAGE_EXT.test(url) ? "image" : "video", url };
+  }
+
+  const url = storagePath ? (signed[storagePath] ?? null) : null;
+  if (!url) return null;
+  return { kind: raw.startsWith(VIDEO_PREFIX) ? "video" : "image", url };
 };
+
