@@ -300,9 +300,15 @@ const LibraryDialog = ({
 
 
   const folders = Array.from(new Set(library.map((i) => i.folder))).sort();
+  const matchTab = (i: LibraryItem) =>
+    tab === "tutte"
+      ? true
+      : tab === "solo-video"
+        ? i.isVideo
+        : i.folder === tab;
   const visible = library.filter(
     (i) =>
-      (tab === "tutte" || i.folder === tab) &&
+      matchTab(i) &&
       (q.trim() === "" || i.path.toLowerCase().includes(q.trim().toLowerCase())),
   );
 
