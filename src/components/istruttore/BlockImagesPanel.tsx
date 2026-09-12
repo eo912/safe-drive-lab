@@ -493,12 +493,12 @@ const LibraryDialog = ({
         />
 
         <p className="mb-3 font-mono text-[10px] text-muted-foreground">
-          {visible.length} immagini mostrate su {library.length} in archivio
+          {visible.length} file mostrati su {library.length} in archivio
         </p>
 
         {visible.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Nessuna immagine corrisponde alla ricerca.
+            Nessun file corrisponde alla ricerca.
           </p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -509,18 +509,29 @@ const LibraryDialog = ({
               >
                 <button
                   type="button"
-                  onClick={() => onSelect(img.path)}
+                  onClick={() => onSelect(img.path, img.isVideo)}
                   className="block w-full text-left"
                 >
-                  <img
-                    src={img.url}
-                    alt={img.path}
-                    className="w-full h-28 object-cover"
-                  />
+                  {img.isVideo ? (
+                    <video
+                      src={img.url}
+                      muted
+                      preload="metadata"
+                      className="w-full h-28 object-cover bg-background"
+                    />
+                  ) : (
+                    <img
+                      src={img.url}
+                      alt={img.path}
+                      className="w-full h-28 object-cover"
+                    />
+                  )}
                   <span className="block px-2 py-1 text-[10px] font-mono text-muted-foreground truncate">
+                    {img.isVideo ? "▶ " : ""}
                     {img.path}
                   </span>
                 </button>
+
                 <button
                   type="button"
                   aria-label={`Elimina ${img.path}`}
