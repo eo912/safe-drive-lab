@@ -272,14 +272,21 @@ export const listLibrary = async () => {
 
   await resolveSignedMany(wanted);
   return out
-    .map((f) => ({ ...f, url: signed[f.path] ?? "" }))
+    .map((f) => ({
+      ...f,
+      url: signed[f.path] ?? "",
+      isVideo: VIDEO_EXT.test(f.name),
+    }))
     .filter((f) => f.url !== "");
 };
+
+/** Estensioni riconosciute come video nella libreria. */
+export const VIDEO_EXT = /\.(mp4|webm|mov|m4v)$/i;
 
 /** Segnaposto attualmente associati a un file del bucket. */
 export const placeholderIdsUsingPath = (path: string) =>
   Object.entries(paths)
-    .filter(([, p]) => p === path)
+    .filter(([, p]) => p.replace(VIDEO_PREFIX, "") === path)
     .map(([id]) => id);
 
 /**
