@@ -223,14 +223,21 @@ const PlaceholderCard = ({
   onPick: (id: string) => void;
 }) => {
   const id = placeholderIdFor(folder, label);
-  const url = usePlaceholderImage(id);
+  const media = usePlaceholderMedia(id);
 
   return (
     <div className="rounded-lg border border-border/60 bg-background/60 overflow-hidden">
       <div className="h-40 bg-muted/20 flex items-center justify-center">
-        {url ? (
-          <img src={url} alt={label} className="h-full w-full object-cover" />
-        ) : (
+        {media?.kind === "image" && (
+          <img src={media.url} alt={label} className="h-full w-full object-cover" />
+        )}
+        {media?.kind === "video" && (
+          <video src={media.url} controls className="h-full w-full object-cover" />
+        )}
+        {media?.kind === "youtube" && (
+          <iframe src={media.url} title={label} className="h-full w-full" />
+        )}
+        {!media && (
           <p className="px-4 text-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
             Segnaposto vuoto
           </p>
@@ -246,9 +253,9 @@ const PlaceholderCard = ({
             className="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20"
           >
             <Images className="w-3.5 h-3.5" />
-            Scegli immagine
+            Scegli immagine o video
           </button>
-          {url && (
+          {media && (
             <button
               type="button"
               onClick={() => clearPlaceholderImage(id)}
