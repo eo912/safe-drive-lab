@@ -336,15 +336,14 @@ const IstruttoreModulo = () => {
     applyPosition({ blocco: previewState.blocco, step });
 
   // Telecomando: muove la posizione corrente lungo la sequenza lineare.
-  // In "regia" si parte dalla preview, in "lineare" si parte dal live (che coincide).
+  // I tasti comandano SEMPRE l'Aula (anche in modalità "regia"): si parte dalla
+  // posizione realmente in onda, con ripiego sull'anteprima se l'Aula è ferma.
   useEffect(() => {
     stepRemoteRef.current = (dir: 1 | -1) => {
       if (sequence.length === 0) return;
-      const cur = findPositionIndex(
-        sequence,
-        previewState.blocco,
-        previewState.step,
-      );
+      const fromBlocco = liveState?.blocco ?? previewState.blocco;
+      const fromStep = liveState?.step ?? previewState.step;
+      const cur = findPositionIndex(sequence, fromBlocco, fromStep);
       const safe = cur === -1 ? 0 : cur;
       const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
       if (next === safe && cur !== -1) return;
@@ -355,9 +354,16 @@ const IstruttoreModulo = () => {
       hazardOutcomeRef.current = undefined;
       setHazardPhase("idle");
       setHazardOutcome(undefined);
-      applyPosition(sequence[next]);
+      publish({ ...sequence[next], paused: false });
     };
-  }, [sequence, previewState.blocco, previewState.step, applyPosition]);
+  }, [
+    sequence,
+    previewState.blocco,
+    previewState.step,
+    liveState?.blocco,
+    liveState?.step,
+    publish,
+  ]);
 
   const sendToAula = () => {
     phonePhaseRef.current = "idle";
