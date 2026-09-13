@@ -69,7 +69,7 @@ type Props = {
 
 /**
  * Pannello Studio (Regia) per associare immagini reali ai segnaposto della
- * schermata selezionata. Salva su Supabase (bucket course-images + tabella
+ * schermata selezionata. Salva su Supabase (bucket esterno safe-drive-labs-assets + tabella
  * placeholder_images): la scelta compare subito nella vista Aula.
  */
 export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
