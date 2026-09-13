@@ -353,45 +353,16 @@ export const prepareOfflineSession = async (
  * fisso, nessun limite basso. Ritorna anche la cartella di ogni file.
  */
 export const listLibrary = async () => {
-  const { data: rootEntries } = await supabase.storage
-    .from(BUCKET)
-    .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
-
-  const folders = (rootEntries ?? [])
-    .filter((e) => !e.id && !e.name.startsWith("."))
-    .map((e) => e.name);
-
-  const perFolder = await Promise.all(
-    folders.map(async (f) => ({ folder: f, files: await listFolderFiles(f) })),
-  );
-
-  const out: { path: string; url: string; folder: string; name: string }[] = [];
-  const wanted: string[] = [];
-  for (const { folder, files } of perFolder) {
-    for (const name of files) {
-      const path = `${folder}/${name}`;
-      wanted.push(path);
-      out.push({ path, url: "", folder, name });
-    }
-  }
-
-  // File eventualmente presenti nella radice del bucket.
-  for (const e of rootEntries ?? []) {
-    if (e.id && !e.name.startsWith(".")) {
-      wanted.push(e.name);
-      out.push({ path: e.name, url: "", folder: "(radice)", name: e.name });
-    }
-  }
-
-  await resolveSignedMany(wanted);
-  return out
-    .map((f) => ({
-      ...f,
-      url: signed[f.path] ?? "",
-      isVideo: VIDEO_EXT.test(f.name),
-    }))
-    .filter((f) => f.url !== "");
+  const { files } = await listAllAssets();
+  return files.map((f) => ({
+    path: f.path,
+    url: assetUrl(f.path),
+    folder: f.folder || "(radice)",
+    name: f.name,
+    isVideo: VIDEO_EXT.test(f.name),
+  }));
 };
+
 
 /** Estensioni riconosciute come video nella libreria. */
 export const VIDEO_EXT = /\.(mp4|webm|mov|m4v)$/i;
