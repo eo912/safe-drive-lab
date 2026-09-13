@@ -354,8 +354,10 @@ const IstruttoreModulo = () => {
   useEffect(() => {
     stepRemoteRef.current = (dir: 1 | -1) => {
       if (sequence.length === 0) return;
-      const fromBlocco = liveState?.blocco ?? previewState.blocco;
-      const fromStep = liveState?.step ?? previewState.step;
+      // Priorità alla posizione realmente visibile in Aula (heartbeat).
+      const fromBlocco =
+        aulaHeartbeat?.blocco ?? liveState?.blocco ?? previewState.blocco;
+      const fromStep = aulaHeartbeat?.step ?? liveState?.step ?? previewState.step;
       const cur = findPositionIndex(sequence, fromBlocco, fromStep);
       const safe = cur === -1 ? 0 : cur;
       const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
@@ -375,6 +377,8 @@ const IstruttoreModulo = () => {
     previewState.step,
     liveState?.blocco,
     liveState?.step,
+    aulaHeartbeat?.blocco,
+    aulaHeartbeat?.step,
     publish,
   ]);
 
