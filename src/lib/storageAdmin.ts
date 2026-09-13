@@ -159,12 +159,13 @@ export const uploadFiles = async (
     const base = slugify(file.name.replace(/\.[^.]+$/, "")) || "file";
     const name = `${Date.now()}-${base}.${ext.toLowerCase()}`;
     const path = dest ? `${dest}/${name}` : name;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-      upsert: false,
-      contentType: file.type || undefined,
-    });
-    if (error) failed.push({ name: file.name, message: error.message });
-    else paths.push(path);
+    try {
+      await uploadAsset(path, file, false);
+      paths.push(path);
+    } catch (e) {
+      failed.push({ name: file.name, message: e instanceof Error ? e.message : "errore" });
+    }
+
     done += 1;
     onProgress?.(done, files.length);
   }
