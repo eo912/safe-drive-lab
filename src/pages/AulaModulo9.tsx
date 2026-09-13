@@ -265,23 +265,23 @@ const AulaModulo9 = () => {
           BLOCCO 1 — TEST FINALE, DOMANDE 1-5
           ============================================================ */}
       <Slide bg="black" blockId="verifica-1" className="items-stretch">
-        <div className="relative z-10 w-full h-full px-6 md:px-12 py-8 md:py-10">
-          <div className="max-w-6xl mx-auto flex flex-col gap-4 justify-center min-h-full">
+        <div className="relative z-10 w-full h-full px-6 md:px-12 py-6 md:py-8">
+          <div className="max-w-6xl mx-auto flex flex-col gap-3 justify-center min-h-full">
             <div className="text-center">
-              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-2">
+              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-1">
                 Verifica finale · Test di apprendimento
               </p>
-              <h1 className="text-2xl md:text-3xl font-bold leading-tight">
+              <h1 className="text-xl md:text-2xl font-bold leading-tight">
                 Dieci domande,{" "}
                 <span className="text-primary">una sola cosa conta</span>: capire
               </h1>
-              <p className="text-xs md:text-sm text-muted-foreground mt-2">
+              <p className="text-[11px] md:text-xs text-muted-foreground mt-1">
                 Il docente legge la domanda, l'aula risponde a voce, il docente
                 evidenzia l'opzione con il mouse.
               </p>
             </div>
 
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2">
               {quizFinale.slice(0, 5).map((q, i) => (
                 <QuizQuestion key={q.id} data={q} number={i + 1} />
               ))}
@@ -294,18 +294,18 @@ const AulaModulo9 = () => {
           BLOCCO 2 — TEST FINALE, DOMANDE 6-10
           ============================================================ */}
       <Slide bg="black" blockId="verifica-2" className="items-stretch">
-        <div className="relative z-10 w-full h-full px-6 md:px-12 py-8 md:py-10">
-          <div className="max-w-6xl mx-auto flex flex-col gap-4 justify-center min-h-full">
+        <div className="relative z-10 w-full h-full px-6 md:px-12 py-6 md:py-8">
+          <div className="max-w-6xl mx-auto flex flex-col gap-3 justify-center min-h-full">
             <div className="text-center">
-              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-2">
+              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-1">
                 Verifica finale · Seconda parte
               </p>
-              <h1 className="text-2xl md:text-3xl font-bold leading-tight">
+              <h1 className="text-xl md:text-2xl font-bold leading-tight">
                 Ultime cinque domande
               </h1>
             </div>
 
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2">
               {quizFinale.slice(5).map((q, i) => (
                 <QuizQuestion key={q.id} data={q} number={i + 6} />
               ))}
