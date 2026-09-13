@@ -1,7 +1,8 @@
-import { Wifi, WifiOff, Coffee } from "lucide-react";
+import { Wifi, WifiOff, Coffee, AlertTriangle } from "lucide-react";
 import { useAulaHeartbeatMonitor } from "@/lib/aulaSync";
 import type { ModuleBlock } from "@/lib/moduleBlocks";
 import { getAtmosphere } from "@/lib/pauseAtmosphere";
+import { modules } from "@/lib/modules";
 
 type Props = {
   modulo: string;
@@ -18,12 +19,17 @@ const fmtSince = (ms: number) => {
 /**
  * Indicatore Aula online/offline + ultimo sync.
  * Riceve heartbeat dall'Aula reale ogni ~1.5s. Se non arriva nulla per
- * oltre 4s, mostra stato offline con tempo trascorso dall'ultimo contatto.
+ * oltre 6s, mostra stato offline con tempo trascorso dall'ultimo contatto.
+ *
+ * Caso a parte: Aula raggiungibile ma su un ALTRO modulo. Non è offline,
+ * è disallineata — e va detto chiaramente, perché in quel caso i comandi
+ * della Regia non arrivano alla schermata proiettata.
  *
  * Volutamente non-tecnico: niente ping/log/diagnostica.
  */
 export const AulaStatusBadge = ({ modulo, blocks }: Props) => {
-  const { heartbeat, online, sinceMs } = useAulaHeartbeatMonitor(modulo);
+  const { heartbeat, online, sinceMs, foreignModulo } =
+    useAulaHeartbeatMonitor(modulo);
 
   const block = heartbeat
     ? blocks.find((b) => b.id === heartbeat.blocco) ?? null
@@ -31,6 +37,27 @@ export const AulaStatusBadge = ({ modulo, blocks }: Props) => {
   const atm = heartbeat?.paused
     ? getAtmosphere(heartbeat.pauseAtmosphere)
     : null;
+
+  if (foreignModulo) {
+    const other = modules.find((m) => m.slug === foreignModulo);
+    return (
+      <div
+        className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-md border border-amber-500/50 bg-amber-500/10 text-amber-400 shrink-0"
+        title="L'Aula sta mostrando un altro modulo: i comandi della Regia non la raggiungono."
+        aria-live="polite"
+      >
+        <AlertTriangle className="w-3 h-3" />
+        <div className="flex flex-col leading-tight">
+          <span className="text-[10px] font-mono uppercase tracking-wider">
+            Aula su altro modulo
+          </span>
+          <span className="text-[10px] text-muted-foreground truncate max-w-[200px]">
+            {other ? other.title : foreignModulo} · allineamento in corso
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   const liveLabel = !heartbeat
     ? "Mai connessa"
