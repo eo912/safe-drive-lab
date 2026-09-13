@@ -294,7 +294,8 @@ const IstruttoreModulo = () => {
   const liveBlockId = liveState?.blocco ?? null;
   const liveStep = liveState?.step ?? null;
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
-  const { heartbeat: aulaHeartbeat } = useAulaHeartbeatMonitor(slug);
+  const { liveHeartbeat: aulaHeartbeat, foreignModulo } =
+    useAulaHeartbeatMonitor(slug);
 
   // L'Aula comunica la posizione realmente visibile: quando cambia (anche per
   // scroll manuale lato Aula) la Regia si allinea, così blocco selezionato,
@@ -307,6 +308,17 @@ const IstruttoreModulo = () => {
     lastAulaPosRef.current = key;
     setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
   }, [aulaHeartbeat, setPreview]);
+
+  // L'Aula è passata da sola a un altro modulo (es. avanzando oltre l'ultimo
+  // blocco): la Regia lo segue, altrimenti i comandi finirebbero nel vuoto.
+  useEffect(() => {
+    if (!foreignModulo) return;
+    if (!modules.some((m) => m.slug === foreignModulo)) return;
+    const id = window.setTimeout(() => {
+      navigate(`/istruttore/${foreignModulo}`, { replace: true });
+    }, 1200);
+    return () => window.clearTimeout(id);
+  }, [foreignModulo, navigate]);
 
 
   // Tempo per slide: previsto (config + override locale) + cronometro live.
