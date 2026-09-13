@@ -544,7 +544,10 @@ const AulaModulo8 = () => {
             </div>
           </div>
         </div>
-        <ModuloNextNav to="/aula" label="Torna all'indice moduli" backToIndex />
+        <ModuloNextNav
+          to="/aula/modulo-9-verifica-finale"
+          label="Modulo successivo"
+        />
       </Slide>
     </div>
   );
