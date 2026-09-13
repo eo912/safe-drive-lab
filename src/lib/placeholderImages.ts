@@ -268,51 +268,10 @@ export const useRefLink = (modulo: string, blocco: string) => {
   return raw ? raw.replace(EXTERNAL_PREFIX, "") : null;
 };
 
-/** Elenca tutti i file di una cartella, senza limite pratico (pagine da 1000). */
-const listFolderFiles = async (folder: string) => {
-  const names: string[] = [];
-  const PAGE = 1000;
-  for (let offset = 0; ; offset += PAGE) {
-    const { data } = await supabase.storage
-      .from(BUCKET)
-      .list(folder, { limit: PAGE, offset, sortBy: { column: "name", order: "asc" } });
-    const page = data ?? [];
-    for (const file of page) {
-      if (file.name.startsWith(".")) continue;
-      // Le sottocartelle non hanno metadata: le ignoriamo qui.
-      if (!file.id) continue;
-      names.push(file.name);
-    }
-    if (page.length < PAGE) break;
-  }
-  return names;
-};
-
-/** Firma in blocco un elenco di percorsi e popola la cache. */
-const resolveSignedMany = async (allPaths: string[], force = false) => {
-  if (!isOnline()) return;
-  const missing = force ? allPaths : allPaths.filter((p) => !signed[p]);
-  const CHUNK = 100;
-  for (let i = 0; i < missing.length; i += CHUNK) {
-    const chunk = missing.slice(i, i + CHUNK);
-    try {
-      const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
-      for (const row of data ?? []) {
-        if (row.path && row.signedUrl) rememberSigned(row.path, row.signedUrl);
-      }
-      markBackendOk();
-    } catch {
-      markBackendFailure();
-      return;
-    }
-  }
-  if (missing.length > 0) emit();
-};
-
 /**
- * Prepara la sessione offline: rinnova tutti gli indirizzi firmati dei file
- * associati ai segnaposto e scarica le immagini nella cache del browser,
- * così in aula senza rete restano disponibili.
+ * Prepara la sessione offline: scarica nella cache del browser tutti i file
+ * associati ai segnaposto, così in aula senza rete restano disponibili.
+ * Gli indirizzi sono pubblici e permanenti: non scadono più.
  */
 export const prepareOfflineSession = async (
   onProgress?: (done: number, total: number) => void,
@@ -328,25 +287,21 @@ export const prepareOfflineSession = async (
     ),
   );
 
-  await resolveSignedMany(storagePaths, true);
-
   let done = 0;
   const total = storagePaths.length;
   onProgress?.(0, total);
   for (const path of storagePaths) {
-    const url = signed[path];
-    if (url) {
-      try {
-        await fetch(url, { mode: "cors", cache: "reload" });
-      } catch {
-        /* singolo file non scaricabile: proseguiamo */
-      }
+    try {
+      await fetch(assetUrl(path), { mode: "cors", cache: "reload" });
+    } catch {
+      /* singolo file non scaricabile: proseguiamo */
     }
     done += 1;
     onProgress?.(done, total);
   }
   return { total };
 };
+
 
 /**
  * Tutti i file del bucket, scoprendo le cartelle dinamicamente: nessun elenco
