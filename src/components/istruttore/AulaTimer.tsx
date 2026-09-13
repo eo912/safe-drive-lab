@@ -117,10 +117,6 @@ export const AulaTimer = ({
     }
   };
 
-  const addTwoMinutes = () => {
-    setTotalSec((t) => t + 2 * 60);
-  };
-
   const triggerPause = () => {
     setRunning(false);
     onRequestAulaPause?.(5, atmosphere);
