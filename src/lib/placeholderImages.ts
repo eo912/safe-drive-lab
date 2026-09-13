@@ -410,6 +410,9 @@ export const deleteLibraryImage = async (path: string) => {
   const used = placeholderIdsUsingPath(path);
   for (const id of used) delete paths[id];
   delete signed[path];
+  delete signedStore[path];
+  saveCachedSigned(signedStore);
+  saveCachedPaths(paths);
   emit();
   if (used.length > 0) {
     await supabase.from("placeholder_images").delete().in("placeholder_id", used);
