@@ -58,14 +58,22 @@ const toFile = (folder: string, e: Entry) => ({
   updatedAt: e.updated_at ?? null,
 });
 
+// Gli header predefiniti non includono il contrassegno della modalità nascosta:
+// senza, il browser blocca la richiesta prima dell'invio.
+const cors = {
+  ...corsHeaders,
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-sdl-edit",
+};
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...cors, "Content-Type": "application/json" },
   });
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
     if (!KEY) return json({ error: "chiave del progetto esterno non configurata" }, 500);

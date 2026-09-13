@@ -78,13 +78,24 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
   const folder = mod?.folder ?? "generico";
 
   const [library, setLibrary] = useState<LibraryItem[]>([]);
+  const [libraryError, setLibraryError] = useState<string | null>(null);
   const [picker, setPicker] = useState<{
     id: string;
     label: string;
     folder: string;
   } | null>(null);
 
-  const refreshLibrary = () => listLibrary().then(setLibrary);
+  const refreshLibrary = () =>
+    listLibrary()
+      .then((items) => {
+        setLibrary(items);
+        setLibraryError(null);
+      })
+      .catch((e) =>
+        setLibraryError(
+          `Archivio non raggiungibile: ${e instanceof Error ? e.message : "errore di connessione"}. Riprova.`,
+        ),
+      );
 
   useEffect(() => {
     refreshLibrary();
@@ -143,6 +154,7 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
       {picker && (
         <LibraryDialog
           library={library}
+          loadError={libraryError}
           folder={picker.folder}
           label={picker.label}
           onUploaded={refreshLibrary}
@@ -273,6 +285,7 @@ const PlaceholderCard = ({
 
 const LibraryDialog = ({
   library,
+  loadError,
   folder,
   label,
   onSelect,
@@ -282,6 +295,7 @@ const LibraryDialog = ({
   onClose,
 }: {
   library: LibraryItem[];
+  loadError: string | null;
   folder: string;
   label: string;
   onSelect: (path: string, isVideo: boolean) => void | Promise<void>;
@@ -509,7 +523,13 @@ const LibraryDialog = ({
           {visible.length} file mostrati su {library.length} in archivio
         </p>
 
-        {visible.length === 0 ? (
+        {loadError && (
+          <p className="mb-3 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {loadError}
+          </p>
+        )}
+
+        {!loadError && visible.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Nessun file corrisponde alla ricerca.
           </p>
