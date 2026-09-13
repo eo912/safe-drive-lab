@@ -240,6 +240,7 @@ const IstruttoreModulo = () => {
 
       if (
         e.key === "ArrowRight" ||
+        e.key === "ArrowDown" ||
         e.key === "PageDown" ||
         e.key === " " ||
         e.key === "Spacebar"
@@ -248,7 +249,7 @@ const IstruttoreModulo = () => {
         stepRemoteRef.current?.(1);
         return;
       }
-      if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") {
         e.preventDefault();
         stepRemoteRef.current?.(-1);
         return;
