@@ -5,8 +5,6 @@ import {
   RotateCcw,
   Clock,
   Coffee,
-  BellOff,
-  Plus,
   X,
   Eye,
 } from "lucide-react";
@@ -14,7 +12,6 @@ import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 
 
 const DEFAULT_TOTAL = 45 * 60; // 45 minuti
-const WARN_AT = 30; // secondi rimanenti per il warning
 
 const fmt = (s: number) => {
   const sign = s < 0 ? "-" : "";
@@ -59,8 +56,6 @@ export const AulaTimer = ({
   const [now, setNow] = useState(() => new Date());
   const [customOpen, setCustomOpen] = useState(false);
   const [customMin, setCustomMin] = useState("45");
-  const [warned, setWarned] = useState(false);
-  const [showWarn, setShowWarn] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const lastTickRef = useRef<number | null>(null);
 
@@ -90,18 +85,6 @@ export const AulaTimer = ({
   const remaining = Math.round(totalSec - elapsed);
   const ratio = elapsed / totalSec;
 
-  // Warning a -30 secondi (una sola volta per ciclo)
-  useEffect(() => {
-    if (running && remaining <= WARN_AT && remaining > 0 && !warned) {
-      setWarned(true);
-      setShowWarn(true);
-    }
-    if (remaining > WARN_AT && warned) {
-      // l'utente ha aggiunto tempo: re-armare l'avviso
-      setWarned(false);
-    }
-  }, [remaining, running, warned]);
-
   const status: "ok" | "warn" | "danger" =
     ratio < 0.7 ? "ok" : ratio < 0.9 ? "warn" : "danger";
 
@@ -122,8 +105,6 @@ export const AulaTimer = ({
   const reset = () => {
     setRunning(false);
     setElapsed(0);
-    setWarned(false);
-    setShowWarn(false);
   };
 
   const applyCustom = () => {
@@ -132,20 +113,16 @@ export const AulaTimer = ({
       setTotalSec(m * 60);
       setElapsed(0);
       setRunning(false);
-      setWarned(false);
-      setShowWarn(false);
       setCustomOpen(false);
     }
   };
 
   const addTwoMinutes = () => {
     setTotalSec((t) => t + 2 * 60);
-    setShowWarn(false);
   };
 
   const triggerPause = () => {
     setRunning(false);
-    setShowWarn(false);
     onRequestAulaPause?.(5, atmosphere);
   };
 
