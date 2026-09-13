@@ -1,40 +1,42 @@
-# Pulizia cartelle doppie nell'archivio
+# Piano — Test finale di apprendimento (ISAMED) dopo il Modulo 8
 
-Ho confrontato i file delle cartelle vecchie con quelli delle cartelle numerate (nome + dimensione): l'archivio contiene oggi 222 file, di cui 81 nelle vecchie cartelle.
+## Obiettivo
+Nuova schermata di chiusura del corso: test di 10 domande a scelta multipla (A/B/C) gestito dal vivo dal docente con il mouse. Nessuna interazione dei partecipanti, nessun punteggio a schermo, nessuna persistenza dei risultati.
 
-## Cosa ho trovato
+## Dove si inserisce
+- Nuovo modulo "verifica-finale" nella sequenza, dopo il Modulo 8:
+  - nuova pagina `src/pages/AulaModulo9.tsx`, route `/aula/modulo-9-verifica-finale` in `App.tsx`;
+  - voce in `src/lib/modules.ts` (titolo "Verifica Finale", slug `modulo-9-verifica-finale`);
+  - blocchi registrati in `src/lib/moduleBlocks.ts` e voce in `src/lib/studioCatalog.ts`, così appare in indice Aula, Regia e Studio come gli altri moduli;
+  - in `AulaModulo8.tsx` l'ultima schermata cambia da "Torna all'indice moduli" a "Modulo successivo →" verso `/aula/modulo-9-verifica-finale`; il "Torna all'indice moduli" si sposta sull'ultima schermata del nuovo modulo.
 
-| Cartella vecchia | File | Già presenti nella nuova | Da spostare | Destinazione |
-|---|---|---|---|---|
-| foto/ | 20 | 20 | 0 | 01_FOTO |
-| brand/ | 9 | 5 | 4 | 02_BRAND |
-| grafiche/ | 28 | 28 | 0 | 03_GRAFICHE |
-| schemi/ | 5 | 5 | 0 | 04_SCHEMI_ISTAT |
-| foto-da-valutare/ | 17 | 17 | 0 | 05_FOTO_DA_VALUTARE |
-| modulo-2/ | 2 | 2 (stesso contenuto, nome diverso) | 0 | 05_FOTO_DA_VALUTARE |
-| **Totale** | **81** | **77** | **4** | |
+## Struttura: due schermate da 5 domande
+A 1280×800 dieci domande complete (domanda + 3 opzioni + spiegazione) non ci stanno in modo leggibile su una pagina sola. Quindi:
+- **Schermata 1** — domande 1–5
+- **Schermata 2** — domande 6–10 + "Torna all'indice moduli"
 
-I 4 file unici sono tutti loghi: `1789134252864-progetto-senza-titolo.png`, `1789134338098-chatgpt-image-15-gen-2026-23-37-17.png`, `pxp-drivexperience.jpg`, `safedrivelab.png`.
+Due blocchi registrati (`verifica-1`, `verifica-2`), stesso comportamento degli altri moduli: scroll interno controllato, navigazione tastiera/air mouse già esistente, nessuno scroll verticale oltre il viewport.
 
-Le due immagini in `modulo-2/` sono la stessa foto del 1° gennaio e la foto del tunnel, già presenti in `05_FOTO_DA_VALUTARE` con il nome originale: nessuna schermata le usa, quindi la cartella sparisce senza sostituzioni.
+## Componente riusabile
+Nuovo `src/components/moduloQuiz/QuizQuestion.tsx` (standalone come `HotspotScene`):
+- props: `question` (testo), `options` (3 etichette), `correctIndex`, `explanation`;
+- stato locale per opzione: nessuno / corretta (verde) / sbagliata (rosso), gestito con colori semantici e stato chiaro anche da lontano (bordo + riempimento + icona ✓/✗ testuale o simbolo, non solo tinta);
+- ogni click su un'opzione aggiorna solo quell'opzione: verde se è la corretta, rosso se sbagliata; si possono cliccare più opzioni in sequenza sulla stessa domanda;
+- alla prima risposta cliccata compare sotto la domanda la spiegazione (1–2 righe) con la risposta corretta indicata; resta visibile e si aggiorna solo lo stato colore ai click successivi;
+- nessun conteggio, punteggio o percentuale a schermo.
 
-## Cosa farò
+## Dati
+Le 10 domande (testo, opzioni, risposta corretta, spiegazione) vanno in un file dati `src/lib/quizFinale.ts`, separato dalla UI, così i testi si correggono senza toccare i componenti.
 
-1. Sposto i 4 loghi in `02_BRAND`, con nomi puliti e leggibili:
-   - `pxp-drivexperience.jpg` -> `02_BRAND/pxp-drivexperience.jpg`
-   - `safedrivelab.png` -> `02_BRAND/safedrivelab.png`
-   - `1789134252864-progetto-senza-titolo.png` -> `02_BRAND/logo-copertina-modulo-1a.png`
-   - `1789134338098-chatgpt-image-15-gen-2026-23-37-17.png` -> `02_BRAND/logo-guida-sicura-vda-watermark.png`
-2. Aggiorno i collegamenti delle schermate: oggi 10 schermate usano le vecchie cartelle (4 loghi, 4 foto, 2 foto da valutare). Ognuna verrà ripuntata al file nella cartella numerata corrispondente, con lo stesso contenuto.
-3. Ricontrollo una per una le 10 associazioni: ogni indirizzo deve rispondere correttamente prima di procedere.
-4. Solo a verifica superata cancello i 77 file doppi e le cartelle vecchie ora vuote (`foto/`, `brand/`, `grafiche/`, `schemi/`, `foto-da-valutare/`, `modulo-2/`).
-5. Controllo finale a schermo di alcune schermate coinvolte (Modulo 1a copertina, Modulo 2, Modulo 3, Modulo 4, Modulo 8) per confermare che le immagini si vedano.
+## Regia / Aula
+- Il test vive nella vista Aula: il docente clicca con il mouse direttamente sulla finestra proiettata.
+- Stato dei click **locale alla pagina Aula** (non sincronizzato via Realtime, non inviato in Regia): la Regia vede la scaletta e può mandare in live i due blocchi come per gli altri moduli.
+- In Regia, per i due blocchi del test: note istruttore (es. "leggere la domanda a voce, far rispondere l'aula, cliccare l'opzione indicata") e tempo previsto, come gli altri blocchi.
 
-Risultato: 4 file spostati, 77 eliminati, archivio ridotto a 145 file in 7 cartelle numerate.
+## Stile
+- Design system esistente: tema scuro, accenti ambra, scala tipografica attuale, watermark Guida Sicura VDA, `ModuloNextNav` finale.
+- Opzioni grandi e leggibili da distanza (proiettore): lettera A/B/C ben visibile, area click ampia, stati verde/rosso con buon contrasto sulla taratura proiettore esistente.
 
-## Dettagli tecnici
-
-- Confronto duplicati fatto su nome + dimensione esatta in byte; per `modulo-2/` l'abbinamento è per dimensione (nome cambiato all'upload).
-- Spostamenti tramite l'azione `move` della funzione `assets-admin`, cancellazioni tramite `remove`.
-- Aggiornamento di `placeholder_images.image_url` (10 righe interessate); `media_assets` è vuota, non richiede interventi.
-- Ordine: sposta -> aggiorna database -> verifica -> cancella. Nessuna cancellazione prima della verifica.
+## Verifica
+- Typecheck + build verdi.
+- Playwright a 1280×800: entrambe le schermate senza scroll verticale; click su opzione corretta → verde, su sbagliata → rosso, spiegazione visibile; click multipli sulla stessa domanda aggiornano solo l'opzione cliccata.
