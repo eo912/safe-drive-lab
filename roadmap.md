@@ -1,1 +1,1 @@
-modulo-9-verifica-finale: implementazione test finale ISAMED
+[fatto] modulo-9-verifica-finale: test finale ISAMED implementato e verificato
