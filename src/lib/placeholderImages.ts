@@ -1,26 +1,27 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  assetUrl,
+  listAllAssets,
+  removeAssets,
+  uploadAsset,
+  ASSETS_BUCKET,
+} from "./assetsBucket";
+import {
   isOnline,
   markBackendFailure,
   markBackendOk,
   onConnectivityChange,
 } from "./connectivity";
-import {
-  loadCachedPaths,
-  loadCachedSigned,
-  saveCachedPaths,
-  saveCachedSigned,
-  type SignedEntry,
-} from "./offlineCache";
+import { loadCachedPaths, saveCachedPaths } from "./offlineCache";
 
 /**
- * Associazione persistente segnaposto -> immagine nel bucket "course-images".
- * Nel database salviamo il PERCORSO del file (es. "modulo-3/abitacolo.jpg");
- * l'URL firmato viene risolto al volo e messo in cache.
+ * Associazione persistente segnaposto -> file nel bucket pubblico esterno
+ * "safe-drive-labs-assets". Nel database salviamo il PERCORSO del file
+ * (es. "foto/abitacolo.jpg"); l'indirizzo pubblico è permanente e viene
+ * costruito al volo, senza scadenza.
  */
-export const BUCKET = "course-images";
-const SIGNED_TTL = 60 * 60 * 24 * 7; // 7 giorni
+export const BUCKET = ASSETS_BUCKET;
 
 const EVT = "sdl:placeholder-images";
 
@@ -29,18 +30,9 @@ const EVT = "sdl:placeholder-images";
 let paths: Record<string, string> = loadCachedPaths();
 let loaded = false;
 let loading: Promise<void> | null = null;
-const signedStore: Record<string, SignedEntry> = loadCachedSigned();
-const signed: Record<string, string> = Object.fromEntries(
-  Object.entries(signedStore).map(([p, e]) => [p, e.url]),
-);
-
-const rememberSigned = (path: string, url: string) => {
-  signed[path] = url;
-  signedStore[path] = { url, exp: Date.now() + SIGNED_TTL * 1000 };
-  saveCachedSigned(signedStore);
-};
 
 const emit = () => window.dispatchEvent(new CustomEvent(EVT));
+
 
 export const slugify = (s: string) =>
   s
@@ -169,22 +161,6 @@ if (typeof window !== "undefined") {
   });
 }
 
-const resolveSigned = async (path: string) => {
-  if (signed[path]) return signed[path];
-  if (!isOnline()) return null;
-  try {
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_TTL);
-    if (data?.signedUrl) {
-      rememberSigned(path, data.signedUrl);
-      markBackendOk();
-      emit();
-      return data.signedUrl;
-    }
-  } catch {
-    markBackendFailure();
-  }
-  return null;
-};
 
 /** Prefisso per un indirizzo esterno (YouTube, Drive, ecc.). */
 export const EXTERNAL_PREFIX = "ext::";
@@ -211,10 +187,9 @@ const IMAGE_EXT = /\.(png|jpe?g|webp|gif|avif|svg)(\?|$)/i;
 export const setPlaceholderImage = async (id: string, path: string) => {
   const previous = paths[id];
   paths[id] = path;
-  if (!path.startsWith(EXTERNAL_PREFIX)) {
-    await resolveSigned(path.replace(VIDEO_PREFIX, ""));
-  }
+  saveCachedPaths(paths);
   emit();
+
   const { error } = await supabase
     .from("placeholder_images")
     .upsert({ placeholder_id: id, image_url: path, updated_at: new Date().toISOString() });
@@ -268,51 +243,10 @@ export const useRefLink = (modulo: string, blocco: string) => {
   return raw ? raw.replace(EXTERNAL_PREFIX, "") : null;
 };
 
-/** Elenca tutti i file di una cartella, senza limite pratico (pagine da 1000). */
-const listFolderFiles = async (folder: string) => {
-  const names: string[] = [];
-  const PAGE = 1000;
-  for (let offset = 0; ; offset += PAGE) {
-    const { data } = await supabase.storage
-      .from(BUCKET)
-      .list(folder, { limit: PAGE, offset, sortBy: { column: "name", order: "asc" } });
-    const page = data ?? [];
-    for (const file of page) {
-      if (file.name.startsWith(".")) continue;
-      // Le sottocartelle non hanno metadata: le ignoriamo qui.
-      if (!file.id) continue;
-      names.push(file.name);
-    }
-    if (page.length < PAGE) break;
-  }
-  return names;
-};
-
-/** Firma in blocco un elenco di percorsi e popola la cache. */
-const resolveSignedMany = async (allPaths: string[], force = false) => {
-  if (!isOnline()) return;
-  const missing = force ? allPaths : allPaths.filter((p) => !signed[p]);
-  const CHUNK = 100;
-  for (let i = 0; i < missing.length; i += CHUNK) {
-    const chunk = missing.slice(i, i + CHUNK);
-    try {
-      const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
-      for (const row of data ?? []) {
-        if (row.path && row.signedUrl) rememberSigned(row.path, row.signedUrl);
-      }
-      markBackendOk();
-    } catch {
-      markBackendFailure();
-      return;
-    }
-  }
-  if (missing.length > 0) emit();
-};
-
 /**
- * Prepara la sessione offline: rinnova tutti gli indirizzi firmati dei file
- * associati ai segnaposto e scarica le immagini nella cache del browser,
- * così in aula senza rete restano disponibili.
+ * Prepara la sessione offline: scarica nella cache del browser tutti i file
+ * associati ai segnaposto, così in aula senza rete restano disponibili.
+ * Gli indirizzi sono pubblici e permanenti: non scadono più.
  */
 export const prepareOfflineSession = async (
   onProgress?: (done: number, total: number) => void,
@@ -328,19 +262,14 @@ export const prepareOfflineSession = async (
     ),
   );
 
-  await resolveSignedMany(storagePaths, true);
-
   let done = 0;
   const total = storagePaths.length;
   onProgress?.(0, total);
   for (const path of storagePaths) {
-    const url = signed[path];
-    if (url) {
-      try {
-        await fetch(url, { mode: "cors", cache: "reload" });
-      } catch {
-        /* singolo file non scaricabile: proseguiamo */
-      }
+    try {
+      await fetch(assetUrl(path), { mode: "cors", cache: "reload" });
+    } catch {
+      /* singolo file non scaricabile: proseguiamo */
     }
     done += 1;
     onProgress?.(done, total);
@@ -348,50 +277,22 @@ export const prepareOfflineSession = async (
   return { total };
 };
 
+
 /**
  * Tutti i file del bucket, scoprendo le cartelle dinamicamente: nessun elenco
  * fisso, nessun limite basso. Ritorna anche la cartella di ogni file.
  */
 export const listLibrary = async () => {
-  const { data: rootEntries } = await supabase.storage
-    .from(BUCKET)
-    .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
-
-  const folders = (rootEntries ?? [])
-    .filter((e) => !e.id && !e.name.startsWith("."))
-    .map((e) => e.name);
-
-  const perFolder = await Promise.all(
-    folders.map(async (f) => ({ folder: f, files: await listFolderFiles(f) })),
-  );
-
-  const out: { path: string; url: string; folder: string; name: string }[] = [];
-  const wanted: string[] = [];
-  for (const { folder, files } of perFolder) {
-    for (const name of files) {
-      const path = `${folder}/${name}`;
-      wanted.push(path);
-      out.push({ path, url: "", folder, name });
-    }
-  }
-
-  // File eventualmente presenti nella radice del bucket.
-  for (const e of rootEntries ?? []) {
-    if (e.id && !e.name.startsWith(".")) {
-      wanted.push(e.name);
-      out.push({ path: e.name, url: "", folder: "(radice)", name: e.name });
-    }
-  }
-
-  await resolveSignedMany(wanted);
-  return out
-    .map((f) => ({
-      ...f,
-      url: signed[f.path] ?? "",
-      isVideo: VIDEO_EXT.test(f.name),
-    }))
-    .filter((f) => f.url !== "");
+  const { files } = await listAllAssets();
+  return files.map((f) => ({
+    path: f.path,
+    url: assetUrl(f.path),
+    folder: f.folder || "(radice)",
+    name: f.name,
+    isVideo: VIDEO_EXT.test(f.name),
+  }));
 };
+
 
 /** Estensioni riconosciute come video nella libreria. */
 export const VIDEO_EXT = /\.(mp4|webm|mov|m4v)$/i;
@@ -409,25 +310,21 @@ export const placeholderIdsUsingPath = (path: string) =>
 export const deleteLibraryImage = async (path: string) => {
   const used = placeholderIdsUsingPath(path);
   for (const id of used) delete paths[id];
-  delete signed[path];
-  delete signedStore[path];
-  saveCachedSigned(signedStore);
   saveCachedPaths(paths);
   emit();
   if (used.length > 0) {
     await supabase.from("placeholder_images").delete().in("placeholder_id", used);
   }
-  await supabase.storage.from(BUCKET).remove([path]);
+  await removeAssets([path]);
 };
 
 export const uploadImage = async (file: File, folder: string) => {
   const ext = file.name.split(".").pop() ?? "jpg";
   const path = `${folder}/${Date.now()}-${slugify(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true });
-  if (error) throw error;
-  await resolveSigned(path);
+  await uploadAsset(path, file, true);
   return path;
 };
+
 
 /** URL pronto da mostrare per un segnaposto (null se non configurato). */
 export const usePlaceholderImage = (id: string) => {
@@ -449,15 +346,6 @@ export const usePlaceholderMedia = (id: string): PlaceholderMedia | null => {
   }, []);
 
   const raw = paths[id];
-  const storagePath =
-    raw && !raw.startsWith(EXTERNAL_PREFIX)
-      ? raw.replace(VIDEO_PREFIX, "")
-      : null;
-
-  useEffect(() => {
-    if (storagePath && !signed[storagePath]) resolveSigned(storagePath);
-  }, [storagePath]);
-
   if (!raw) return null;
 
   if (raw.startsWith(EXTERNAL_PREFIX)) {
@@ -467,8 +355,11 @@ export const usePlaceholderMedia = (id: string): PlaceholderMedia | null => {
     return { kind: IMAGE_EXT.test(url) ? "image" : "video", url };
   }
 
-  const url = storagePath ? (signed[storagePath] ?? null) : null;
-  if (!url) return null;
-  return { kind: raw.startsWith(VIDEO_PREFIX) ? "video" : "image", url };
+  const storagePath = raw.replace(VIDEO_PREFIX, "");
+  return {
+    kind: raw.startsWith(VIDEO_PREFIX) ? "video" : "image",
+    url: assetUrl(storagePath),
+  };
 };
+
 

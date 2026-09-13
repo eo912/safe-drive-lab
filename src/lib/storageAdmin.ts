@@ -1,7 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
 import { studioCatalog } from "@/lib/studioCatalog";
 import {
-  BUCKET,
+  assetUrl,
+  listAssets,
+  moveAsset,
+  removeAssets,
+  uploadAsset,
+  type AssetEntry,
+} from "@/lib/assetsBucket";
+import {
   VIDEO_EXT,
   VIDEO_PREFIX,
   iconIdFor,
@@ -18,10 +25,12 @@ import {
 } from "@/lib/mediaAssets";
 
 /**
- * Livello dati dell'utility interna di gestione file (bucket "course-images").
- * Unico punto che parla con lo storage per elenco, cancellazione, spostamento
- * in blocco e caricamento. I metadati di catalogazione arrivano dalla tabella
- * `media_assets` e vengono uniti per percorso.
+ * Livello dati dell'utility interna di gestione file (bucket pubblico esterno
+ * "safe-drive-labs-assets"). Unico punto che parla con lo storage per elenco,
+ * cancellazione, spostamento in blocco e caricamento: le operazioni di
+ * scrittura passano dalla funzione server "assets-admin". I metadati di
+ * catalogazione arrivano dalla tabella `media_assets` e vengono uniti per
+ * percorso.
  */
 
 export type StorageFile = {
@@ -36,22 +45,6 @@ export type StorageFile = {
   meta?: MediaAsset;
 };
 
-/** Durata delle anteprime firmate: una sessione di riordino abbondante. */
-const SIGNED_TTL = 60 * 60;
-
-/** Firma in blocco (lotti da 100) e restituisce la mappa percorso -> url. */
-const signMany = async (paths: string[]) => {
-  const map: Record<string, string> = {};
-  const CHUNK = 100;
-  for (let i = 0; i < paths.length; i += CHUNK) {
-    const chunk = paths.slice(i, i + CHUNK);
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
-    for (const row of data ?? []) {
-      if (row.path && row.signedUrl) map[row.path] = row.signedUrl;
-    }
-  }
-  return map;
-};
 
 
 /** Tipo dedotto dall'estensione, usato come valore iniziale della scheda. */
@@ -86,41 +79,18 @@ export const folderLabel = (f: string) =>
 
 /** Cartelle di primo livello presenti nel bucket. */
 export const listFolders = async (): Promise<string[]> => {
-  const { data } = await supabase.storage
-    .from(BUCKET)
-    .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
-  return (data ?? [])
-    .filter((e) => !e.id && !e.name.startsWith("."))
-    .map((e) => e.name);
+  const { folders } = await listAssets("");
+  return folders.filter((f) => !f.startsWith("."));
 };
 
-type RawEntry = {
-  name: string;
-  updated_at?: string | null;
-  metadata?: { size?: number; mimetype?: string } | null;
-};
-
-/** Elenca i file di una cartella, a pagine da 1000 (nessun limite pratico). */
-const listRaw = async (folder: string): Promise<RawEntry[]> => {
-  const out: RawEntry[] = [];
-  const PAGE = 1000;
-  for (let offset = 0; ; offset += PAGE) {
-    const { data } = await supabase.storage
-      .from(BUCKET)
-      .list(folder, { limit: PAGE, offset, sortBy: { column: "name", order: "asc" } });
-    const page = data ?? [];
-    for (const e of page) {
-      if (e.name.startsWith(".")) continue;
-      if (!e.id) continue; // sottocartella
-      out.push(e as RawEntry);
-    }
-    if (page.length < PAGE) break;
-  }
-  return out;
+/** Elenca i file di una cartella (radice inclusa). */
+const listRaw = async (folder: string): Promise<AssetEntry[]> => {
+  const { files } = await listAssets(folder);
+  return files;
 };
 
 /**
- * File di una cartella, con anteprima firmata e scheda di catalogazione.
+ * File di una cartella, con anteprima pubblica e scheda di catalogazione.
  * `folder === ROOT_LABEL` legge la radice del bucket.
  */
 export const listFiles = async (folder: string): Promise<StorageFile[]> => {
@@ -129,22 +99,20 @@ export const listFiles = async (folder: string): Promise<StorageFile[]> => {
     listRaw(isRoot ? "" : folder),
     loadMediaAssets(),
   ]);
-  const paths = entries.map((e) => (isRoot ? e.name : `${folder}/${e.name}`));
-  const signed = await signMany(paths);
 
-  return entries.map((e, i) => ({
-    path: paths[i],
+  return entries.map((e) => ({
+    path: e.path,
     folder,
     name: e.name,
-    url: signed[paths[i]] ?? "",
-
-    size: e.metadata?.size ?? 0,
-    mimeType: e.metadata?.mimetype ?? "",
-    updatedAt: e.updated_at ?? null,
+    url: assetUrl(e.path),
+    size: e.size,
+    mimeType: e.mimeType,
+    updatedAt: e.updatedAt,
     isVideo: VIDEO_EXT.test(e.name),
-    meta: metas[paths[i]],
+    meta: metas[e.path],
   }));
 };
+
 
 /** Filtro testuale su nome, titolo, categoria, tag, descrizione e modulo. */
 export const filterFiles = (files: StorageFile[], query: string) => {
@@ -191,12 +159,13 @@ export const uploadFiles = async (
     const base = slugify(file.name.replace(/\.[^.]+$/, "")) || "file";
     const name = `${Date.now()}-${base}.${ext.toLowerCase()}`;
     const path = dest ? `${dest}/${name}` : name;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-      upsert: false,
-      contentType: file.type || undefined,
-    });
-    if (error) failed.push({ name: file.name, message: error.message });
-    else paths.push(path);
+    try {
+      await uploadAsset(path, file, false);
+      paths.push(path);
+    } catch (e) {
+      failed.push({ name: file.name, message: e instanceof Error ? e.message : "errore" });
+    }
+
     done += 1;
     onProgress?.(done, files.length);
   }
@@ -251,17 +220,19 @@ export const deleteFiles = async (paths: string[]): Promise<BulkResult> => {
   const CHUNK = 100;
   for (let i = 0; i < paths.length; i += CHUNK) {
     const chunk = paths.slice(i, i + CHUNK);
-    const { data, error } = await supabase.storage.from(BUCKET).remove(chunk);
-    if (error) {
-      for (const p of chunk) result.failed.push({ path: p, message: error.message });
-      continue;
-    }
-    const removed = new Set((data ?? []).map((d) => d.name));
-    for (const p of chunk) {
-      if (removed.size === 0 || removed.has(p)) result.ok.push(p);
-      else result.failed.push({ path: p, message: "file non trovato" });
+    try {
+      const removedList = await removeAssets(chunk);
+      const removed = new Set(removedList);
+      for (const p of chunk) {
+        if (removed.size === 0 || removed.has(p)) result.ok.push(p);
+        else result.failed.push({ path: p, message: "file non trovato" });
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "errore";
+      for (const p of chunk) result.failed.push({ path: p, message });
     }
   }
+
 
   if (usedIds.length > 0) {
     await supabase.from("placeholder_images").delete().in("placeholder_id", usedIds);
@@ -322,8 +293,13 @@ export const moveFiles = async (
     const batch = jobs.slice(i, i + BATCH);
     const outcomes = await Promise.all(
       batch.map(async (job) => {
-        const { error } = await supabase.storage.from(BUCKET).move(job.from, job.to);
-        return { job, error };
+        try {
+          await moveAsset(job.from, job.to);
+          return { job, error: null as { message: string } | null };
+        } catch (e) {
+          return { job, error: { message: e instanceof Error ? e.message : "errore" } };
+        }
+
       }),
     );
     for (const { job, error } of outcomes) {
