@@ -103,6 +103,7 @@ const IstruttoreModulo = () => {
   const hazardOutcomeRef = useRef<"stopped" | "failed" | undefined>(undefined);
   const [hazardPhase, setHazardPhase] = useState<"idle" | "active" | "resolved">("idle");
   const [hazardOutcome, setHazardOutcome] = useState<"stopped" | "failed" | undefined>();
+  const [hazardSuggestion, setHazardSuggestion] = useState<"stopped" | "failed">("stopped");
   const [hazardSnapshot, setHazardSnapshot] = useState(0.2);
   const publishWithPhone = useCallback(
     (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) => {
@@ -389,8 +390,7 @@ const IstruttoreModulo = () => {
     const snapshot = aulaHeartbeat?.riskProbability ?? 0.2;
     setHazardSnapshot(snapshot);
     const suggested = Math.random() < snapshot ? "failed" : "stopped";
-    setHazardOutcome(suggested);
-    hazardOutcomeRef.current = suggested;
+    setHazardSuggestion(suggested);
     publishHazard("active");
   };
   startHazardRef.current = startHazard;
@@ -886,6 +886,70 @@ const IstruttoreModulo = () => {
                       />
                     )}
                   </div>
+
+                  {active.id === "catena-incidente" && (
+                    <section className="mb-6 border border-border bg-card/70 p-4" aria-label="Controlli scena auto che frena">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold">Auto che frena davanti</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Solo Aula Live · scorciatoia telecomando: Delete
+                          </p>
+                        </div>
+                        {hazardPhase === "idle" ? (
+                          <Button type="button" onClick={startHazard} size="sm">
+                            <Play />
+                            Avvia scena
+                          </Button>
+                        ) : (
+                          <Button type="button" onClick={resetHazard} size="sm" variant="outline">
+                            <RotateCcw />
+                            Chiudi / Riarma
+                          </Button>
+                        )}
+                      </div>
+
+                      {hazardPhase === "active" && (
+                        <div className="mt-4 border-t border-border pt-4">
+                          <p className="mb-3 text-xs text-muted-foreground">
+                            Suggerimento dalla probabilità corrente ({Math.round(hazardSnapshot * 100)}%):{" "}
+                            <span className="font-semibold text-foreground">
+                              {hazardSuggestion === "stopped"
+                                ? "si è fermato in tempo"
+                                : "non ci è riuscito"}
+                            </span>
+                            . La decisione resta manuale.
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={hazardSuggestion === "stopped" ? "default" : "outline"}
+                              onClick={() => resolveHazard("stopped")}
+                            >
+                              <ShieldCheck />
+                              Si è fermato in tempo
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={hazardSuggestion === "failed" ? "destructive" : "outline"}
+                              onClick={() => resolveHazard("failed")}
+                            >
+                              <ShieldX />
+                              Non ci è riuscito
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {hazardPhase === "resolved" && hazardOutcome && (
+                        <p className="mt-4 border-t border-border pt-4 text-xs text-muted-foreground">
+                          Esito mostrato in Aula: {hazardOutcome === "stopped" ? "si è fermato in tempo" : "non ci è riuscito"}.
+                        </p>
+                      )}
+                    </section>
+                  )}
 
                   <div
                     className={`grid grid-cols-1 gap-4 md:gap-5 transition-[grid-template-columns] duration-300 ${
