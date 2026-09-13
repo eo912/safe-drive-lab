@@ -1,68 +1,89 @@
-# Gestione file → Media Library catalogata
+# Piano — Leggere immagini e video dal bucket esterno "safe-drive-labs-assets"
 
-Estensione della pagina esistente `/studio/file` (Gestione file). Nessun rifacimento del layout: si aggiungono catalogazione, ricerca estesa e caricamento, mantenendo cartelle, selezione multipla, sposta ed elimina come sono oggi.
+## Obiettivo
+I file del corso (foto, grafiche, video, loghi) vengono letti dal bucket pubblico
+`safe-drive-labs-assets` del progetto Supabase di Edy. Tutto il resto — associazioni
+segnaposto, tabelle, autenticazione, sincronizzazione aula/regia — resta dov'è oggi.
 
-## 1. Tabella dei metadati
+## Come funziona dopo la modifica
 
-Nuova tabella `media_assets`, una riga per file, chiave sul percorso nel bucket:
+- Gli indirizzi dei file diventano **permanenti e pubblici**: niente più scadenza a 7 giorni.
+  Il pulsante "Prepara offline" resta, ma solo per scaricare in anticipo i file nella cache.
+- La pagina **Gestione file** elenca i file del bucket di Edy, con le stesse cartelle e
+  la stessa ricerca di oggi.
+- Le associazioni già salvate (quale file su quale schermata) restano valide, **a patto che
+  i file abbiano lo stesso percorso** nel bucket nuovo. Per questo serve la migrazione qui sotto.
 
-| campo | tipo | note |
-| --- | --- | --- |
-| `storage_path` | text, chiave primaria | es. `foto/curva-notte.jpg` |
-| `nome` | text | etichetta leggibile, default dal nome file |
-| `tipo` | text | `foto` / `video` / `documento` |
-| `categoria` | text, opzionale | libera, con suggerimenti dalle cartelle esistenti |
-| `modulo` | text, opzionale | es. `modulo-3`, oppure vuoto |
-| `tag` | text[] , default `{}` | array di stringhe |
-| `stato` | text, default `da-valutare` | `approvato` / `da-valutare` / `scartato` |
-| `descrizione` | text, opzionale | |
-| `created_at` / `updated_at` | timestamptz | |
+## Cosa serve da te
 
-Indici: su `modulo`, su `stato`, GIN su `tag` per la ricerca. Accesso uguale a `placeholder_images` (lettura e scrittura consentite anche senza login, coerente con l'utility interna nascosta).
+1. **Chiave pubblica (anon/publishable) del progetto di Edy** — serve per leggere ed elencare
+   i file. Va salvata come impostazione del progetto.
+2. Conferma che il bucket `safe-drive-labs-assets` sia **pubblico in lettura** e che l'elenco
+   dei file sia consentito anche a chi non è loggato (serve una regola di lettura per il
+   ruolo anonimo; se manca, la libreria risulta vuota anche se il bucket è pubblico).
+3. Decisione sui caricamenti: vedi "Caricare e cancellare file" sotto.
 
-Importante: la tabella è **descrittiva**, non autoritativa. La verità su quali file esistono resta lo storage; i metadati si agganciano per percorso. Un file senza riga in tabella resta visibile e usabile come oggi.
+## I file già presenti (81)
 
-Al momento dello spostamento di un file, il percorso in `media_assets` va aggiornato insieme a quello in `placeholder_images` (la logica di `moveFiles` esiste già e va estesa); alla cancellazione, la riga va rimossa.
+Consiglio: **copiarli tutti nel bucket di Edy mantenendo identici i percorsi**
+(`brand/…`, `foto/…`, `grafiche/…`, `schemi/…`, `foto-da-valutare/…`, `modulo-2/…`, `video/…`),
+con uno script una tantum come quello già usato in passato, senza sovrascrivere nulla di
+esistente. Così nessuna schermata perde la sua immagine e non restano due librerie da
+mantenere. I file su Lovable Cloud restano lì come copia di sicurezza, inutilizzati.
 
-## 2. Metadati nella griglia
+Alternativa (sconsigliata): lasciare i vecchi dove sono e cercarli prima nel bucket esterno,
+poi in quello interno. Funziona, ma la libreria mostra due elenchi mescolati, gli indirizzi
+hanno comportamenti diversi (permanenti vs a scadenza) e la confusione cresce nel tempo.
 
-- Ogni scheda della griglia mostra, sotto nome e dimensione, due indicatori compatti: pallino di stato (approvato / da valutare) e fino a due tag. Se non ci sono metadati, la scheda resta com'è oggi.
-- Click sul file: oggi seleziona. Nuovo comportamento: la selezione multipla passa alla casella di spunta in alto a sinistra (già presente graficamente), mentre il click sulla scheda apre un **pannello laterale destro** con i campi del file: nome, tipo, categoria, modulo, tag, stato, descrizione, più anteprima grande e percorso.
-- Il pannello salva con un pulsante esplicito e mostra conferma. Chiusura con X o Esc.
-- Azione in blocco aggiuntiva nella barra inferiore: "Assegna metadati…" per applicare categoria / modulo / stato / tag a tutti i file selezionati in una volta (i campi lasciati vuoti non vengono toccati).
+## Caricare e cancellare file
 
-## 3. Ricerca estesa
+Un bucket pubblico è pubblico **in lettura**; scrivere richiede una credenziale riservata, che
+non può stare nel sito (sarebbe visibile a chiunque). Due opzioni:
 
-La casella in alto cerca in: nome file, nome leggibile, categoria, tag, descrizione e modulo. Accanto, due filtri a tendina rapidi: stato e modulo. Il conteggio "X di Y file" resta.
-
-## 4. Caricamento diretto dalla pagina
-
-- Area drag&drop nella parte alta dell'elenco (e pulsante "Carica file") che accetta immagini e video, più file insieme.
-- Prima della conferma, un riquadro elenca i file scelti e permette di impostare cartella di destinazione, categoria, modulo, stato e tag comuni a tutto il lotto.
-- Dopo il caricamento si crea la riga in `media_assets` per ciascun file e la griglia si aggiorna.
-- Limite pratico: circa 60 MB per file; per i video lunghi resta il link esterno gestito nello Studio.
-
-## 5. Assegnazione a un blocco dalla stessa pagina
-
-Fattibile senza stravolgere l'architettura: esiste già `placeholder_images` e la funzione che descrive i segnaposto (`describePlaceholderId` su `studioCatalog`). Nel pannello laterale del file si aggiunge la sezione "Usato in": elenco dei segnaposto che già usano quel file (dato disponibile oggi) più un selettore a due livelli modulo → schermata → segnaposto per assegnarlo subito. Il salvataggio riusa lo stesso scrittore usato dallo Studio, così Aula e Regia si aggiornano come sempre.
-
-Resta fuori: l'anteprima live della slide, che continua a vivere nello Studio del modulo.
-
-## 6. Bucket pubblico in lettura
-
-Se il bucket diventa pubblico in lettura, gli indirizzi delle immagini diventano stabili e senza scadenza. Vantaggi: griglia più veloce (niente firma a lotti), copia offline più semplice, nessuna miniatura che "scade" dopo un'ora. Il piano prevede un unico punto centrale per costruire l'indirizzo di un file, che userà l'indirizzo pubblico quando disponibile e continuerà a firmare come oggi in caso contrario — così il passaggio non rompe nulla e resta reversibile.
+- **A (consigliata):** i caricamenti e le cancellazioni passano da una piccola funzione lato
+  server su Lovable Cloud, che usa la chiave riservata già salvata
+  (`EXTERNAL_SUPABASE_SERVICE_ROLE_KEY`). Gestione file continua a funzionare come oggi.
+- **B:** Gestione file diventa di sola consultazione e Edy carica i file direttamente dal suo
+  pannello Supabase. Meno lavoro, meno comodo.
 
 ## Rischi
 
-- **Disallineamento metadati/file**: file spostati o cancellati fuori dall'app lasciano righe orfane. Mitigazione: le righe senza file corrispondente vengono semplicemente ignorate nella griglia, e un'azione manuale "pulisci metadati orfani" può rimuoverle.
-- **Click che cambia significato**: chi usa già la pagina si aspetta che il click selezioni. Mitigazione: la casella di spunta resta in evidenza e l'azione "Seleziona tutto" non cambia.
-- **Caricamenti pesanti**: più video insieme possono essere lenti; si mostra progresso per file e si evita di bloccare la pagina.
-- **Nessuna autenticazione**: la pagina resta protetta solo dalla modalità modifica nascosta, come oggi.
+- **Doppio progetto:** se il progetto di Edy viene messo in pausa, rinominato o il bucket reso
+  privato, tutte le immagini del corso spariscono dalle schermate. Dipendenza da un account
+  che non controlliamo.
+- **Percorsi disallineati:** se un file viene spostato o rinominato nel bucket di Edy, la
+  schermata collegata resta vuota. Mitigazione: dopo la migrazione, un controllo che segnala
+  in Gestione file le associazioni che puntano a file inesistenti.
+- **Cache offline:** gli indirizzi salvati oggi (firmati, vecchio bucket) vanno svuotati al
+  primo avvio dopo il cambio, altrimenti restano in uso finché non scadono.
 
 ## Dettagli tecnici
 
-- Migrazione: `CREATE TABLE public.media_assets` con GRANT per `anon`, `authenticated`, `service_role`, RLS attiva con policy permissive come `placeholder_images`; indici btree su `modulo`/`stato` e GIN su `tag`; trigger su `updated_at`.
-- `src/lib/storageAdmin.ts`: valorizzare `FileMeta` leggendo `media_assets` in `listFiles` (una query, join per percorso); estendere `filterFiles` a categoria/tag/descrizione/modulo; nuove funzioni `saveMeta`, `saveMetaBulk`, `uploadFiles`; `moveFiles` e `deleteFiles` aggiornano/eliminano anche le righe dei metadati.
-- Nuovi componenti in `src/components/storage-admin/`: `MetaPanel.tsx` (pannello laterale), `UploadDropzone.tsx`, `BulkMetaDialog.tsx`, `FilterBar.tsx`.
-- Modificati: `FileGrid.tsx` (badge stato/tag, casella di spunta separata dal click), `BulkActionsBar.tsx` (voce metadati), `StorageAdmin.tsx` (stato pannello, filtri, upload).
-- Indirizzi file: unica funzione `fileUrl(path)` in `storageAdmin.ts` / `placeholderImages.ts` che sceglie fra pubblico e firmato.
+- Nuovo client di sola lettura in `src/lib/assetsClient.ts` creato con
+  `VITE_EXTERNAL_SUPABASE_URL` + `VITE_EXTERNAL_SUPABASE_ANON_KEY` (chiave publishable,
+  può stare nel codice/env del frontend). Client separato, `auth: { persistSession: false }`,
+  per non interferire con la sessione di Lovable Cloud.
+- `src/lib/placeholderImages.ts`: `BUCKET = "safe-drive-labs-assets"`; `resolveSigned` e
+  `resolveSignedMany` sostituiti da `publicUrl(path)` = `getPublicUrl` (sincrono, nessuna
+  scadenza). `listLibrary`/`listFolderFiles` usano il nuovo client. `SIGNED_TTL`, `signedStore`
+  e `loadCachedSigned`/`saveCachedSigned` restano solo come cache di compatibilità e vengono
+  invalidati una volta (bump di versione della chiave in `offlineCache.ts`).
+- `prepareOfflineSession` resta: itera i percorsi e fa `fetch` degli URL pubblici per
+  popolare la cache del service worker.
+- `src/lib/storageAdmin.ts`: elenco/anteprime dal client esterno; `upload`, `remove`, `move`
+  instradati su una edge function `assets-admin` (opzione A) che usa
+  `EXTERNAL_SUPABASE_SERVICE_ROLE_KEY`; nessuna chiave riservata nel frontend.
+- `placeholder_images`, `media_assets` e il client `@/integrations/supabase/client` restano
+  invariati su Lovable Cloud.
+- Script di migrazione una tantum via `code--exec` (non committato): copia i file da
+  `course-images` a `safe-drive-labs-assets` mantenendo i percorsi, salta quelli già presenti,
+  riepilogo finale per cartella.
+
+## Ordine di esecuzione
+
+1. Salvataggio URL + chiave pubblica del progetto esterno.
+2. Verifica di lettura ed elenco del bucket esterno con quella chiave (se fallisce, ci si ferma).
+3. Migrazione degli 81 file.
+4. Passaggio del codice al nuovo bucket con URL pubblici.
+5. Gestione file (lettura, poi scrittura secondo l'opzione scelta).
+6. Controllo di tutte le schermate dei moduli 1a–8: nessuna immagine mancante.
