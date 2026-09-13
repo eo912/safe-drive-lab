@@ -316,6 +316,8 @@ export const moveFiles = async (
         continue;
       }
       result.ok.push(job.from);
+      await moveMediaAsset(job.from, job.to);
+
       for (const id of usage[job.from] ?? []) {
         const { data } = await supabase
           .from("placeholder_images")
