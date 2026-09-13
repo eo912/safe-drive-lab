@@ -290,8 +290,13 @@ export const moveFiles = async (
     const batch = jobs.slice(i, i + BATCH);
     const outcomes = await Promise.all(
       batch.map(async (job) => {
-        const { error } = await supabase.storage.from(BUCKET).move(job.from, job.to);
-        return { job, error };
+        try {
+          await moveAsset(job.from, job.to);
+          return { job, error: null as { message: string } | null };
+        } catch (e) {
+          return { job, error: { message: e instanceof Error ? e.message : "errore" } };
+        }
+
       }),
     );
     for (const { job, error } of outcomes) {
