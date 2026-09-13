@@ -523,7 +523,13 @@ const LibraryDialog = ({
           {visible.length} file mostrati su {library.length} in archivio
         </p>
 
-        {visible.length === 0 ? (
+        {loadError && (
+          <p className="mb-3 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {loadError}
+          </p>
+        )}
+
+        {!loadError && visible.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Nessun file corrisponde alla ricerca.
           </p>
