@@ -120,7 +120,7 @@ const listRaw = async (folder: string): Promise<RawEntry[]> => {
 };
 
 /**
- * File di una cartella, con miniatura pubblica e scheda di catalogazione.
+ * File di una cartella, con anteprima firmata e scheda di catalogazione.
  * `folder === ROOT_LABEL` legge la radice del bucket.
  */
 export const listFiles = async (folder: string): Promise<StorageFile[]> => {
@@ -130,12 +130,14 @@ export const listFiles = async (folder: string): Promise<StorageFile[]> => {
     loadMediaAssets(),
   ]);
   const paths = entries.map((e) => (isRoot ? e.name : `${folder}/${e.name}`));
+  const signed = await signMany(paths);
 
   return entries.map((e, i) => ({
     path: paths[i],
     folder,
     name: e.name,
-    url: fileUrl(paths[i]),
+    url: signed[paths[i]] ?? "",
+
     size: e.metadata?.size ?? 0,
     mimeType: e.metadata?.mimetype ?? "",
     updatedAt: e.updated_at ?? null,
