@@ -85,6 +85,11 @@ if (typeof window !== "undefined") {
 /** Hook React sullo stato di connessione. */
 export const useOnline = () => {
   const [online, setOnline] = useState(current);
-  useEffect(() => onConnectivityChange(setOnline), []);
+  useEffect(() => {
+    const off = onConnectivityChange(setOnline);
+    return () => {
+      off();
+    };
+  }, []);
   return online;
 };
