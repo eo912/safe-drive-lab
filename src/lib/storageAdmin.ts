@@ -1,7 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
 import { studioCatalog } from "@/lib/studioCatalog";
 import {
-  BUCKET,
+  assetUrl,
+  listAssets,
+  moveAsset,
+  removeAssets,
+  uploadAsset,
+  type AssetEntry,
+} from "@/lib/assetsBucket";
+import {
   VIDEO_EXT,
   VIDEO_PREFIX,
   iconIdFor,
@@ -18,10 +25,12 @@ import {
 } from "@/lib/mediaAssets";
 
 /**
- * Livello dati dell'utility interna di gestione file (bucket "course-images").
- * Unico punto che parla con lo storage per elenco, cancellazione, spostamento
- * in blocco e caricamento. I metadati di catalogazione arrivano dalla tabella
- * `media_assets` e vengono uniti per percorso.
+ * Livello dati dell'utility interna di gestione file (bucket pubblico esterno
+ * "safe-drive-labs-assets"). Unico punto che parla con lo storage per elenco,
+ * cancellazione, spostamento in blocco e caricamento: le operazioni di
+ * scrittura passano dalla funzione server "assets-admin". I metadati di
+ * catalogazione arrivano dalla tabella `media_assets` e vengono uniti per
+ * percorso.
  */
 
 export type StorageFile = {
@@ -36,22 +45,6 @@ export type StorageFile = {
   meta?: MediaAsset;
 };
 
-/** Durata delle anteprime firmate: una sessione di riordino abbondante. */
-const SIGNED_TTL = 60 * 60;
-
-/** Firma in blocco (lotti da 100) e restituisce la mappa percorso -> url. */
-const signMany = async (paths: string[]) => {
-  const map: Record<string, string> = {};
-  const CHUNK = 100;
-  for (let i = 0; i < paths.length; i += CHUNK) {
-    const chunk = paths.slice(i, i + CHUNK);
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
-    for (const row of data ?? []) {
-      if (row.path && row.signedUrl) map[row.path] = row.signedUrl;
-    }
-  }
-  return map;
-};
 
 
 /** Tipo dedotto dall'estensione, usato come valore iniziale della scheda. */
