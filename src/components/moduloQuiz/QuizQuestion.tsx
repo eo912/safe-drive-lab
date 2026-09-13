@@ -32,7 +32,7 @@ export const QuizQuestion = ({
   };
 
   return (
-    <div className="rounded-md border border-border/50 bg-card/60 px-3 py-2">
+    <div className="rounded-md border border-border/50 bg-card/60 px-3 py-1.5">
       <p className="text-xs md:text-sm font-semibold text-foreground leading-snug">
         <span className="text-primary font-mono mr-2">{number}.</span>
         {data.question}
@@ -96,7 +96,7 @@ export const QuizQuestion = ({
       </div>
 
       {/* Spazio riservato alla spiegazione: evita salti di layout al click. */}
-      <div className="min-h-[1.9rem] mt-1">
+      <div className="min-h-[2.25rem] mt-1">
         <AnimatePresence>
           {answered && (
             <motion.p
