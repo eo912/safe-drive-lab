@@ -233,6 +233,17 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
     if (last) remoteSend("state", last);
   });
 
+  // Rete tornata: ripubblichiamo lo stato corrente per eventuali altri device.
+  useEffect(() => {
+    const off = onConnectivityChange((online) => {
+      const last = lastPublishedRef.current;
+      if (online && last) window.setTimeout(() => remoteSend("state", last), 600);
+    });
+    return () => {
+      off();
+    };
+  }, []);
+
   return { previewState, liveState, setPreview, publish };
 };
 
