@@ -638,6 +638,8 @@ const IstruttoreModulo = () => {
 
           <AulaStatusBadge modulo={slug} blocks={blocks} />
 
+          <OfflineStatus />
+
 
           {/* Drawer triggers — solo sotto lg */}
           <Sheet open={timelineOpen} onOpenChange={setTimelineOpen}>
