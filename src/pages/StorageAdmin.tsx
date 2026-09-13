@@ -9,13 +9,19 @@ import { FileGrid } from "@/components/storage-admin/FileGrid";
 import { BulkActionsBar } from "@/components/storage-admin/BulkActionsBar";
 import { MoveDialog } from "@/components/storage-admin/MoveDialog";
 import { DeleteDialog } from "@/components/storage-admin/DeleteDialog";
+import { MetaPanel } from "@/components/storage-admin/MetaPanel";
+import { UploadDropzone } from "@/components/storage-admin/UploadDropzone";
+import { BulkMetaDialog } from "@/components/storage-admin/BulkMetaDialog";
+import { STATI, type MediaAsset } from "@/lib/mediaAssets";
 import {
+  applyFacets,
   deleteFiles,
   filterFiles,
   folderLabel,
   listFiles,
   listFolders,
   loadUsageMap,
+  moduliOptions,
   moveFiles,
   ROOT_LABEL,
   type BulkResult,
@@ -38,10 +44,14 @@ const StorageAdmin = () => {
   const [usage, setUsage] = useState<Record<string, string[]>>({});
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
+  const [statoFiltro, setStatoFiltro] = useState("");
+  const [moduloFiltro, setModuloFiltro] = useState("");
+  const [aperto, setAperto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [dialog, setDialog] = useState<null | "move" | "delete">(null);
+  const [dialog, setDialog] = useState<null | "move" | "delete" | "meta">(null);
   const [esito, setEsito] = useState<string | null>(null);
+
 
   const loadFolders = useCallback(async () => {
     const list = await listFolders();
@@ -69,7 +79,31 @@ const StorageAdmin = () => {
     if (editing && active) loadCurrent(active);
   }, [editing, active, loadCurrent]);
 
-  const shown = useMemo(() => filterFiles(files, query), [files, query]);
+  const shown = useMemo(
+    () => applyFacets(filterFiles(files, query), statoFiltro, moduloFiltro),
+    [files, query, statoFiltro, moduloFiltro],
+  );
+
+  /** Schede già presenti, per la modifica in blocco e per i suggerimenti. */
+  const metas = useMemo(() => {
+    const map: Record<string, MediaAsset> = {};
+    for (const f of files) if (f.meta) map[f.path] = f.meta;
+    return map;
+  }, [files]);
+
+  const categorie = useMemo(
+    () =>
+      Array.from(
+        new Set(files.map((f) => f.meta?.categoria ?? "").filter(Boolean)),
+      ).sort(),
+    [files],
+  );
+
+  const fileAperto = useMemo(
+    () => shown.find((f) => f.path === aperto) ?? files.find((f) => f.path === aperto) ?? null,
+    [shown, files, aperto],
+  );
+
 
   const toggle = (path: string) =>
     setSelected((s) => {
@@ -128,15 +162,39 @@ const StorageAdmin = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <header className="flex items-center gap-3 border-b border-border/60 px-4 py-3">
+      <header className="flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3">
         <h1 className="text-base font-semibold">Gestione file</h1>
         <span className="text-xs text-muted-foreground">archivio immagini e video</span>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Cerca per nome…"
+          placeholder="Cerca per nome, tag, categoria…"
           className="ml-auto w-64 rounded-md border border-border bg-background px-3 py-1.5 text-sm"
         />
+        <select
+          value={statoFiltro}
+          onChange={(e) => setStatoFiltro(e.target.value)}
+          className="rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+        >
+          <option value="">Tutti gli stati</option>
+          {STATI.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={moduloFiltro}
+          onChange={(e) => setModuloFiltro(e.target.value)}
+          className="max-w-[14rem] rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+        >
+          <option value="">Tutti i moduli</option>
+          {moduliOptions.map((m) => (
+            <option key={m.value} value={m.value}>
+              {m.label}
+            </option>
+          ))}
+        </select>
         <button
           type="button"
           onClick={() => loadCurrent(active)}
@@ -169,6 +227,15 @@ const StorageAdmin = () => {
             </button>
           </div>
 
+          <div className="border-b border-border/60 px-4 py-3">
+            <UploadDropzone
+              folder={active || ROOT_LABEL}
+              onDone={(paths) => {
+                if (paths.length > 0) void loadCurrent(active);
+              }}
+            />
+          </div>
+
           {esito && (
             <p className="border-b border-border/60 bg-muted/40 px-4 py-2 text-sm">
               {esito}
@@ -180,7 +247,9 @@ const StorageAdmin = () => {
               files={shown}
               selected={selected}
               usage={usage}
+              activePath={aperto}
               onToggle={toggle}
+              onOpen={(f) => setAperto(f.path)}
             />
           </div>
 
@@ -188,10 +257,21 @@ const StorageAdmin = () => {
             count={selected.size}
             busy={busy}
             onMove={() => setDialog("move")}
+            onEdit={() => setDialog("meta")}
             onDelete={() => setDialog("delete")}
             onClear={() => setSelected(new Set())}
           />
         </main>
+
+        {fileAperto && (
+          <MetaPanel
+            file={fileAperto}
+            usage={usage}
+            categorie={categorie}
+            onClose={() => setAperto(null)}
+            onSaved={() => void loadCurrent(active)}
+          />
+        )}
       </div>
 
       {dialog === "move" && (
@@ -202,6 +282,14 @@ const StorageAdmin = () => {
           busy={busy}
           onCancel={() => setDialog(null)}
           onConfirm={runMove}
+        />
+      )}
+      {dialog === "meta" && (
+        <BulkMetaDialog
+          paths={[...selected]}
+          existing={metas}
+          onClose={() => setDialog(null)}
+          onDone={() => void loadCurrent(active)}
         />
       )}
       {dialog === "delete" && (
@@ -218,3 +306,4 @@ const StorageAdmin = () => {
 };
 
 export default StorageAdmin;
+

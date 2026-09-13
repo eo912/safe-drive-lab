@@ -1,15 +1,23 @@
-import { FolderInput, Trash2, X } from "lucide-react";
+import { FolderInput, Tags, Trash2, X } from "lucide-react";
 
 type Props = {
   count: number;
   busy: boolean;
   onMove: () => void;
+  onEdit: () => void;
   onDelete: () => void;
   onClear: () => void;
 };
 
 /** Barra azioni visibile solo con almeno un file selezionato. */
-export const BulkActionsBar = ({ count, busy, onMove, onDelete, onClear }: Props) => {
+export const BulkActionsBar = ({
+  count,
+  busy,
+  onMove,
+  onEdit,
+  onDelete,
+  onClear,
+}: Props) => {
   if (count === 0) return null;
   return (
     <div className="sticky bottom-0 z-10 flex items-center gap-3 border-t border-border/60 bg-background/95 px-4 py-3 backdrop-blur">
@@ -22,6 +30,15 @@ export const BulkActionsBar = ({ count, busy, onMove, onDelete, onClear }: Props
       >
         <FolderInput className="h-4 w-4" /> Sposta in…
       </button>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={onEdit}
+        className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted/60 disabled:opacity-50"
+      >
+        <Tags className="h-4 w-4" /> Modifica schede…
+      </button>
+
       <button
         type="button"
         disabled={busy}

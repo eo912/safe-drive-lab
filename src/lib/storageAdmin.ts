@@ -7,23 +7,22 @@ import {
   iconIdFor,
   placeholderIdFor,
   refreshPlaceholders,
+  slugify,
 } from "@/lib/placeholderImages";
+import {
+  deleteMediaAssets,
+  loadMediaAssets,
+  moveMediaAsset,
+  type MediaAsset,
+  type MediaTipo,
+} from "@/lib/mediaAssets";
 
 /**
  * Livello dati dell'utility interna di gestione file (bucket "course-images").
- * Unico punto che parla con lo storage per elenco, cancellazione e spostamento
- * in blocco. Pensato per accogliere in futuro una tabella di metadati (tag,
- * categoria, descrizione) senza cambiare la firma di queste funzioni.
+ * Unico punto che parla con lo storage per elenco, cancellazione, spostamento
+ * in blocco e caricamento. I metadati di catalogazione arrivano dalla tabella
+ * `media_assets` e vengono uniti per percorso.
  */
-
-const SIGNED_TTL = 60 * 60; // 1 ora: sufficiente per una sessione di riordino
-
-/** Metadati opzionali: oggi mai valorizzati, pronti per una futura tabella. */
-export type FileMeta = {
-  tags?: string[];
-  categoria?: string;
-  descrizione?: string;
-};
 
 export type StorageFile = {
   path: string;
@@ -34,8 +33,40 @@ export type StorageFile = {
   mimeType: string;
   updatedAt: string | null;
   isVideo: boolean;
-  meta?: FileMeta;
+  meta?: MediaAsset;
 };
+
+/** Durata delle anteprime firmate: una sessione di riordino abbondante. */
+const SIGNED_TTL = 60 * 60;
+
+/** Firma in blocco (lotti da 100) e restituisce la mappa percorso -> url. */
+const signMany = async (paths: string[]) => {
+  const map: Record<string, string> = {};
+  const CHUNK = 100;
+  for (let i = 0; i < paths.length; i += CHUNK) {
+    const chunk = paths.slice(i, i + CHUNK);
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
+    for (const row of data ?? []) {
+      if (row.path && row.signedUrl) map[row.path] = row.signedUrl;
+    }
+  }
+  return map;
+};
+
+
+/** Tipo dedotto dall'estensione, usato come valore iniziale della scheda. */
+export const tipoFromName = (name: string): MediaTipo => {
+  if (VIDEO_EXT.test(name)) return "video";
+  if (/\.(pdf|docx?|pptx?|xlsx?|txt)$/i.test(name)) return "documento";
+  return "foto";
+};
+
+/** Moduli disponibili per il campo "modulo di riferimento". */
+export const moduliOptions = studioCatalog.map((m) => ({
+  value: m.folder,
+  label: m.title,
+}));
+
 
 export const ROOT_LABEL = "(radice)";
 
@@ -88,54 +119,90 @@ const listRaw = async (folder: string): Promise<RawEntry[]> => {
   return out;
 };
 
-/** Firma in blocco (lotti da 100) e restituisce la mappa percorso -> url. */
-const signMany = async (paths: string[]) => {
-  const map: Record<string, string> = {};
-  const CHUNK = 100;
-  for (let i = 0; i < paths.length; i += CHUNK) {
-    const chunk = paths.slice(i, i + CHUNK);
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
-    for (const row of data ?? []) {
-      if (row.path && row.signedUrl) map[row.path] = row.signedUrl;
-    }
-  }
-  return map;
-};
-
 /**
- * File di una cartella, con miniatura firmata e metadati di base.
+ * File di una cartella, con anteprima firmata e scheda di catalogazione.
  * `folder === ROOT_LABEL` legge la radice del bucket.
  */
 export const listFiles = async (folder: string): Promise<StorageFile[]> => {
   const isRoot = folder === ROOT_LABEL;
-  const entries = await listRaw(isRoot ? "" : folder);
+  const [entries, metas] = await Promise.all([
+    listRaw(isRoot ? "" : folder),
+    loadMediaAssets(),
+  ]);
   const paths = entries.map((e) => (isRoot ? e.name : `${folder}/${e.name}`));
   const signed = await signMany(paths);
 
-  // Punto di innesto futuro: qui si potrà leggere la tabella dei metadati
-  // (chiave: path) e unire i risultati per percorso.
   return entries.map((e, i) => ({
     path: paths[i],
     folder,
     name: e.name,
     url: signed[paths[i]] ?? "",
+
     size: e.metadata?.size ?? 0,
     mimeType: e.metadata?.mimetype ?? "",
     updatedAt: e.updated_at ?? null,
     isVideo: VIDEO_EXT.test(e.name),
+    meta: metas[paths[i]],
   }));
 };
 
-/** Filtro testuale: oggi solo sul nome, domani anche sui tag. */
+/** Filtro testuale su nome, titolo, categoria, tag, descrizione e modulo. */
 export const filterFiles = (files: StorageFile[], query: string) => {
   const q = query.trim().toLowerCase();
   if (!q) return files;
-  return files.filter(
-    (f) =>
-      f.name.toLowerCase().includes(q) ||
-      (f.meta?.tags ?? []).some((t) => t.toLowerCase().includes(q)),
-  );
+  return files.filter((f) => {
+    const m = f.meta;
+    const campi = [
+      f.name,
+      m?.nome ?? "",
+      m?.categoria ?? "",
+      m?.descrizione ?? "",
+      m?.modulo ?? "",
+      ...(m?.tag ?? []),
+    ];
+    return campi.some((c) => c.toLowerCase().includes(q));
+  });
 };
+
+/** Filtri rapidi su stato e modulo (valore vuoto = nessun filtro). */
+export const applyFacets = (
+  files: StorageFile[],
+  stato: string,
+  modulo: string,
+) =>
+  files.filter((f) => {
+    if (stato && (f.meta?.stato ?? "") !== stato) return false;
+    if (modulo && (f.meta?.modulo ?? "") !== modulo) return false;
+    return true;
+  });
+
+/** Carica uno o più file nella cartella indicata, senza sovrascrivere. */
+export const uploadFiles = async (
+  files: File[],
+  folder: string,
+  onProgress?: (done: number, total: number) => void,
+): Promise<{ paths: string[]; failed: { name: string; message: string }[] }> => {
+  const dest = folder === ROOT_LABEL ? "" : folder.replace(/^\/+|\/+$/g, "");
+  const paths: string[] = [];
+  const failed: { name: string; message: string }[] = [];
+  let done = 0;
+  for (const file of files) {
+    const ext = file.name.split(".").pop() ?? "bin";
+    const base = slugify(file.name.replace(/\.[^.]+$/, "")) || "file";
+    const name = `${Date.now()}-${base}.${ext.toLowerCase()}`;
+    const path = dest ? `${dest}/${name}` : name;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+      upsert: false,
+      contentType: file.type || undefined,
+    });
+    if (error) failed.push({ name: file.name, message: error.message });
+    else paths.push(path);
+    done += 1;
+    onProgress?.(done, files.length);
+  }
+  return { paths, failed };
+};
+
 
 export type BulkResult = {
   ok: string[];
@@ -199,8 +266,10 @@ export const deleteFiles = async (paths: string[]): Promise<BulkResult> => {
   if (usedIds.length > 0) {
     await supabase.from("placeholder_images").delete().in("placeholder_id", usedIds);
   }
+  await deleteMediaAssets(result.ok);
   await refreshPlaceholders();
   return result;
+
 };
 
 /** Nome libero nella cartella di destinazione (aggiunge -2, -3, ...). */
@@ -263,6 +332,8 @@ export const moveFiles = async (
         continue;
       }
       result.ok.push(job.from);
+      await moveMediaAsset(job.from, job.to);
+
       for (const id of usage[job.from] ?? []) {
         const { data } = await supabase
           .from("placeholder_images")
