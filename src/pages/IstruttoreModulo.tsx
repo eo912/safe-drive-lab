@@ -240,6 +240,7 @@ const IstruttoreModulo = () => {
 
       if (
         e.key === "ArrowRight" ||
+        e.key === "ArrowDown" ||
         e.key === "PageDown" ||
         e.key === " " ||
         e.key === "Spacebar"
@@ -248,7 +249,7 @@ const IstruttoreModulo = () => {
         stepRemoteRef.current?.(1);
         return;
       }
-      if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") {
         e.preventDefault();
         stepRemoteRef.current?.(-1);
         return;
@@ -295,6 +296,19 @@ const IstruttoreModulo = () => {
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
   const { heartbeat: aulaHeartbeat } = useAulaHeartbeatMonitor(slug);
 
+  // L'Aula comunica la posizione realmente visibile: quando cambia (anche per
+  // scroll manuale lato Aula) la Regia si allinea, così blocco selezionato,
+  // titolo, note e suggerimenti riflettono la scena in onda.
+  const lastAulaPosRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!aulaHeartbeat) return;
+    const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;
+    if (lastAulaPosRef.current === key) return;
+    lastAulaPosRef.current = key;
+    setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
+  }, [aulaHeartbeat, setPreview]);
+
+
   // Tempo per slide: previsto (config + override locale) + cronometro live.
   const { getExpected, setExpected, resetExpected } = useSlideTimes(slug);
   const aulaPaused = liveState?.paused === true;
@@ -335,15 +349,16 @@ const IstruttoreModulo = () => {
     applyPosition({ blocco: previewState.blocco, step });
 
   // Telecomando: muove la posizione corrente lungo la sequenza lineare.
-  // In "regia" si parte dalla preview, in "lineare" si parte dal live (che coincide).
+  // I tasti comandano SEMPRE l'Aula (anche in modalità "regia"): si parte dalla
+  // posizione realmente in onda, con ripiego sull'anteprima se l'Aula è ferma.
   useEffect(() => {
     stepRemoteRef.current = (dir: 1 | -1) => {
       if (sequence.length === 0) return;
-      const cur = findPositionIndex(
-        sequence,
-        previewState.blocco,
-        previewState.step,
-      );
+      // Priorità alla posizione realmente visibile in Aula (heartbeat).
+      const fromBlocco =
+        aulaHeartbeat?.blocco ?? liveState?.blocco ?? previewState.blocco;
+      const fromStep = aulaHeartbeat?.step ?? liveState?.step ?? previewState.step;
+      const cur = findPositionIndex(sequence, fromBlocco, fromStep);
       const safe = cur === -1 ? 0 : cur;
       const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
       if (next === safe && cur !== -1) return;
@@ -354,9 +369,18 @@ const IstruttoreModulo = () => {
       hazardOutcomeRef.current = undefined;
       setHazardPhase("idle");
       setHazardOutcome(undefined);
-      applyPosition(sequence[next]);
+      publish({ ...sequence[next], paused: false });
     };
-  }, [sequence, previewState.blocco, previewState.step, applyPosition]);
+  }, [
+    sequence,
+    previewState.blocco,
+    previewState.step,
+    liveState?.blocco,
+    liveState?.step,
+    aulaHeartbeat?.blocco,
+    aulaHeartbeat?.step,
+    publish,
+  ]);
 
   const sendToAula = () => {
     phonePhaseRef.current = "idle";
