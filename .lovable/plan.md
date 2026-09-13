@@ -1,66 +1,68 @@
-# Modalità offline limitata (Regia + Aula)
+# Gestione file → Media Library catalogata
 
-Obiettivo: dopo almeno un utilizzo con internet, l'app pubblicata deve funzionare in aula senza connessione, limitatamente a Regia e Aula. Studio, Gestione file e link video esterni restano funzioni "solo online".
+Estensione della pagina esistente `/studio/file` (Gestione file). Nessun rifacimento del layout: si aggiungono catalogazione, ricerca estesa e caricamento, mantenendo cartelle, selezione multipla, sposta ed elimina come sono oggi.
 
-## Situazione attuale
+## 1. Tabella dei metadati
 
-- Regia e Aula parlano già su un canale locale del browser (`BroadcastChannel` + `localStorage`) in `src/lib/aulaSync.ts`; in parallelo inviano gli stessi comandi su un canale realtime remoto. Sullo stesso Surface, quindi, la sincronizzazione di base funziona già senza rete: il rischio reale è che le chiamate remote falliscano rumorosamente o rallentino, non che i comandi non arrivino.
-- I testi dei moduli sono già dentro il codice dell'app (pagine `AulaModulo1..8`), quindi non richiedono rete.
-- Le immagini invece dipendono dalla rete due volte: la tabella delle associazioni segnaposto→file viene letta al caricamento, e ogni file del bucket privato viene servito tramite un indirizzo firmato generato al momento (validità 7 giorni).
-- Non esiste oggi alcuna cache applicativa: niente service worker, niente copia locale delle associazioni.
+Nuova tabella `media_assets`, una riga per file, chiave sul percorso nel bucket:
 
-## Architettura proposta
+| campo | tipo | note |
+| --- | --- | --- |
+| `storage_path` | text, chiave primaria | es. `foto/curva-notte.jpg` |
+| `nome` | text | etichetta leggibile, default dal nome file |
+| `tipo` | text | `foto` / `video` / `documento` |
+| `categoria` | text, opzionale | libera, con suggerimenti dalle cartelle esistenti |
+| `modulo` | text, opzionale | es. `modulo-3`, oppure vuoto |
+| `tag` | text[] , default `{}` | array di stringhe |
+| `stato` | text, default `da-valutare` | `approvato` / `da-valutare` / `scartato` |
+| `descrizione` | text, opzionale | |
+| `created_at` / `updated_at` | timestamptz | |
 
-### 1. Rilevamento stato connessione
-Un piccolo modulo condiviso espone "online/offline" combinando `navigator.onLine` con l'esito reale delle ultime chiamate al backend (una chiamata fallita = offline finché una successiva non riesce). Regia e Aula lo usano per decidere cosa nascondere e come comportarsi.
+Indici: su `modulo`, su `stato`, GIN su `tag` per la ricerca. Accesso uguale a `placeholder_images` (lettura e scrittura consentite anche senza login, coerente con l'utility interna nascosta).
 
-### 2. Sincronizzazione Regia↔Aula
-Il canale locale del browser diventa il canale **autoritativo** quando le due finestre sono sullo stesso browser; il canale remoto resta attivo in parallelo, ma diventa best-effort:
-- ogni invio remoto è già racchiuso in un tentativo tollerante agli errori: va esteso in modo che un fallimento non produca errori in console né ritardi (nessun await bloccante, nessun retry insistente);
-- la sottoscrizione remota non viene creata affatto finché lo stato è offline, ed è creata/ricreata al ritorno della rete;
-- alla riconnessione la Regia ripubblica lo stato corrente sul canale remoto, così un eventuale secondo dispositivo si riallinea;
-- il messaggio più recente vince, indipendentemente dal canale di provenienza (logica già presente, va solo resa uniforme fra i due canali).
+Importante: la tabella è **descrittiva**, non autoritativa. La verità su quali file esistono resta lo storage; i metadati si agganciano per percorso. Un file senza riga in tabella resta visibile e usabile come oggi.
 
-Risultato: in aula senza rete, Regia e Aula continuano a sincronizzarsi istantaneamente; l'uso futuro su due dispositivi in rete resta intatto.
+Al momento dello spostamento di un file, il percorso in `media_assets` va aggiornato insieme a quello in `placeholder_images` (la logica di `moveFiles` esiste già e va estesa); alla cancellazione, la riga va rimossa.
 
-### 3. Contenuti disponibili offline
+## 2. Metadati nella griglia
 
-Tre livelli, tutti popolati durante l'uso online preventivo:
+- Ogni scheda della griglia mostra, sotto nome e dimensione, due indicatori compatti: pallino di stato (approvato / da valutare) e fino a due tag. Se non ci sono metadati, la scheda resta com'è oggi.
+- Click sul file: oggi seleziona. Nuovo comportamento: la selezione multipla passa alla casella di spunta in alto a sinistra (già presente graficamente), mentre il click sulla scheda apre un **pannello laterale destro** con i campi del file: nome, tipo, categoria, modulo, tag, stato, descrizione, più anteprima grande e percorso.
+- Il pannello salva con un pulsante esplicito e mostra conferma. Chiusura con X o Esc.
+- Azione in blocco aggiuntiva nella barra inferiore: "Assegna metadati…" per applicare categoria / modulo / stato / tag a tutti i file selezionati in una volta (i campi lasciati vuoti non vengono toccati).
 
-1. **Guscio dell'app** (codice, font, immagini incluse nel pacchetto): service worker generato in fase di build, con strategia "prima la rete, poi la copia locale" per le pagine e "prima la copia locale" per i file versionati. Va registrato solo nell'app pubblicata, mai in anteprima o in sviluppo.
-2. **Associazioni segnaposto→file**: ogni lettura riuscita viene salvata in una copia locale nel browser; all'avvio si parte dalla copia locale e la si aggiorna quando la rete risponde. Così l'Aula non resta mai vuota in attesa della rete.
-3. **File immagine del bucket**: gli indirizzi firmati risolti vengono memorizzati localmente insieme alla loro scadenza, e le immagini effettivamente scaricate finiscono nella cache del service worker. Serve inoltre una funzione "prepara la sessione offline" nella Regia che, con internet, rigenera tutti gli indirizzi e scarica in anticipo le immagini dei moduli scelti, senza dover aprire ogni schermata a mano.
+## 3. Ricerca estesa
 
-### 4. Funzioni disattivate offline
-Quando lo stato è offline: lo Studio e la Gestione file mostrano un avviso e non si aprono; i riquadri dei link video esterni e il player video sono nascosti; l'upload è disabilitato. Nessuna di queste schermate deve andare in errore.
+La casella in alto cerca in: nome file, nome leggibile, categoria, tag, descrizione e modulo. Accanto, due filtri a tendina rapidi: stato e modulo. Il conteggio "X di Y file" resta.
 
-## Comportamento durante la sessione
+## 4. Caricamento diretto dalla pagina
 
-- **Connessione che cade a metà**: nessuna interruzione visibile. Regia e Aula continuano sul canale locale, le immagini arrivano dalla cache, i controlli online spariscono e in Regia compare un indicatore discreto "offline".
-- **Connessione che ritorna**: sottoscrizione remota ricreata, associazioni riallineate, indirizzi firmati scaduti rigenerati, funzioni online riattivate. Nessun ricaricamento della pagina.
+- Area drag&drop nella parte alta dell'elenco (e pulsante "Carica file") che accetta immagini e video, più file insieme.
+- Prima della conferma, un riquadro elenca i file scelti e permette di impostare cartella di destinazione, categoria, modulo, stato e tag comuni a tutto il lotto.
+- Dopo il caricamento si crea la riga in `media_assets` per ciascun file e la griglia si aggiorna.
+- Limite pratico: circa 60 MB per file; per i video lunghi resta il link esterno gestito nello Studio.
 
-## Rischi e limiti da accettare
+## 5. Assegnazione a un blocco dalla stessa pagina
 
-- **Indirizzi firmati con scadenza**: valgono 7 giorni. Se l'ultima sessione online è più vecchia, le immagini non sono più recuperabili offline anche se il file è in cache, perché l'indirizzo cambia. Mitigazione: la funzione "prepara la sessione offline" va eseguita poco prima del corso; in alternativa si può valutare in seguito una conservazione delle immagini come dati locali indipendente dall'indirizzo.
-- **Indirizzo firmato variabile = cache che non combacia**: la cache deve ignorare la parte variabile dell'indirizzo, altrimenti ogni nuova firma è una miss.
-- **Spazio disponibile**: la cache del browser è soggetta a limiti e a pulizia automatica; con molti moduli pieni di foto il volume va tenuto sotto controllo (solo i moduli preparati, non l'intero archivio).
-- **Service worker e contenuti aggiornati**: un guscio memorizzato può servire una versione vecchia dell'app; per questo le pagine usano sempre "prima la rete". Va previsto anche un modo di ripulire la cache in caso di problemi.
-- **Solo app pubblicata**: in anteprima/sviluppo il service worker non si registra, quindi l'offline non è verificabile lì. Il collaudo va fatto sull'indirizzo pubblicato mettendo il computer in modalità aereo.
-- **Video esterni**: non saranno mai disponibili offline, per scelta.
+Fattibile senza stravolgere l'architettura: esiste già `placeholder_images` e la funzione che descrive i segnaposto (`describePlaceholderId` su `studioCatalog`). Nel pannello laterale del file si aggiunge la sezione "Usato in": elenco dei segnaposto che già usano quel file (dato disponibile oggi) più un selettore a due livelli modulo → schermata → segnaposto per assegnarlo subito. Il salvataggio riusa lo stesso scrittore usato dallo Studio, così Aula e Regia si aggiornano come sempre.
 
-## File coinvolti
+Resta fuori: l'anteprima live della slide, che continua a vivere nello Studio del modulo.
 
-- `src/lib/aulaSync.ts` — priorità al canale locale, invii remoti tolleranti, sottoscrizione condizionata alla rete, ripubblicazione alla riconnessione.
-- Nuovo `src/lib/connectivity.ts` — stato online/offline condiviso.
-- Nuovo modulo di registrazione del service worker con le protezioni per anteprima/sviluppo, più configurazione di build (`vite.config.ts`) per generare il worker.
-- `src/lib/placeholderImages.ts` — copia locale delle associazioni e degli indirizzi firmati, precaricamento, nessun errore quando la rete manca.
-- `src/pages/IstruttoreModulo.tsx` — indicatore stato connessione, comando "prepara la sessione offline", disattivazione delle funzioni online.
-- `src/pages/StorageAdmin.tsx`, pannelli Studio (`BlockImagesPanel`, `SceneMediaPanel`, `BlockRefLink`, `VideoLinkPlayer`) — blocco/nascondimento offline.
+## 6. Bucket pubblico in lettura
 
-## Fasi di lavoro
+Se il bucket diventa pubblico in lettura, gli indirizzi delle immagini diventano stabili e senza scadenza. Vantaggi: griglia più veloce (niente firma a lotti), copia offline più semplice, nessuna miniatura che "scade" dopo un'ora. Il piano prevede un unico punto centrale per costruire l'indirizzo di un file, che userà l'indirizzo pubblico quando disponibile e continuerà a firmare come oggi in caso contrario — così il passaggio non rompe nulla e resta reversibile.
 
-1. Stato connessione condiviso + sincronizzazione locale prioritaria (risolve subito il problema più critico).
-2. Copia locale delle associazioni e degli indirizzi firmati.
-3. Service worker con cache del guscio e delle immagini.
-4. Comando "prepara la sessione offline" e disattivazione delle funzioni online.
-5. Collaudo sull'app pubblicata in modalità aereo: Regia + Aula, navigazione completa di un modulo, caduta e ritorno della connessione.
+## Rischi
+
+- **Disallineamento metadati/file**: file spostati o cancellati fuori dall'app lasciano righe orfane. Mitigazione: le righe senza file corrispondente vengono semplicemente ignorate nella griglia, e un'azione manuale "pulisci metadati orfani" può rimuoverle.
+- **Click che cambia significato**: chi usa già la pagina si aspetta che il click selezioni. Mitigazione: la casella di spunta resta in evidenza e l'azione "Seleziona tutto" non cambia.
+- **Caricamenti pesanti**: più video insieme possono essere lenti; si mostra progresso per file e si evita di bloccare la pagina.
+- **Nessuna autenticazione**: la pagina resta protetta solo dalla modalità modifica nascosta, come oggi.
+
+## Dettagli tecnici
+
+- Migrazione: `CREATE TABLE public.media_assets` con GRANT per `anon`, `authenticated`, `service_role`, RLS attiva con policy permissive come `placeholder_images`; indici btree su `modulo`/`stato` e GIN su `tag`; trigger su `updated_at`.
+- `src/lib/storageAdmin.ts`: valorizzare `FileMeta` leggendo `media_assets` in `listFiles` (una query, join per percorso); estendere `filterFiles` a categoria/tag/descrizione/modulo; nuove funzioni `saveMeta`, `saveMetaBulk`, `uploadFiles`; `moveFiles` e `deleteFiles` aggiornano/eliminano anche le righe dei metadati.
+- Nuovi componenti in `src/components/storage-admin/`: `MetaPanel.tsx` (pannello laterale), `UploadDropzone.tsx`, `BulkMetaDialog.tsx`, `FilterBar.tsx`.
+- Modificati: `FileGrid.tsx` (badge stato/tag, casella di spunta separata dal click), `BulkActionsBar.tsx` (voce metadati), `StorageAdmin.tsx` (stato pannello, filtri, upload).
+- Indirizzi file: unica funzione `fileUrl(path)` in `storageAdmin.ts` / `placeholderImages.ts` che sceglie fra pubblico e firmato.
