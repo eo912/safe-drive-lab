@@ -1,26 +1,27 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  assetUrl,
+  listAllAssets,
+  removeAssets,
+  uploadAsset,
+  ASSETS_BUCKET,
+} from "./assetsBucket";
+import {
   isOnline,
   markBackendFailure,
   markBackendOk,
   onConnectivityChange,
 } from "./connectivity";
-import {
-  loadCachedPaths,
-  loadCachedSigned,
-  saveCachedPaths,
-  saveCachedSigned,
-  type SignedEntry,
-} from "./offlineCache";
+import { loadCachedPaths, saveCachedPaths } from "./offlineCache";
 
 /**
- * Associazione persistente segnaposto -> immagine nel bucket "course-images".
- * Nel database salviamo il PERCORSO del file (es. "modulo-3/abitacolo.jpg");
- * l'URL firmato viene risolto al volo e messo in cache.
+ * Associazione persistente segnaposto -> file nel bucket pubblico esterno
+ * "safe-drive-labs-assets". Nel database salviamo il PERCORSO del file
+ * (es. "foto/abitacolo.jpg"); l'indirizzo pubblico è permanente e viene
+ * costruito al volo, senza scadenza.
  */
-export const BUCKET = "course-images";
-const SIGNED_TTL = 60 * 60 * 24 * 7; // 7 giorni
+export const BUCKET = ASSETS_BUCKET;
 
 const EVT = "sdl:placeholder-images";
 
@@ -29,18 +30,9 @@ const EVT = "sdl:placeholder-images";
 let paths: Record<string, string> = loadCachedPaths();
 let loaded = false;
 let loading: Promise<void> | null = null;
-const signedStore: Record<string, SignedEntry> = loadCachedSigned();
-const signed: Record<string, string> = Object.fromEntries(
-  Object.entries(signedStore).map(([p, e]) => [p, e.url]),
-);
-
-const rememberSigned = (path: string, url: string) => {
-  signed[path] = url;
-  signedStore[path] = { url, exp: Date.now() + SIGNED_TTL * 1000 };
-  saveCachedSigned(signedStore);
-};
 
 const emit = () => window.dispatchEvent(new CustomEvent(EVT));
+
 
 export const slugify = (s: string) =>
   s
