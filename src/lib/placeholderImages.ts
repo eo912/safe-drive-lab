@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  isOnline,
+  markBackendFailure,
+  markBackendOk,
+  onConnectivityChange,
+} from "./connectivity";
+import {
+  loadCachedPaths,
+  loadCachedSigned,
+  saveCachedPaths,
+  saveCachedSigned,
+  type SignedEntry,
+} from "./offlineCache";
 
 /**
  * Associazione persistente segnaposto -> immagine nel bucket "course-images".
