@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { useEditMode } from "@/lib/editMode";
 import NotFound from "@/pages/NotFound";
+import { useOnline } from "@/lib/connectivity";
+import { OfflineNotice } from "@/components/istruttore/OfflineStatus";
 import { FolderList } from "@/components/storage-admin/FolderList";
 import { FileGrid } from "@/components/storage-admin/FileGrid";
 import { BulkActionsBar } from "@/components/storage-admin/BulkActionsBar";
@@ -27,6 +29,7 @@ import {
  */
 const StorageAdmin = () => {
   const editing = useEditMode();
+  const online = useOnline();
 
   const [folders, setFolders] = useState<string[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
@@ -115,6 +118,13 @@ const StorageAdmin = () => {
   };
 
   if (!editing) return <NotFound />;
+
+  if (!online)
+    return (
+      <div className="mx-auto max-w-xl p-8">
+        <OfflineNotice what="La gestione dei file dell'archivio" />
+      </div>
+    );
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
