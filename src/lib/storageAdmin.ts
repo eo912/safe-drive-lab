@@ -7,23 +7,22 @@ import {
   iconIdFor,
   placeholderIdFor,
   refreshPlaceholders,
+  slugify,
 } from "@/lib/placeholderImages";
+import {
+  deleteMediaAssets,
+  loadMediaAssets,
+  moveMediaAsset,
+  type MediaAsset,
+  type MediaTipo,
+} from "@/lib/mediaAssets";
 
 /**
  * Livello dati dell'utility interna di gestione file (bucket "course-images").
- * Unico punto che parla con lo storage per elenco, cancellazione e spostamento
- * in blocco. Pensato per accogliere in futuro una tabella di metadati (tag,
- * categoria, descrizione) senza cambiare la firma di queste funzioni.
+ * Unico punto che parla con lo storage per elenco, cancellazione, spostamento
+ * in blocco e caricamento. I metadati di catalogazione arrivano dalla tabella
+ * `media_assets` e vengono uniti per percorso.
  */
-
-const SIGNED_TTL = 60 * 60; // 1 ora: sufficiente per una sessione di riordino
-
-/** Metadati opzionali: oggi mai valorizzati, pronti per una futura tabella. */
-export type FileMeta = {
-  tags?: string[];
-  categoria?: string;
-  descrizione?: string;
-};
 
 export type StorageFile = {
   path: string;
@@ -34,8 +33,26 @@ export type StorageFile = {
   mimeType: string;
   updatedAt: string | null;
   isVideo: boolean;
-  meta?: FileMeta;
+  meta?: MediaAsset;
 };
+
+/** Indirizzo pubblico del file: il bucket è in lettura pubblica. */
+export const fileUrl = (path: string) =>
+  supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+
+/** Tipo dedotto dall'estensione, usato come valore iniziale della scheda. */
+export const tipoFromName = (name: string): MediaTipo => {
+  if (VIDEO_EXT.test(name)) return "video";
+  if (/\.(pdf|docx?|pptx?|xlsx?|txt)$/i.test(name)) return "documento";
+  return "foto";
+};
+
+/** Moduli disponibili per il campo "modulo di riferimento". */
+export const moduliOptions = studioCatalog.map((m) => ({
+  value: m.folder,
+  label: m.title,
+}));
+
 
 export const ROOT_LABEL = "(radice)";
 
