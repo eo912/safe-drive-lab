@@ -104,7 +104,7 @@ export const QuizQuestion = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-[11px] md:text-xs text-muted-foreground leading-snug"
+              className="text-[11px] md:text-xs text-muted-foreground leading-snug line-clamp-2"
             >
               <span className="text-primary font-semibold">
                 Risposta corretta: {LETTERS[data.correctIndex]}.
