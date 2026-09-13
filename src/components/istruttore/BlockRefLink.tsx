@@ -18,10 +18,12 @@ export const BlockRefLink = ({ modulo, blocco }: Props) => {
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     setDraft("");
     setErr(null);
+    setPlaying(false);
   }, [modulo, blocco]);
 
   const save = async () => {
