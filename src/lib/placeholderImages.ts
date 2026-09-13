@@ -289,17 +289,63 @@ const listFolderFiles = async (folder: string) => {
 };
 
 /** Firma in blocco un elenco di percorsi e popola la cache. */
-const resolveSignedMany = async (allPaths: string[]) => {
-  const missing = allPaths.filter((p) => !signed[p]);
+const resolveSignedMany = async (allPaths: string[], force = false) => {
+  if (!isOnline()) return;
+  const missing = force ? allPaths : allPaths.filter((p) => !signed[p]);
   const CHUNK = 100;
   for (let i = 0; i < missing.length; i += CHUNK) {
     const chunk = missing.slice(i, i + CHUNK);
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
-    for (const row of data ?? []) {
-      if (row.path && row.signedUrl) signed[row.path] = row.signedUrl;
+    try {
+      const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
+      for (const row of data ?? []) {
+        if (row.path && row.signedUrl) rememberSigned(row.path, row.signedUrl);
+      }
+      markBackendOk();
+    } catch {
+      markBackendFailure();
+      return;
     }
   }
   if (missing.length > 0) emit();
+};
+
+/**
+ * Prepara la sessione offline: rinnova tutti gli indirizzi firmati dei file
+ * associati ai segnaposto e scarica le immagini nella cache del browser,
+ * così in aula senza rete restano disponibili.
+ */
+export const prepareOfflineSession = async (
+  onProgress?: (done: number, total: number) => void,
+) => {
+  if (!isOnline()) throw new Error("offline");
+  await refreshPlaceholders();
+
+  const storagePaths = Array.from(
+    new Set(
+      Object.values(paths)
+        .filter((p) => !p.startsWith(EXTERNAL_PREFIX))
+        .map((p) => p.replace(VIDEO_PREFIX, "")),
+    ),
+  );
+
+  await resolveSignedMany(storagePaths, true);
+
+  let done = 0;
+  const total = storagePaths.length;
+  onProgress?.(0, total);
+  for (const path of storagePaths) {
+    const url = signed[path];
+    if (url) {
+      try {
+        await fetch(url, { mode: "cors", cache: "reload" });
+      } catch {
+        /* singolo file non scaricabile: proseguiamo */
+      }
+    }
+    done += 1;
+    onProgress?.(done, total);
+  }
+  return { total };
 };
 
 /**
