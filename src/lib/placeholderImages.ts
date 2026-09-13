@@ -409,25 +409,21 @@ export const placeholderIdsUsingPath = (path: string) =>
 export const deleteLibraryImage = async (path: string) => {
   const used = placeholderIdsUsingPath(path);
   for (const id of used) delete paths[id];
-  delete signed[path];
-  delete signedStore[path];
-  saveCachedSigned(signedStore);
   saveCachedPaths(paths);
   emit();
   if (used.length > 0) {
     await supabase.from("placeholder_images").delete().in("placeholder_id", used);
   }
-  await supabase.storage.from(BUCKET).remove([path]);
+  await removeAssets([path]);
 };
 
 export const uploadImage = async (file: File, folder: string) => {
   const ext = file.name.split(".").pop() ?? "jpg";
   const path = `${folder}/${Date.now()}-${slugify(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true });
-  if (error) throw error;
-  await resolveSigned(path);
+  await uploadAsset(path, file, true);
   return path;
 };
+
 
 /** URL pronto da mostrare per un segnaposto (null se non configurato). */
 export const usePlaceholderImage = (id: string) => {
