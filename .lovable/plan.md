@@ -44,10 +44,11 @@ Lo stato `ringing`/`phoneVisible` viaggia sul canale realtime già esistente (`s
 ## Verifica
 
 - Build/typecheck verdi.
-- Test Playwright a 1280×800: Trigger A → nessun cambio visivo; Trigger B → telefono centrato con blur dietro; chiusura; ripetizione sulla seconda chiamata; sincronizzazione tra due contesti browser (regia → aula).
+- Test Playwright a 1280×800: OK una volta → solo suono in Aula; OK due volte → telefono centrato con blur; OK terza volta → chiusura; ripetizione sulla seconda chiamata; sincronizzazione tra due contesti browser (regia → aula), con Regia sempre pulita.
 
-## Note / decisioni da confermare
+## Note / decisioni confermate
 
-- Tasti proposti: **T** (suoneria) e **C** (telefono). Cambiabili se preferisci altri.
+- Tasto unico: **Invio / OK** (centrale del D-pad). Non è già occupato in `IstruttoreModulo.tsx`.
+- Sequenza toggle: idle → ringing → visible → idle.
 - I pulsanti verde/rosso del telefono sono decorativi in questa fase (la scelta resta sulle due opzioni testuali già esistenti); in futuro si possono collegare a `onAnswer`/`onDecline`.
-- File audio: propongo una suoneria breve mp3 inclusa nel progetto (nessun servizio esterno).
+- File audio: propongo una suoneria breve mp3 inclusa nel progetto (nessun servizio esterno); il mute è gestito manualmente dalla TV/hardware.
