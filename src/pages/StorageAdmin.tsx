@@ -9,13 +9,19 @@ import { FileGrid } from "@/components/storage-admin/FileGrid";
 import { BulkActionsBar } from "@/components/storage-admin/BulkActionsBar";
 import { MoveDialog } from "@/components/storage-admin/MoveDialog";
 import { DeleteDialog } from "@/components/storage-admin/DeleteDialog";
+import { MetaPanel } from "@/components/storage-admin/MetaPanel";
+import { UploadDropzone } from "@/components/storage-admin/UploadDropzone";
+import { BulkMetaDialog } from "@/components/storage-admin/BulkMetaDialog";
+import { STATI, type MediaAsset } from "@/lib/mediaAssets";
 import {
+  applyFacets,
   deleteFiles,
   filterFiles,
   folderLabel,
   listFiles,
   listFolders,
   loadUsageMap,
+  moduliOptions,
   moveFiles,
   ROOT_LABEL,
   type BulkResult,
@@ -38,10 +44,14 @@ const StorageAdmin = () => {
   const [usage, setUsage] = useState<Record<string, string[]>>({});
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
+  const [statoFiltro, setStatoFiltro] = useState("");
+  const [moduloFiltro, setModuloFiltro] = useState("");
+  const [aperto, setAperto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [dialog, setDialog] = useState<null | "move" | "delete">(null);
+  const [dialog, setDialog] = useState<null | "move" | "delete" | "meta">(null);
   const [esito, setEsito] = useState<string | null>(null);
+
 
   const loadFolders = useCallback(async () => {
     const list = await listFolders();
