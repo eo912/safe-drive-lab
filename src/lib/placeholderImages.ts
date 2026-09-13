@@ -211,10 +211,9 @@ const IMAGE_EXT = /\.(png|jpe?g|webp|gif|avif|svg)(\?|$)/i;
 export const setPlaceholderImage = async (id: string, path: string) => {
   const previous = paths[id];
   paths[id] = path;
-  if (!path.startsWith(EXTERNAL_PREFIX)) {
-    await resolveSigned(path.replace(VIDEO_PREFIX, ""));
-  }
+  saveCachedPaths(paths);
   emit();
+
   const { error } = await supabase
     .from("placeholder_images")
     .upsert({ placeholder_id: id, image_url: path, updated_at: new Date().toISOString() });
