@@ -25,7 +25,12 @@ Nuova funzionalità didattica nel nodo "Notifica" della catena dell'incidente: i
 
 ## Sincronizzazione Aula ↔ Regia
 
-Fondamentale: il telefono deve comparire sulla TV (finestra Aula), non solo in regia. Quindi lo stato `ringing`/`phoneVisible` viaggia sul canale realtime già esistente (`safedrivelab-aula-live` in `aulaSync.ts`), come fanno oggi blackout e pausa: la regia pubblica lo stato, la finestra Aula lo riceve e mostra suoneria + overlay. Funziona così anche tra due dispositivi diversi.
+Fondamentale: l'overlay del telefono, il blur/scurimento e l'audio della suoneria devono comparire SOLO nella finestra Aula Live (la TV), esattamente come oggi blackout e pausa. La Regia resta pulita e invariata: mostra solo i controlli/trigger per pilotare l'effetto, non l'effetto stesso.
+
+Lo stato `ringing`/`phoneVisible` viaggia sul canale realtime già esistente (`safedrivelab-aula-live` in `aulaSync.ts`): la regia pubblica il comando, la finestra Aula lo riceve e applica suoneria + overlay + blur. Funziona così anche tra due dispositivi diversi.
+
+- Lato Regia (`IstruttoreModulo.tsx`): i tasti T e C aggiornano solo lo stato locale di controllo e lo pubblicano via `publish()`; nessun rendering di `PhoneCallOverlay` e nessun blur sullo stage/anteprima.
+- Lato Aula (`AulaModulo2.tsx` / `CatenaIncidenteScene.tsx`): il componente ascolta lo stato condiviso e, quando `ringing`/`phoneVisible` è attivo, riproduce la suoneria e renderizza l'overlay con blur/scurimento dello slide sottostante.
 
 ## Struttura dati
 
