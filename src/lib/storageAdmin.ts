@@ -105,54 +105,88 @@ const listRaw = async (folder: string): Promise<RawEntry[]> => {
   return out;
 };
 
-/** Firma in blocco (lotti da 100) e restituisce la mappa percorso -> url. */
-const signMany = async (paths: string[]) => {
-  const map: Record<string, string> = {};
-  const CHUNK = 100;
-  for (let i = 0; i < paths.length; i += CHUNK) {
-    const chunk = paths.slice(i, i + CHUNK);
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
-    for (const row of data ?? []) {
-      if (row.path && row.signedUrl) map[row.path] = row.signedUrl;
-    }
-  }
-  return map;
-};
-
 /**
- * File di una cartella, con miniatura firmata e metadati di base.
+ * File di una cartella, con miniatura pubblica e scheda di catalogazione.
  * `folder === ROOT_LABEL` legge la radice del bucket.
  */
 export const listFiles = async (folder: string): Promise<StorageFile[]> => {
   const isRoot = folder === ROOT_LABEL;
-  const entries = await listRaw(isRoot ? "" : folder);
+  const [entries, metas] = await Promise.all([
+    listRaw(isRoot ? "" : folder),
+    loadMediaAssets(),
+  ]);
   const paths = entries.map((e) => (isRoot ? e.name : `${folder}/${e.name}`));
-  const signed = await signMany(paths);
 
-  // Punto di innesto futuro: qui si potrà leggere la tabella dei metadati
-  // (chiave: path) e unire i risultati per percorso.
   return entries.map((e, i) => ({
     path: paths[i],
     folder,
     name: e.name,
-    url: signed[paths[i]] ?? "",
+    url: fileUrl(paths[i]),
     size: e.metadata?.size ?? 0,
     mimeType: e.metadata?.mimetype ?? "",
     updatedAt: e.updated_at ?? null,
     isVideo: VIDEO_EXT.test(e.name),
+    meta: metas[paths[i]],
   }));
 };
 
-/** Filtro testuale: oggi solo sul nome, domani anche sui tag. */
+/** Filtro testuale su nome, titolo, categoria, tag, descrizione e modulo. */
 export const filterFiles = (files: StorageFile[], query: string) => {
   const q = query.trim().toLowerCase();
   if (!q) return files;
-  return files.filter(
-    (f) =>
-      f.name.toLowerCase().includes(q) ||
-      (f.meta?.tags ?? []).some((t) => t.toLowerCase().includes(q)),
-  );
+  return files.filter((f) => {
+    const m = f.meta;
+    const campi = [
+      f.name,
+      m?.nome ?? "",
+      m?.categoria ?? "",
+      m?.descrizione ?? "",
+      m?.modulo ?? "",
+      ...(m?.tag ?? []),
+    ];
+    return campi.some((c) => c.toLowerCase().includes(q));
+  });
 };
+
+/** Filtri rapidi su stato e modulo (valore vuoto = nessun filtro). */
+export const applyFacets = (
+  files: StorageFile[],
+  stato: string,
+  modulo: string,
+) =>
+  files.filter((f) => {
+    if (stato && (f.meta?.stato ?? "") !== stato) return false;
+    if (modulo && (f.meta?.modulo ?? "") !== modulo) return false;
+    return true;
+  });
+
+/** Carica uno o più file nella cartella indicata, senza sovrascrivere. */
+export const uploadFiles = async (
+  files: File[],
+  folder: string,
+  onProgress?: (done: number, total: number) => void,
+): Promise<{ paths: string[]; failed: { name: string; message: string }[] }> => {
+  const dest = folder === ROOT_LABEL ? "" : folder.replace(/^\/+|\/+$/g, "");
+  const paths: string[] = [];
+  const failed: { name: string; message: string }[] = [];
+  let done = 0;
+  for (const file of files) {
+    const ext = file.name.split(".").pop() ?? "bin";
+    const base = slugify(file.name.replace(/\.[^.]+$/, "")) || "file";
+    const name = `${Date.now()}-${base}.${ext.toLowerCase()}`;
+    const path = dest ? `${dest}/${name}` : name;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+      upsert: false,
+      contentType: file.type || undefined,
+    });
+    if (error) failed.push({ name: file.name, message: error.message });
+    else paths.push(path);
+    done += 1;
+    onProgress?.(done, files.length);
+  }
+  return { paths, failed };
+};
+
 
 export type BulkResult = {
   ok: string[];
