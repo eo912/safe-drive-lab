@@ -250,8 +250,10 @@ export const deleteFiles = async (paths: string[]): Promise<BulkResult> => {
   if (usedIds.length > 0) {
     await supabase.from("placeholder_images").delete().in("placeholder_id", usedIds);
   }
+  await deleteMediaAssets(result.ok);
   await refreshPlaceholders();
   return result;
+
 };
 
 /** Nome libero nella cartella di destinazione (aggiunge -2, -3, ...). */
