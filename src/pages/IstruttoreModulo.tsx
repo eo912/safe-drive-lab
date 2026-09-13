@@ -374,10 +374,9 @@ const IstruttoreModulo = () => {
     hazardOutcomeRef.current = outcome;
     setHazardPhase(phase);
     setHazardOutcome(outcome);
-    const cur = liveState ?? previewState;
     publish({
-      blocco: cur.blocco,
-      step: cur.step as AulaStep,
+      blocco: previewState.blocco,
+      step: previewState.step as AulaStep,
       hazardPhase: phase,
       hazardVariant: "car-braking",
       hazardOutcome: outcome,
