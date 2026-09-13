@@ -90,6 +90,7 @@ const KindLabel: Record<ModuleBlock["kind"], string> = {
 const IstruttoreModulo = () => {
   const { slug = "" } = useParams();
   const navigate = useNavigate();
+  const online = useOnline();
   // (navigate non più necessario: la pagina sta in /istruttore/:slug)
 
   const module = useMemo(() => modules.find((m) => m.slug === slug), [slug]);
