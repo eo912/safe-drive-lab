@@ -16,6 +16,7 @@ import AulaModulo5 from "./pages/AulaModulo5.tsx";
 import AulaModulo6 from "./pages/AulaModulo6.tsx";
 import AulaModulo7 from "./pages/AulaModulo7.tsx";
 import AulaModulo8 from "./pages/AulaModulo8.tsx";
+import AulaModulo9 from "./pages/AulaModulo9.tsx";
 import StorageAdmin from "./pages/StorageAdmin.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { useEditModeHotkey } from "@/lib/editMode";
@@ -71,6 +72,10 @@ const App = () => {
           <Route
             path="/aula/modulo-8-applicazione-est"
             element={<AulaModulo8 />}
+          />
+          <Route
+            path="/aula/modulo-9-verifica-finale"
+            element={<AulaModulo9 />}
           />
 
 
