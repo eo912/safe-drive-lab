@@ -5,8 +5,6 @@ import {
   RotateCcw,
   Clock,
   Coffee,
-  BellOff,
-  Plus,
   X,
   Eye,
 } from "lucide-react";
@@ -14,7 +12,6 @@ import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 
 
 const DEFAULT_TOTAL = 45 * 60; // 45 minuti
-const WARN_AT = 30; // secondi rimanenti per il warning
 
 const fmt = (s: number) => {
   const sign = s < 0 ? "-" : "";
@@ -59,8 +56,6 @@ export const AulaTimer = ({
   const [now, setNow] = useState(() => new Date());
   const [customOpen, setCustomOpen] = useState(false);
   const [customMin, setCustomMin] = useState("45");
-  const [warned, setWarned] = useState(false);
-  const [showWarn, setShowWarn] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const lastTickRef = useRef<number | null>(null);
 
@@ -90,18 +85,6 @@ export const AulaTimer = ({
   const remaining = Math.round(totalSec - elapsed);
   const ratio = elapsed / totalSec;
 
-  // Warning a -30 secondi (una sola volta per ciclo)
-  useEffect(() => {
-    if (running && remaining <= WARN_AT && remaining > 0 && !warned) {
-      setWarned(true);
-      setShowWarn(true);
-    }
-    if (remaining > WARN_AT && warned) {
-      // l'utente ha aggiunto tempo: re-armare l'avviso
-      setWarned(false);
-    }
-  }, [remaining, running, warned]);
-
   const status: "ok" | "warn" | "danger" =
     ratio < 0.7 ? "ok" : ratio < 0.9 ? "warn" : "danger";
 
@@ -122,8 +105,6 @@ export const AulaTimer = ({
   const reset = () => {
     setRunning(false);
     setElapsed(0);
-    setWarned(false);
-    setShowWarn(false);
   };
 
   const applyCustom = () => {
@@ -132,20 +113,12 @@ export const AulaTimer = ({
       setTotalSec(m * 60);
       setElapsed(0);
       setRunning(false);
-      setWarned(false);
-      setShowWarn(false);
       setCustomOpen(false);
     }
   };
 
-  const addTwoMinutes = () => {
-    setTotalSec((t) => t + 2 * 60);
-    setShowWarn(false);
-  };
-
   const triggerPause = () => {
     setRunning(false);
-    setShowWarn(false);
     onRequestAulaPause?.(5, atmosphere);
   };
 
@@ -224,7 +197,6 @@ export const AulaTimer = ({
                 setTotalSec(m * 60);
                 setElapsed(0);
                 setRunning(false);
-                setWarned(false);
               }}
               className={`flex-1 text-[10px] font-mono py-1 rounded-sm transition-colors ${
                 totalSec === m * 60 && !customOpen
@@ -350,63 +322,6 @@ export const AulaTimer = ({
         </div>
       )}
 
-
-      {/* POPUP WARNING -30s */}
-      {showWarn && (
-        <div
-          role="alert"
-          className="fixed bottom-4 right-4 z-[60] w-[300px] rounded-md border border-amber-500/40 bg-card/95 backdrop-blur-md shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200"
-        >
-          <div className="p-3.5">
-            <div className="flex items-start gap-2 mb-3">
-              <span className="mt-0.5 inline-flex w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-500 mb-1">
-                  Avviso tempo
-                </p>
-                <p className="text-sm text-foreground/90 leading-snug">
-                  Sta per terminare il tempo
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowWarn(false)}
-                aria-label="Chiudi avviso"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              <button
-                type="button"
-                onClick={() => setShowWarn(false)}
-                className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-sm border border-border text-foreground/80 text-[10px] font-mono uppercase tracking-wider hover:bg-secondary transition-colors"
-              >
-                <BellOff className="w-3 h-3" />
-                Tacita
-              </button>
-              <button
-                type="button"
-                onClick={addTwoMinutes}
-                className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-sm bg-primary/15 text-primary text-[10px] font-mono uppercase tracking-wider hover:bg-primary/25 transition-colors"
-              >
-                <Plus className="w-3 h-3" />
-                2 min
-              </button>
-              <button
-                type="button"
-                onClick={triggerPause}
-                disabled={!onRequestAulaPause}
-                className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-sm bg-amber-500/15 text-amber-500 text-[10px] font-mono uppercase tracking-wider hover:bg-amber-500/25 transition-colors disabled:opacity-50"
-              >
-                <Coffee className="w-3 h-3" />
-                Pausa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
