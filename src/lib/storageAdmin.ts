@@ -79,41 +79,18 @@ export const folderLabel = (f: string) =>
 
 /** Cartelle di primo livello presenti nel bucket. */
 export const listFolders = async (): Promise<string[]> => {
-  const { data } = await supabase.storage
-    .from(BUCKET)
-    .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
-  return (data ?? [])
-    .filter((e) => !e.id && !e.name.startsWith("."))
-    .map((e) => e.name);
+  const { folders } = await listAssets("");
+  return folders.filter((f) => !f.startsWith("."));
 };
 
-type RawEntry = {
-  name: string;
-  updated_at?: string | null;
-  metadata?: { size?: number; mimetype?: string } | null;
-};
-
-/** Elenca i file di una cartella, a pagine da 1000 (nessun limite pratico). */
-const listRaw = async (folder: string): Promise<RawEntry[]> => {
-  const out: RawEntry[] = [];
-  const PAGE = 1000;
-  for (let offset = 0; ; offset += PAGE) {
-    const { data } = await supabase.storage
-      .from(BUCKET)
-      .list(folder, { limit: PAGE, offset, sortBy: { column: "name", order: "asc" } });
-    const page = data ?? [];
-    for (const e of page) {
-      if (e.name.startsWith(".")) continue;
-      if (!e.id) continue; // sottocartella
-      out.push(e as RawEntry);
-    }
-    if (page.length < PAGE) break;
-  }
-  return out;
+/** Elenca i file di una cartella (radice inclusa). */
+const listRaw = async (folder: string): Promise<AssetEntry[]> => {
+  const { files } = await listAssets(folder);
+  return files;
 };
 
 /**
- * File di una cartella, con anteprima firmata e scheda di catalogazione.
+ * File di una cartella, con anteprima pubblica e scheda di catalogazione.
  * `folder === ROOT_LABEL` legge la radice del bucket.
  */
 export const listFiles = async (folder: string): Promise<StorageFile[]> => {
@@ -122,22 +99,20 @@ export const listFiles = async (folder: string): Promise<StorageFile[]> => {
     listRaw(isRoot ? "" : folder),
     loadMediaAssets(),
   ]);
-  const paths = entries.map((e) => (isRoot ? e.name : `${folder}/${e.name}`));
-  const signed = await signMany(paths);
 
-  return entries.map((e, i) => ({
-    path: paths[i],
+  return entries.map((e) => ({
+    path: e.path,
     folder,
     name: e.name,
-    url: signed[paths[i]] ?? "",
-
-    size: e.metadata?.size ?? 0,
-    mimeType: e.metadata?.mimetype ?? "",
-    updatedAt: e.updated_at ?? null,
+    url: assetUrl(e.path),
+    size: e.size,
+    mimeType: e.mimeType,
+    updatedAt: e.updatedAt,
     isVideo: VIDEO_EXT.test(e.name),
-    meta: metas[paths[i]],
+    meta: metas[e.path],
   }));
 };
+
 
 /** Filtro testuale su nome, titolo, categoria, tag, descrizione e modulo. */
 export const filterFiles = (files: StorageFile[], query: string) => {
