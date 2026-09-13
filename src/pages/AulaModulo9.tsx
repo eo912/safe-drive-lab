@@ -294,18 +294,18 @@ const AulaModulo9 = () => {
           BLOCCO 2 — TEST FINALE, DOMANDE 6-10
           ============================================================ */}
       <Slide bg="black" blockId="verifica-2" className="items-stretch">
-        <div className="relative z-10 w-full h-full px-6 md:px-12 py-4 md:py-5">
+        <div className="relative z-10 w-full h-full px-6 md:px-12 py-3 md:py-4">
           <div className="max-w-6xl mx-auto flex flex-col gap-2 justify-center min-h-full">
             <div className="text-center">
-              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-1">
+              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-0.5">
                 Verifica finale · Seconda parte
               </p>
-              <h1 className="text-xl md:text-2xl font-bold leading-tight">
+              <h1 className="text-lg md:text-xl font-bold leading-tight">
                 Ultime cinque domande
               </h1>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               {quizFinale.slice(5).map((q, i) => (
                 <QuizQuestion key={q.id} data={q} number={i + 6} />
               ))}
