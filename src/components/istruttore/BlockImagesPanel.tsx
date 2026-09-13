@@ -78,13 +78,24 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
   const folder = mod?.folder ?? "generico";
 
   const [library, setLibrary] = useState<LibraryItem[]>([]);
+  const [libraryError, setLibraryError] = useState<string | null>(null);
   const [picker, setPicker] = useState<{
     id: string;
     label: string;
     folder: string;
   } | null>(null);
 
-  const refreshLibrary = () => listLibrary().then(setLibrary);
+  const refreshLibrary = () =>
+    listLibrary()
+      .then((items) => {
+        setLibrary(items);
+        setLibraryError(null);
+      })
+      .catch((e) =>
+        setLibraryError(
+          `Archivio non raggiungibile: ${e instanceof Error ? e.message : "errore di connessione"}. Riprova.`,
+        ),
+      );
 
   useEffect(() => {
     refreshLibrary();
