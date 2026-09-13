@@ -352,11 +352,16 @@ export const useAulaHeartbeat = (
 /**
  * Hook lato Regia: riceve gli heartbeat dall'Aula e calcola lo stato
  * online/offline. Aula è considerata offline se non riceviamo heartbeat
- * per più di `offlineAfterMs` (default 4000ms).
+ * per più di `offlineAfterMs` (default 6000ms: tolleriamo qualche battito
+ * perso su rete lenta o quando la scheda Aula viene rallentata dal browser).
+ *
+ * I battiti vengono raccolti da QUALSIASI modulo: se l'Aula passa da sola a
+ * un altro modulo la Regia deve poterlo sapere, invece di mostrare un
+ * fuorviante "Aula offline".
  */
 export const useAulaHeartbeatMonitor = (
   modulo: string,
-  offlineAfterMs = 4000,
+  offlineAfterMs = 6000,
 ) => {
   const [last, setLast] = useState<AulaHeartbeat | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
@@ -364,14 +369,13 @@ export const useAulaHeartbeatMonitor = (
   // Battito da un altro dispositivo: l'orologio è diverso, quindi lo
   // normalizziamo sull'ora locale per il calcolo online/offline.
   useRemoteListener(remoteHandlers.heartbeat, (b: AulaHeartbeat) => {
-    if (!b || b.modulo !== modulo) return;
+    if (!b) return;
     setLast({ ...b, ts: Date.now() });
   });
 
 
   useEffect(() => {
     const apply = (b: AulaHeartbeat) => {
-      if (b.modulo !== modulo) return;
       setLast((prev) => (prev && prev.ts > b.ts ? prev : b));
     };
     const onMsg = (e: MessageEvent<AulaHeartbeat>) => apply(e.data);
@@ -400,10 +404,23 @@ export const useAulaHeartbeatMonitor = (
       window.removeEventListener("storage", onStorage);
       window.clearInterval(tick);
     };
-  }, [modulo]);
+  }, []);
 
   const sinceMs = last ? now - last.ts : Infinity;
-  const online = last !== null && sinceMs < offlineAfterMs;
-  return { heartbeat: last, online, sinceMs };
+  const connected = last !== null && sinceMs < offlineAfterMs;
+  const sameModule = last?.modulo === modulo;
+  return {
+    /** Ultimo battito del modulo corrente (anche se non più recente). */
+    heartbeat: sameModule ? last : null,
+    /** Battito recente E del modulo corrente: unica fonte affidabile di posizione. */
+    liveHeartbeat: connected && sameModule ? last : null,
+    /** Modulo su cui si trova davvero l'Aula, se diverso da quello in Regia. */
+    foreignModulo: connected && !sameModule ? (last as AulaHeartbeat).modulo : null,
+    /** Aula raggiungibile (qualsiasi modulo). */
+    connected,
+    /** Aula raggiungibile e allineata sul modulo corrente. */
+    online: connected && sameModule,
+    sinceMs,
+  };
 };
 
