@@ -79,7 +79,31 @@ const StorageAdmin = () => {
     if (editing && active) loadCurrent(active);
   }, [editing, active, loadCurrent]);
 
-  const shown = useMemo(() => filterFiles(files, query), [files, query]);
+  const shown = useMemo(
+    () => applyFacets(filterFiles(files, query), statoFiltro, moduloFiltro),
+    [files, query, statoFiltro, moduloFiltro],
+  );
+
+  /** Schede già presenti, per la modifica in blocco e per i suggerimenti. */
+  const metas = useMemo(() => {
+    const map: Record<string, MediaAsset> = {};
+    for (const f of files) if (f.meta) map[f.path] = f.meta;
+    return map;
+  }, [files]);
+
+  const categorie = useMemo(
+    () =>
+      Array.from(
+        new Set(files.map((f) => f.meta?.categoria ?? "").filter(Boolean)),
+      ).sort(),
+    [files],
+  );
+
+  const fileAperto = useMemo(
+    () => shown.find((f) => f.path === aperto) ?? files.find((f) => f.path === aperto) ?? null,
+    [shown, files, aperto],
+  );
+
 
   const toggle = (path: string) =>
     setSelected((s) => {
