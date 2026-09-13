@@ -36,9 +36,23 @@ export type StorageFile = {
   meta?: MediaAsset;
 };
 
-/** Indirizzo pubblico del file: il bucket è in lettura pubblica. */
-export const fileUrl = (path: string) =>
-  supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+/** Durata delle anteprime firmate: una sessione di riordino abbondante. */
+const SIGNED_TTL = 60 * 60;
+
+/** Firma in blocco (lotti da 100) e restituisce la mappa percorso -> url. */
+const signMany = async (paths: string[]) => {
+  const map: Record<string, string> = {};
+  const CHUNK = 100;
+  for (let i = 0; i < paths.length; i += CHUNK) {
+    const chunk = paths.slice(i, i + CHUNK);
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
+    for (const row of data ?? []) {
+      if (row.path && row.signedUrl) map[row.path] = row.signedUrl;
+    }
+  }
+  return map;
+};
+
 
 /** Tipo dedotto dall'estensione, usato come valore iniziale della scheda. */
 export const tipoFromName = (name: string): MediaTipo => {
