@@ -196,10 +196,10 @@ const IstruttoreModulo = () => {
       // OK/Invio: sequenza telefono a toggle sul blocco "catena-incidente".
       // Agisce solo quando nessun campo di input è focalizzato e la Regia è in vista LIVE.
       if (e.key === "Enter") {
-        e.preventDefault();
         if (viewRef.current !== "live" || activeRef.current?.id !== "catena-incidente") {
           return;
         }
+        e.preventDefault();
         const cur = phonePhaseRef.current;
         const next: "idle" | "ringing" | "visible" =
           cur === "idle" ? "ringing" : cur === "ringing" ? "visible" : "idle";
