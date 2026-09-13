@@ -201,7 +201,6 @@ export const AulaTimer = ({
                 setTotalSec(m * 60);
                 setElapsed(0);
                 setRunning(false);
-                setWarned(false);
               }}
               className={`flex-1 text-[10px] font-mono py-1 rounded-sm transition-colors ${
                 totalSec === m * 60 && !customOpen
@@ -327,63 +326,6 @@ export const AulaTimer = ({
         </div>
       )}
 
-
-      {/* POPUP WARNING -30s */}
-      {showWarn && (
-        <div
-          role="alert"
-          className="fixed bottom-4 right-4 z-[60] w-[300px] rounded-md border border-amber-500/40 bg-card/95 backdrop-blur-md shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200"
-        >
-          <div className="p-3.5">
-            <div className="flex items-start gap-2 mb-3">
-              <span className="mt-0.5 inline-flex w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-500 mb-1">
-                  Avviso tempo
-                </p>
-                <p className="text-sm text-foreground/90 leading-snug">
-                  Sta per terminare il tempo
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowWarn(false)}
-                aria-label="Chiudi avviso"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              <button
-                type="button"
-                onClick={() => setShowWarn(false)}
-                className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-sm border border-border text-foreground/80 text-[10px] font-mono uppercase tracking-wider hover:bg-secondary transition-colors"
-              >
-                <BellOff className="w-3 h-3" />
-                Tacita
-              </button>
-              <button
-                type="button"
-                onClick={addTwoMinutes}
-                className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-sm bg-primary/15 text-primary text-[10px] font-mono uppercase tracking-wider hover:bg-primary/25 transition-colors"
-              >
-                <Plus className="w-3 h-3" />
-                2 min
-              </button>
-              <button
-                type="button"
-                onClick={triggerPause}
-                disabled={!onRequestAulaPause}
-                className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-sm bg-amber-500/15 text-amber-500 text-[10px] font-mono uppercase tracking-wider hover:bg-amber-500/25 transition-colors disabled:opacity-50"
-              >
-                <Coffee className="w-3 h-3" />
-                Pausa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
