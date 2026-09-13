@@ -37,8 +37,8 @@ export default defineConfig(({ mode }) => ({
             },
           },
           {
-            // File del bucket: l'indirizzo firmato cambia, la parte
-            // variabile va ignorata altrimenti la copia non combacia mai.
+            // File del bucket pubblico esterno: la parte variabile
+            // dell'indirizzo va ignorata, altrimenti la copia non combacia.
             urlPattern: ({ url }) => url.pathname.includes("/storage/v1/object/"),
             handler: "CacheFirst",
             options: {
