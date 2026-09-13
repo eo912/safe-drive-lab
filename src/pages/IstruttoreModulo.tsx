@@ -296,6 +296,19 @@ const IstruttoreModulo = () => {
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
   const { heartbeat: aulaHeartbeat } = useAulaHeartbeatMonitor(slug);
 
+  // L'Aula comunica la posizione realmente visibile: quando cambia (anche per
+  // scroll manuale lato Aula) la Regia si allinea, così blocco selezionato,
+  // titolo, note e suggerimenti riflettono la scena in onda.
+  const lastAulaPosRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!aulaHeartbeat) return;
+    const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;
+    if (lastAulaPosRef.current === key) return;
+    lastAulaPosRef.current = key;
+    setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
+  }, [aulaHeartbeat, setPreview]);
+
+
   // Tempo per slide: previsto (config + override locale) + cronometro live.
   const { getExpected, setExpected, resetExpected } = useSlideTimes(slug);
   const aulaPaused = liveState?.paused === true;
