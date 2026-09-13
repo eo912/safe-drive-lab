@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { ExternalLink, Link2, Trash2 } from "lucide-react";
+import { ExternalLink, Link2, Play, Trash2 } from "lucide-react";
 import { clearRefLink, setRefLink, useRefLink } from "@/lib/placeholderImages";
+import { detectVideoLink, VideoLinkPlayer } from "./VideoLinkPlayer";
 
 type Props = {
   modulo: string;
