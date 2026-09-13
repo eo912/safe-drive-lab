@@ -449,15 +449,6 @@ export const usePlaceholderMedia = (id: string): PlaceholderMedia | null => {
   }, []);
 
   const raw = paths[id];
-  const storagePath =
-    raw && !raw.startsWith(EXTERNAL_PREFIX)
-      ? raw.replace(VIDEO_PREFIX, "")
-      : null;
-
-  useEffect(() => {
-    if (storagePath && !signed[storagePath]) resolveSigned(storagePath);
-  }, [storagePath]);
-
   if (!raw) return null;
 
   if (raw.startsWith(EXTERNAL_PREFIX)) {
@@ -467,8 +458,11 @@ export const usePlaceholderMedia = (id: string): PlaceholderMedia | null => {
     return { kind: IMAGE_EXT.test(url) ? "image" : "video", url };
   }
 
-  const url = storagePath ? (signed[storagePath] ?? null) : null;
-  if (!url) return null;
-  return { kind: raw.startsWith(VIDEO_PREFIX) ? "video" : "image", url };
+  const storagePath = raw.replace(VIDEO_PREFIX, "");
+  return {
+    kind: raw.startsWith(VIDEO_PREFIX) ? "video" : "image",
+    url: assetUrl(storagePath),
+  };
 };
+
 
