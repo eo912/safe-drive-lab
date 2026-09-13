@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      media_assets: {
+        Row: {
+          categoria: string | null
+          created_at: string
+          descrizione: string | null
+          modulo: string | null
+          nome: string
+          stato: string
+          storage_path: string
+          tag: string[]
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string
+          descrizione?: string | null
+          modulo?: string | null
+          nome?: string
+          stato?: string
+          storage_path: string
+          tag?: string[]
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string
+          descrizione?: string | null
+          modulo?: string | null
+          nome?: string
+          stato?: string
+          storage_path?: string
+          tag?: string[]
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       placeholder_images: {
         Row: {
           image_url: string

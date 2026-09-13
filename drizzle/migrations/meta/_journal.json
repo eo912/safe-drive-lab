@@ -22,6 +22,13 @@
       "when": 1789077634550,
       "tag": "0002_course_images_delete_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789312749388,
+      "tag": "0003_create_media_assets",
+      "breakpoints": true
     }
   ]
 }
