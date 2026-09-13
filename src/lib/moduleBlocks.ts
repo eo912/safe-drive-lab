@@ -389,6 +389,28 @@ export const moduloOttoBlocks: ModuleBlock[] = [
   },
 ];
 
+// Test finale di apprendimento (ISAMED) — chiusura del corso
+export const moduloNoveBlocks: ModuleBlock[] = [
+  {
+    id: "verifica-1",
+    index: 1,
+    expectedSeconds: 420,
+    title: "Test finale — Domande 1-5",
+    kind: "chiusura",
+    notes:
+      "Correzione guidata dal vivo: leggere la domanda a voce, far rispondere l'aula a voce, poi cliccare con il mouse l'opzione indicata. L'opzione si colora (verde = corretta, rosso = sbagliata) e compare la spiegazione con la risposta giusta. Si possono cliccare più opzioni in sequenza sulla stessa domanda. Nessun punteggio a schermo: la valutazione resta al docente su supporto esterno.",
+  },
+  {
+    id: "verifica-2",
+    index: 2,
+    expectedSeconds: 420,
+    title: "Test finale — Domande 6-10",
+    kind: "chiusura",
+    notes:
+      "Seconda parte del test finale. Stessa meccanica: domanda a voce, risposta dell'aula, click sull'opzione. Verdi = corrette, rosse = sbagliate, spiegazione sempre visibile dopo il primo click. Chiudere il corso ricordando che il punteggio viene registrato dal docente a parte.",
+  },
+];
+
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-1-perche-un-corso": moduloUnoBlocks,
   "modulo-2-sicurezza-e-rischio": moduloDueBlocks,
@@ -398,5 +420,6 @@ export const blocksBySlug: Record<string, ModuleBlock[]> = {
   "modulo-6-tecniche-di-guida": moduloSeiBlocks,
   "modulo-7-guida-professionale": moduloSetteBlocks,
   "modulo-8-applicazione-est": moduloOttoBlocks,
+  "modulo-9-verifica-finale": moduloNoveBlocks,
 };
 

@@ -54,4 +54,10 @@ export const modules: Module[] = [
     short: "Specializzazione Traforo del Monte Bianco: VST, catena, urgenza, emergenza.",
     available: true,
   },
+  {
+    slug: "modulo-9-verifica-finale",
+    title: "Verifica Finale",
+    short: "Test di apprendimento ISAMED: 10 domande a correzione guidata dal vivo.",
+    available: true,
+  },
 ];
