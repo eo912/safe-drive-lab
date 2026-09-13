@@ -48,6 +48,7 @@ import { ContentDrawer } from "@/components/istruttore/ContentDrawer";
 import { SlideContentsPanel } from "@/components/istruttore/SlideContentsPanel";
 import { SceneMediaPanel } from "@/components/istruttore/SceneMediaPanel";
 import { BlockImagesPanel } from "@/components/istruttore/BlockImagesPanel";
+import { isEditMode } from "@/lib/editMode";
 import { StudioLivePreview } from "@/components/istruttore/StudioLivePreview";
 import { AulaStatusBadge } from "@/components/istruttore/AulaStatusBadge";
 import { useLinkedContent } from "@/lib/instructorStorage";
@@ -1024,6 +1025,15 @@ const IstruttoreModulo = () => {
                       Prepara la scena: media, contenuti, tempi previsti.
                     </p>
                   </div>
+
+                  {isEditMode() && (
+                    <a
+                      href="/studio/file"
+                      className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted/60"
+                    >
+                      Gestione file (archivio)
+                    </a>
+                  )}
 
                   <button
                     type="button"
