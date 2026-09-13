@@ -154,6 +154,7 @@ export const BlockImagesPanel = ({ modulo, blocco }: Props) => {
       {picker && (
         <LibraryDialog
           library={library}
+          loadError={libraryError}
           folder={picker.folder}
           label={picker.label}
           onUploaded={refreshLibrary}
@@ -284,6 +285,7 @@ const PlaceholderCard = ({
 
 const LibraryDialog = ({
   library,
+  loadError,
   folder,
   label,
   onSelect,
@@ -293,6 +295,7 @@ const LibraryDialog = ({
   onClose,
 }: {
   library: LibraryItem[];
+  loadError: string | null;
   folder: string;
   label: string;
   onSelect: (path: string, isVideo: boolean) => void | Promise<void>;
