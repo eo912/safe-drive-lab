@@ -102,6 +102,11 @@ const AulaModulo2 = () => {
   // Posizione REALE visibile in Aula (anche dopo scroll manuale locale).
   const visibleBlock = useVisibleBlock(scrollerRef, aulaState.blocco, !embedMode);
 
+  // Stato overlay telefono: attivo solo quando l'Aula è sul blocco giusto e in modalità full.
+  const phoneActive = !embedMode && aulaState.blocco === "catena-incidente";
+  const phonePhase = phoneActive ? (aulaState.phonePhase ?? "idle") : "idle";
+  const phoneTs = phoneActive ? (aulaState.phoneTs ?? 0) : 0;
+
   useAulaHeartbeat(!embedMode, {
     modulo: MODULO,
     blocco: visibleBlock,
@@ -412,7 +417,11 @@ const AulaModulo2 = () => {
           BLOCCO 2 — LA CATENA DELL'INCIDENTE
           ============================================================ */}
       <Slide bg="darker" blockId="catena-incidente" className="items-stretch">
-        <CatenaIncidenteScene level={renderLevel} />
+        <CatenaIncidenteScene
+          level={renderLevel}
+          phonePhase={phonePhase}
+          phoneTs={phoneTs}
+        />
       </Slide>
 
       {/* ============================================================

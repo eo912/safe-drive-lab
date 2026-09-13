@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/sheet";
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
-import { useAulaPublisher, type AulaStep } from "@/lib/aulaSync";
+import { useAulaPublisher, type AulaState, type AulaStep } from "@/lib/aulaSync";
 import { openAulaWindow } from "@/lib/aulaWindow";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
@@ -84,10 +84,29 @@ const IstruttoreModulo = () => {
   const module = useMemo(() => modules.find((m) => m.slug === slug), [slug]);
   const blocks = blocksBySlug[slug] ?? [];
 
-  const { previewState, liveState, setPreview, publish } = useAulaPublisher(
-    slug,
-    blocks[0]?.id ?? "",
+  const { previewState, liveState, setPreview, publish: publishBase } =
+    useAulaPublisher(slug, blocks[0]?.id ?? "");
+
+  // Stato overlay telefono: solo lato Aula Live, controllato dalla Regia con OK.
+  const phonePhaseRef = useRef<"idle" | "ringing" | "visible">("idle");
+  const phoneBlockRef = useRef<string | undefined>(undefined);
+  const publishWithPhone = useCallback(
+    (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) => {
+      publishBase({
+        ...patch,
+        phonePhase: phonePhaseRef.current,
+        phoneBlock: phoneBlockRef.current,
+      });
+    },
+    [publishBase],
   );
+  // Wrapper esposto al resto della pagina: include sempre lo stato telefono.
+  const publish = useCallback(
+    (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) =>
+      publishWithPhone(patch),
+    [publishWithPhone],
+  );
+
   const [mode, setMode] = useState<Mode>("regia");
   const modeRef = useRef<Mode>(mode);
   useEffect(() => {
@@ -101,6 +120,11 @@ const IstruttoreModulo = () => {
   // LIVE: scaletta e suggerimenti collassabili (default chiusi durante conduzione)
   const [liveTimelineOpen, setLiveTimelineOpen] = useState(false);
   const [liveTipsOpen, setLiveTipsOpen] = useState(false);
+
+  // Ref per lo shortcut OK: devono puntare ai valori attuali anche nell'handler
+  // a deps vuoti.
+  const activeRef = useRef<ModuleBlock | null>(null);
+  const viewRef = useRef<RegiaView>("live");
 
   // View attiva (LIVE / STUDIO / ARCHIVIO / SESSIONE) sincronizzata con la URL.
   const [searchParams, setSearchParams] = useSearchParams();
@@ -118,6 +142,10 @@ const IstruttoreModulo = () => {
     },
     [searchParams, setSearchParams],
   );
+
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
 
   // Sequenza lineare predefinita del corso (intro di ogni blocco + scenari/video).
   const sequence = useMemo(() => buildLinearSequence(blocks), [blocks]);
@@ -162,6 +190,22 @@ const IstruttoreModulo = () => {
       if (e.key === "b" || e.key === "B") {
         e.preventDefault();
         blackoutRemoteRef.current?.();
+        return;
+      }
+
+      // OK/Invio: sequenza telefono a toggle sul blocco "catena-incidente".
+      // Agisce solo quando nessun campo di input è focalizzato e la Regia è in vista LIVE.
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (viewRef.current !== "live" || activeRef.current?.id !== "catena-incidente") {
+          return;
+        }
+        const cur = phonePhaseRef.current;
+        const next: "idle" | "ringing" | "visible" =
+          cur === "idle" ? "ringing" : cur === "ringing" ? "visible" : "idle";
+        phonePhaseRef.current = next;
+        phoneBlockRef.current = activeRef.current.id;
+        publishWithPhone({ phoneTs: Date.now() });
         return;
       }
 
@@ -210,6 +254,10 @@ const IstruttoreModulo = () => {
   );
   const active = blocks[previewIndex] ?? blocks[0];
   const nextBlock = blocks[previewIndex + 1];
+
+  useEffect(() => {
+    activeRef.current = active;
+  }, [active]);
 
   // Stato live (in Aula)
   const liveBlockId = liveState?.blocco ?? null;
@@ -268,11 +316,16 @@ const IstruttoreModulo = () => {
       const safe = cur === -1 ? 0 : cur;
       const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
       if (next === safe && cur !== -1) return;
+      // Cambio slide: chiude eventuale overlay telefono.
+      phonePhaseRef.current = "idle";
+      phoneBlockRef.current = undefined;
       applyPosition(sequence[next]);
     };
   }, [sequence, previewState.blocco, previewState.step, applyPosition]);
 
   const sendToAula = () => {
+    phonePhaseRef.current = "idle";
+    phoneBlockRef.current = undefined;
     publish({
       blocco: previewState.blocco,
       step: previewState.step,
