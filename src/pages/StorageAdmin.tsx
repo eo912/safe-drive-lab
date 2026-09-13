@@ -1,0 +1,210 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { RefreshCw } from "lucide-react";
+import { useEditMode } from "@/lib/editMode";
+import NotFound from "@/pages/NotFound";
+import { FolderList } from "@/components/storage-admin/FolderList";
+import { FileGrid } from "@/components/storage-admin/FileGrid";
+import { BulkActionsBar } from "@/components/storage-admin/BulkActionsBar";
+import { MoveDialog } from "@/components/storage-admin/MoveDialog";
+import { DeleteDialog } from "@/components/storage-admin/DeleteDialog";
+import {
+  deleteFiles,
+  filterFiles,
+  folderLabel,
+  listFiles,
+  listFolders,
+  loadUsageMap,
+  moveFiles,
+  ROOT_LABEL,
+  type BulkResult,
+  type StorageFile,
+} from "@/lib/storageAdmin";
+
+/**
+ * Utility interna di amministrazione dei file dell'archivio.
+ * Raggiungibile solo con la modalità modifica nascosta attiva
+ * (?edit=sdl2026 oppure Ctrl+Alt+Shift+E): per chiunque altro è una 404.
+ */
+const StorageAdmin = () => {
+  const editing = useEditMode();
+
+  const [folders, setFolders] = useState<string[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [active, setActive] = useState<string>("");
+  const [files, setFiles] = useState<StorageFile[]>([]);
+  const [usage, setUsage] = useState<Record<string, string[]>>({});
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [dialog, setDialog] = useState<null | "move" | "delete">(null);
+  const [esito, setEsito] = useState<string | null>(null);
+
+  const loadFolders = useCallback(async () => {
+    const list = await listFolders();
+    const all = [...list, ROOT_LABEL];
+    setFolders(all);
+    setActive((cur) => (cur && all.includes(cur) ? cur : (all[0] ?? "")));
+  }, []);
+
+  const loadCurrent = useCallback(async (folder: string) => {
+    if (!folder) return;
+    setLoading(true);
+    const [rows, map] = await Promise.all([listFiles(folder), loadUsageMap()]);
+    setFiles(rows);
+    setUsage(map);
+    setCounts((c) => ({ ...c, [folder]: rows.length }));
+    setSelected(new Set());
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (editing) loadFolders();
+  }, [editing, loadFolders]);
+
+  useEffect(() => {
+    if (editing && active) loadCurrent(active);
+  }, [editing, active, loadCurrent]);
+
+  const shown = useMemo(() => filterFiles(files, query), [files, query]);
+
+  const toggle = (path: string) =>
+    setSelected((s) => {
+      const next = new Set(s);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
+
+  const report = (r: BulkResult, verbo: string) => {
+    const parts = [`${r.ok.length} file ${verbo}`];
+    if (r.failed.length > 0) {
+      parts.push(
+        `${r.failed.length} non riusciti: ${r.failed
+          .slice(0, 3)
+          .map((f) => `${f.path.split("/").pop()} (${f.message})`)
+          .join("; ")}`,
+      );
+    }
+    setEsito(parts.join(" · "));
+  };
+
+  const runDelete = async () => {
+    setBusy(true);
+    try {
+      const r = await deleteFiles([...selected]);
+      report(r, "eliminati");
+    } finally {
+      setBusy(false);
+      setDialog(null);
+      await loadCurrent(active);
+    }
+  };
+
+  const runMove = async (dest: string, onCollision: "rename" | "skip") => {
+    setBusy(true);
+    try {
+      const r = await moveFiles([...selected], dest, onCollision);
+      report(r, "spostati");
+    } finally {
+      setBusy(false);
+      setDialog(null);
+      await loadFolders();
+      await loadCurrent(active);
+    }
+  };
+
+  if (!editing) return <NotFound />;
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <header className="flex items-center gap-3 border-b border-border/60 px-4 py-3">
+        <h1 className="text-base font-semibold">Gestione file</h1>
+        <span className="text-xs text-muted-foreground">archivio immagini e video</span>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Cerca per nome…"
+          className="ml-auto w-64 rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+        />
+        <button
+          type="button"
+          onClick={() => loadCurrent(active)}
+          className="flex items-center gap-1 rounded-md border border-border px-2.5 py-1.5 text-sm hover:bg-muted/60"
+        >
+          <RefreshCw className="h-4 w-4" /> Aggiorna
+        </button>
+      </header>
+
+      <div className="flex flex-1">
+        <FolderList
+          folders={folders}
+          counts={counts}
+          active={active}
+          onSelect={setActive}
+        />
+
+        <main className="flex min-w-0 flex-1 flex-col">
+          <div className="flex items-center gap-3 border-b border-border/60 px-4 py-2 text-sm">
+            <span className="font-medium">{folderLabel(active || "")}</span>
+            <span className="text-muted-foreground">
+              {loading ? "caricamento…" : `${shown.length} di ${files.length} file`}
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelected(new Set(shown.map((f) => f.path)))}
+              className="ml-auto text-muted-foreground hover:text-foreground"
+            >
+              Seleziona tutto
+            </button>
+          </div>
+
+          {esito && (
+            <p className="border-b border-border/60 bg-muted/40 px-4 py-2 text-sm">
+              {esito}
+            </p>
+          )}
+
+          <div className="flex-1 overflow-auto">
+            <FileGrid
+              files={shown}
+              selected={selected}
+              usage={usage}
+              onToggle={toggle}
+            />
+          </div>
+
+          <BulkActionsBar
+            count={selected.size}
+            busy={busy}
+            onMove={() => setDialog("move")}
+            onDelete={() => setDialog("delete")}
+            onClear={() => setSelected(new Set())}
+          />
+        </main>
+      </div>
+
+      {dialog === "move" && (
+        <MoveDialog
+          count={selected.size}
+          folders={folders}
+          current={active}
+          busy={busy}
+          onCancel={() => setDialog(null)}
+          onConfirm={runMove}
+        />
+      )}
+      {dialog === "delete" && (
+        <DeleteDialog
+          paths={[...selected]}
+          usage={usage}
+          busy={busy}
+          onCancel={() => setDialog(null)}
+          onConfirm={runDelete}
+        />
+      )}
+    </div>
+  );
+};
+
+export default StorageAdmin;
