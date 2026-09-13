@@ -78,6 +78,7 @@ const DECISIONI = [
 const AulaModulo2 = () => {
   const navigate = useNavigate();
   const [showExit, setShowExit] = useState(false);
+  const [riskProbability, setRiskProbability] = useState(0.2);
   const aulaState = useAulaSubscriber(MODULO, "sicurezza-rischio");
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
@@ -106,6 +107,9 @@ const AulaModulo2 = () => {
   const phoneActive = !embedMode && aulaState.blocco === "catena-incidente";
   const phonePhase = phoneActive ? (aulaState.phonePhase ?? "idle") : "idle";
   const phoneTs = phoneActive ? (aulaState.phoneTs ?? 0) : 0;
+  const hazardActive = !embedMode && aulaState.blocco === "catena-incidente";
+  const hazardPhase = hazardActive ? (aulaState.hazardPhase ?? "idle") : "idle";
+  const hazardOutcome = hazardActive ? aulaState.hazardOutcome : undefined;
 
   useAulaHeartbeat(!embedMode, {
     modulo: MODULO,
@@ -113,6 +117,7 @@ const AulaModulo2 = () => {
     step: aulaState.step,
     paused: Boolean(isPaused),
     pauseAtmosphere: aulaState.pauseAtmosphere,
+    riskProbability,
   });
 
   const navigateSection = useCallback((delta: number) => {
@@ -421,6 +426,9 @@ const AulaModulo2 = () => {
           level={renderLevel}
           phonePhase={phonePhase}
           phoneTs={phoneTs}
+          hazardPhase={hazardPhase}
+          hazardOutcome={hazardOutcome}
+          onRiskChange={setRiskProbability}
         />
       </Slide>
 

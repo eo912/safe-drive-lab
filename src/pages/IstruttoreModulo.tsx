@@ -26,7 +26,10 @@ import {
   Pause,
   Clock,
   RotateCcw,
+  ShieldCheck,
+  ShieldX,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
   Sheet,
@@ -37,7 +40,12 @@ import {
 } from "@/components/ui/sheet";
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
-import { useAulaPublisher, type AulaState, type AulaStep } from "@/lib/aulaSync";
+import {
+  useAulaHeartbeatMonitor,
+  useAulaPublisher,
+  type AulaState,
+  type AulaStep,
+} from "@/lib/aulaSync";
 import { openAulaWindow } from "@/lib/aulaWindow";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
@@ -91,12 +99,20 @@ const IstruttoreModulo = () => {
   // Stato overlay telefono: solo lato Aula Live, controllato dalla Regia con OK.
   const phonePhaseRef = useRef<"idle" | "ringing" | "visible">("idle");
   const phoneBlockRef = useRef<string | undefined>(undefined);
+  const hazardPhaseRef = useRef<"idle" | "active" | "resolved">("idle");
+  const hazardOutcomeRef = useRef<"stopped" | "failed" | undefined>(undefined);
+  const [hazardPhase, setHazardPhase] = useState<"idle" | "active" | "resolved">("idle");
+  const [hazardOutcome, setHazardOutcome] = useState<"stopped" | "failed" | undefined>();
+  const [hazardSnapshot, setHazardSnapshot] = useState(0.2);
   const publishWithPhone = useCallback(
     (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) => {
       publishBase({
         ...patch,
         phonePhase: phonePhaseRef.current,
         phoneBlock: phoneBlockRef.current,
+        hazardPhase: hazardPhaseRef.current,
+        hazardVariant: "car-braking",
+        hazardOutcome: hazardOutcomeRef.current,
       });
     },
     [publishBase],
@@ -210,6 +226,14 @@ const IstruttoreModulo = () => {
         return;
       }
 
+      // Delete è libero sul telecomando: avvia la scena improvvisa senza interferire con OK.
+      if (e.key === "Delete") {
+        if (viewRef.current !== "live" || activeRef.current?.id !== "catena-incidente") return;
+        e.preventDefault();
+        startHazardRef.current?.();
+        return;
+      }
+
       if (
         e.key === "ArrowRight" ||
         e.key === "PageDown" ||
@@ -234,6 +258,7 @@ const IstruttoreModulo = () => {
   const stepRemoteRef = useRef<((dir: 1 | -1) => void) | null>(null);
   const pauseRemoteRef = useRef<(() => void) | null>(null);
   const blackoutRemoteRef = useRef<(() => void) | null>(null);
+  const startHazardRef = useRef<(() => void) | null>(null);
 
   if (!module || blocks.length === 0) {
     return (
@@ -264,6 +289,7 @@ const IstruttoreModulo = () => {
   const liveBlockId = liveState?.blocco ?? null;
   const liveStep = liveState?.step ?? null;
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
+  const { heartbeat: aulaHeartbeat } = useAulaHeartbeatMonitor(slug);
 
   // Tempo per slide: previsto (config + override locale) + cronometro live.
   const { getExpected, setExpected, resetExpected } = useSlideTimes(slug);
@@ -320,6 +346,10 @@ const IstruttoreModulo = () => {
       // Cambio slide: chiude eventuale overlay telefono.
       phonePhaseRef.current = "idle";
       phoneBlockRef.current = undefined;
+      hazardPhaseRef.current = "idle";
+      hazardOutcomeRef.current = undefined;
+      setHazardPhase("idle");
+      setHazardOutcome(undefined);
       applyPosition(sequence[next]);
     };
   }, [sequence, previewState.blocco, previewState.step, applyPosition]);
@@ -327,12 +357,46 @@ const IstruttoreModulo = () => {
   const sendToAula = () => {
     phonePhaseRef.current = "idle";
     phoneBlockRef.current = undefined;
+    hazardPhaseRef.current = "idle";
+    hazardOutcomeRef.current = undefined;
+    setHazardPhase("idle");
+    setHazardOutcome(undefined);
     publish({
       blocco: previewState.blocco,
       step: previewState.step,
       paused: false,
     });
   };
+
+  const publishHazard = (phase: "idle" | "active" | "resolved", outcome?: "stopped" | "failed") => {
+    hazardPhaseRef.current = phase;
+    hazardOutcomeRef.current = outcome;
+    setHazardPhase(phase);
+    setHazardOutcome(outcome);
+    const cur = liveState ?? previewState;
+    publish({
+      blocco: cur.blocco,
+      step: cur.step as AulaStep,
+      hazardPhase: phase,
+      hazardVariant: "car-braking",
+      hazardOutcome: outcome,
+      hazardTs: Date.now(),
+    });
+  };
+
+  const startHazard = () => {
+    if (active.id !== "catena-incidente") return;
+    const snapshot = aulaHeartbeat?.riskProbability ?? 0.2;
+    setHazardSnapshot(snapshot);
+    const suggested = Math.random() < snapshot ? "failed" : "stopped";
+    setHazardOutcome(suggested);
+    hazardOutcomeRef.current = suggested;
+    publishHazard("active");
+  };
+  startHazardRef.current = startHazard;
+
+  const resolveHazard = (outcome: "stopped" | "failed") => publishHazard("resolved", outcome);
+  const resetHazard = () => publishHazard("idle");
 
   // (aulaPaused calcolato sopra insieme ai derivati live)
 

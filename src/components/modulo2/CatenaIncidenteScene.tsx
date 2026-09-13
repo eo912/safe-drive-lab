@@ -3,6 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { ImagePlaceholder } from "./ImagePlaceholder";
 import { PhoneCallOverlay, type PhonePhase } from "./PhoneCallOverlay";
+import {
+  SuddenHazardOverlay,
+  type SuddenHazardOutcome,
+  type SuddenHazardPhase,
+} from "./SuddenHazardOverlay";
 import ringtoneUrl from "@/assets/ringtone.mp3";
 
 type RenderLevel = "full" | "live" | "preview";
@@ -105,10 +110,16 @@ export const CatenaIncidenteScene = ({
   level,
   phonePhase: remotePhonePhase = "idle",
   phoneTs = 0,
+  hazardPhase = "idle",
+  hazardOutcome,
+  onRiskChange,
 }: {
   level: RenderLevel;
   phonePhase?: PhonePhase;
   phoneTs?: number;
+  hazardPhase?: SuddenHazardPhase;
+  hazardOutcome?: SuddenHazardOutcome;
+  onRiskChange?: (probability: number) => void;
 }) => {
   const [fase, setFase] = useState<Fase>("intro");
   const [idx, setIdx] = useState(0);
@@ -137,6 +148,7 @@ export const CatenaIncidenteScene = ({
     rischioseRef.current = 0;
     setChiamante(Math.random() < 0.5 ? "Mamma" : "Moglie");
     setFase("intro");
+    onRiskChange?.(0.2);
   };
 
   const nodo = NODI[idx];
@@ -179,7 +191,12 @@ export const CatenaIncidenteScene = ({
     // Log interno riservato all'istruttore, mai visibile in aula.
     // eslint-disable-next-line no-console
     console.debug("[catena-incidente]", logRef.current[logRef.current.length - 1]);
+    onRiskChange?.(probRef.current);
   };
+
+  useEffect(() => {
+    onRiskChange?.(probRef.current);
+  }, [onRiskChange]);
 
   const avanza = () => {
     // estrazione casuale pesata sulla probabilità corrente, ad ogni step
@@ -476,6 +493,13 @@ export const CatenaIncidenteScene = ({
           />
         )}
       </AnimatePresence>
+      {level === "full" && (
+        <SuddenHazardOverlay
+          variant="car-braking"
+          phase={hazardPhase}
+          outcome={hazardOutcome}
+        />
+      )}
       </div>
     </div>
   );
