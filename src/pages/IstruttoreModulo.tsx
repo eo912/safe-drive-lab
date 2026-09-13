@@ -59,6 +59,8 @@ import { BlockImagesPanel } from "@/components/istruttore/BlockImagesPanel";
 import { isEditMode } from "@/lib/editMode";
 import { StudioLivePreview } from "@/components/istruttore/StudioLivePreview";
 import { AulaStatusBadge } from "@/components/istruttore/AulaStatusBadge";
+import { OfflineNotice, OfflineStatus } from "@/components/istruttore/OfflineStatus";
+import { useOnline } from "@/lib/connectivity";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { EmbedPayload } from "@/lib/sceneMedia";
 import type { Resource } from "@/lib/instructorTypes";
