@@ -96,7 +96,7 @@ export const QuizQuestion = ({
       </div>
 
       {/* Spazio riservato alla spiegazione: evita salti di layout al click. */}
-      <div className="min-h-[2.25rem] mt-1">
+      <div className="min-h-[2.6rem] mt-0.5">
         <AnimatePresence>
           {answered && (
             <motion.p
