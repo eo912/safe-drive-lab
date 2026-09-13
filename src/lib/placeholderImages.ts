@@ -24,10 +24,21 @@ const SIGNED_TTL = 60 * 60 * 24 * 7; // 7 giorni
 
 const EVT = "sdl:placeholder-images";
 
-let paths: Record<string, string> = {};
+// Partenza immediata dalla copia locale: in aula senza rete i segnaposto
+// mostrano comunque le immagini già viste almeno una volta.
+let paths: Record<string, string> = loadCachedPaths();
 let loaded = false;
 let loading: Promise<void> | null = null;
-const signed: Record<string, string> = {};
+const signedStore: Record<string, SignedEntry> = loadCachedSigned();
+const signed: Record<string, string> = Object.fromEntries(
+  Object.entries(signedStore).map(([p, e]) => [p, e.url]),
+);
+
+const rememberSigned = (path: string, url: string) => {
+  signed[path] = url;
+  signedStore[path] = { url, exp: Date.now() + SIGNED_TTL * 1000 };
+  saveCachedSigned(signedStore);
+};
 
 const emit = () => window.dispatchEvent(new CustomEvent(EVT));
 
