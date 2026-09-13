@@ -30,6 +30,11 @@ export type AulaState = {
   phoneBlock?: string;
   /** Timestamp dell'ultimo comando telefono, per scartare comandi vecchi dopo un reset locale. */
   phoneTs?: number;
+  /** Stato della scena di pericolo improvviso (renderizzata solo in Aula Live). */
+  hazardPhase?: "idle" | "active" | "resolved";
+  hazardVariant?: "car-braking";
+  hazardOutcome?: "stopped" | "failed";
+  hazardTs?: number;
   ts: number;
 };
 
@@ -45,6 +50,8 @@ export type AulaHeartbeat = {
   step: AulaStep;
   paused: boolean;
   pauseAtmosphere?: PauseAtmosphere;
+  /** Probabilità corrente della catena, riservata alla Regia. */
+  riskProbability?: number;
   ts: number;
 };
 
