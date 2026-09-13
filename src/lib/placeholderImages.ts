@@ -90,12 +90,25 @@ export const usePlaceholderVersion = () => {
 
 const loadAll = () => {
   if (loading) return loading;
+  // Senza rete restiamo sulla copia locale: nessun errore, nessuna attesa.
+  if (!isOnline()) {
+    loaded = true;
+    emit();
+    return Promise.resolve();
+  }
   loading = (async () => {
-    const { data, error } = await supabase
-      .from("placeholder_images")
-      .select("placeholder_id, image_url");
-    if (!error && data) {
-      paths = Object.fromEntries(data.map((r) => [r.placeholder_id, r.image_url]));
+    try {
+      const { data, error } = await supabase
+        .from("placeholder_images")
+        .select("placeholder_id, image_url");
+      if (error) throw error;
+      if (data) {
+        paths = Object.fromEntries(data.map((r) => [r.placeholder_id, r.image_url]));
+        saveCachedPaths(paths);
+        markBackendOk();
+      }
+    } catch {
+      markBackendFailure();
     }
     loaded = true;
     loading = null;
@@ -113,32 +126,62 @@ export const refreshPlaceholders = async () => {
 
 // Aggiornamento automatico: altre finestre (Aula, Regia) restano allineate.
 if (typeof window !== "undefined") {
-  supabase
-    .channel("placeholder-images-sync")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "placeholder_images" },
-      () => {
-        refreshPlaceholders();
-      },
-    )
-    .subscribe();
+  let dbChannel: ReturnType<typeof supabase.channel> | null = null;
+
+  const openDbChannel = () => {
+    if (dbChannel || !isOnline()) return;
+    dbChannel = supabase
+      .channel("placeholder-images-sync")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "placeholder_images" },
+        () => {
+          refreshPlaceholders();
+        },
+      );
+    dbChannel.subscribe();
+  };
+
+  openDbChannel();
+
+  onConnectivityChange((online) => {
+    if (online) {
+      openDbChannel();
+      refreshPlaceholders();
+      return;
+    }
+    const ch = dbChannel;
+    dbChannel = null;
+    if (ch) {
+      try {
+        void supabase.removeChannel(ch);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
 
   window.addEventListener("focus", () => {
-    if (loaded) refreshPlaceholders();
+    if (loaded && isOnline()) refreshPlaceholders();
   });
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && loaded) refreshPlaceholders();
+    if (!document.hidden && loaded && isOnline()) refreshPlaceholders();
   });
 }
 
 const resolveSigned = async (path: string) => {
   if (signed[path]) return signed[path];
-  const { data } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_TTL);
-  if (data?.signedUrl) {
-    signed[path] = data.signedUrl;
-    emit();
-    return data.signedUrl;
+  if (!isOnline()) return null;
+  try {
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_TTL);
+    if (data?.signedUrl) {
+      rememberSigned(path, data.signedUrl);
+      markBackendOk();
+      emit();
+      return data.signedUrl;
+    }
+  } catch {
+    markBackendFailure();
   }
   return null;
 };
