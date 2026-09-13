@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  isOnline,
+  markBackendFailure,
+  markBackendOk,
+  onConnectivityChange,
+} from "./connectivity";
+import {
+  loadCachedPaths,
+  loadCachedSigned,
+  saveCachedPaths,
+  saveCachedSigned,
+  type SignedEntry,
+} from "./offlineCache";
 
 /**
  * Associazione persistente segnaposto -> immagine nel bucket "course-images".
@@ -11,10 +24,21 @@ const SIGNED_TTL = 60 * 60 * 24 * 7; // 7 giorni
 
 const EVT = "sdl:placeholder-images";
 
-let paths: Record<string, string> = {};
+// Partenza immediata dalla copia locale: in aula senza rete i segnaposto
+// mostrano comunque le immagini già viste almeno una volta.
+let paths: Record<string, string> = loadCachedPaths();
 let loaded = false;
 let loading: Promise<void> | null = null;
-const signed: Record<string, string> = {};
+const signedStore: Record<string, SignedEntry> = loadCachedSigned();
+const signed: Record<string, string> = Object.fromEntries(
+  Object.entries(signedStore).map(([p, e]) => [p, e.url]),
+);
+
+const rememberSigned = (path: string, url: string) => {
+  signed[path] = url;
+  signedStore[path] = { url, exp: Date.now() + SIGNED_TTL * 1000 };
+  saveCachedSigned(signedStore);
+};
 
 const emit = () => window.dispatchEvent(new CustomEvent(EVT));
 
@@ -66,12 +90,25 @@ export const usePlaceholderVersion = () => {
 
 const loadAll = () => {
   if (loading) return loading;
+  // Senza rete restiamo sulla copia locale: nessun errore, nessuna attesa.
+  if (!isOnline()) {
+    loaded = true;
+    emit();
+    return Promise.resolve();
+  }
   loading = (async () => {
-    const { data, error } = await supabase
-      .from("placeholder_images")
-      .select("placeholder_id, image_url");
-    if (!error && data) {
-      paths = Object.fromEntries(data.map((r) => [r.placeholder_id, r.image_url]));
+    try {
+      const { data, error } = await supabase
+        .from("placeholder_images")
+        .select("placeholder_id, image_url");
+      if (error) throw error;
+      if (data) {
+        paths = Object.fromEntries(data.map((r) => [r.placeholder_id, r.image_url]));
+        saveCachedPaths(paths);
+        markBackendOk();
+      }
+    } catch {
+      markBackendFailure();
     }
     loaded = true;
     loading = null;
@@ -89,32 +126,62 @@ export const refreshPlaceholders = async () => {
 
 // Aggiornamento automatico: altre finestre (Aula, Regia) restano allineate.
 if (typeof window !== "undefined") {
-  supabase
-    .channel("placeholder-images-sync")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "placeholder_images" },
-      () => {
-        refreshPlaceholders();
-      },
-    )
-    .subscribe();
+  let dbChannel: ReturnType<typeof supabase.channel> | null = null;
+
+  const openDbChannel = () => {
+    if (dbChannel || !isOnline()) return;
+    dbChannel = supabase
+      .channel("placeholder-images-sync")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "placeholder_images" },
+        () => {
+          refreshPlaceholders();
+        },
+      );
+    dbChannel.subscribe();
+  };
+
+  openDbChannel();
+
+  onConnectivityChange((online) => {
+    if (online) {
+      openDbChannel();
+      refreshPlaceholders();
+      return;
+    }
+    const ch = dbChannel;
+    dbChannel = null;
+    if (ch) {
+      try {
+        void supabase.removeChannel(ch);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
 
   window.addEventListener("focus", () => {
-    if (loaded) refreshPlaceholders();
+    if (loaded && isOnline()) refreshPlaceholders();
   });
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && loaded) refreshPlaceholders();
+    if (!document.hidden && loaded && isOnline()) refreshPlaceholders();
   });
 }
 
 const resolveSigned = async (path: string) => {
   if (signed[path]) return signed[path];
-  const { data } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_TTL);
-  if (data?.signedUrl) {
-    signed[path] = data.signedUrl;
-    emit();
-    return data.signedUrl;
+  if (!isOnline()) return null;
+  try {
+    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_TTL);
+    if (data?.signedUrl) {
+      rememberSigned(path, data.signedUrl);
+      markBackendOk();
+      emit();
+      return data.signedUrl;
+    }
+  } catch {
+    markBackendFailure();
   }
   return null;
 };
@@ -222,17 +289,63 @@ const listFolderFiles = async (folder: string) => {
 };
 
 /** Firma in blocco un elenco di percorsi e popola la cache. */
-const resolveSignedMany = async (allPaths: string[]) => {
-  const missing = allPaths.filter((p) => !signed[p]);
+const resolveSignedMany = async (allPaths: string[], force = false) => {
+  if (!isOnline()) return;
+  const missing = force ? allPaths : allPaths.filter((p) => !signed[p]);
   const CHUNK = 100;
   for (let i = 0; i < missing.length; i += CHUNK) {
     const chunk = missing.slice(i, i + CHUNK);
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
-    for (const row of data ?? []) {
-      if (row.path && row.signedUrl) signed[row.path] = row.signedUrl;
+    try {
+      const { data } = await supabase.storage.from(BUCKET).createSignedUrls(chunk, SIGNED_TTL);
+      for (const row of data ?? []) {
+        if (row.path && row.signedUrl) rememberSigned(row.path, row.signedUrl);
+      }
+      markBackendOk();
+    } catch {
+      markBackendFailure();
+      return;
     }
   }
   if (missing.length > 0) emit();
+};
+
+/**
+ * Prepara la sessione offline: rinnova tutti gli indirizzi firmati dei file
+ * associati ai segnaposto e scarica le immagini nella cache del browser,
+ * così in aula senza rete restano disponibili.
+ */
+export const prepareOfflineSession = async (
+  onProgress?: (done: number, total: number) => void,
+) => {
+  if (!isOnline()) throw new Error("offline");
+  await refreshPlaceholders();
+
+  const storagePaths = Array.from(
+    new Set(
+      Object.values(paths)
+        .filter((p) => !p.startsWith(EXTERNAL_PREFIX))
+        .map((p) => p.replace(VIDEO_PREFIX, "")),
+    ),
+  );
+
+  await resolveSignedMany(storagePaths, true);
+
+  let done = 0;
+  const total = storagePaths.length;
+  onProgress?.(0, total);
+  for (const path of storagePaths) {
+    const url = signed[path];
+    if (url) {
+      try {
+        await fetch(url, { mode: "cors", cache: "reload" });
+      } catch {
+        /* singolo file non scaricabile: proseguiamo */
+      }
+    }
+    done += 1;
+    onProgress?.(done, total);
+  }
+  return { total };
 };
 
 /**
@@ -297,6 +410,9 @@ export const deleteLibraryImage = async (path: string) => {
   const used = placeholderIdsUsingPath(path);
   for (const id of used) delete paths[id];
   delete signed[path];
+  delete signedStore[path];
+  saveCachedSigned(signedStore);
+  saveCachedPaths(paths);
   emit();
   if (used.length > 0) {
     await supabase.from("placeholder_images").delete().in("placeholder_id", used);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ExternalLink, Link2, Play, Trash2 } from "lucide-react";
 import { clearRefLink, setRefLink, useRefLink } from "@/lib/placeholderImages";
 import { detectVideoLink, VideoLinkPlayer } from "./VideoLinkPlayer";
+import { useOnline } from "@/lib/connectivity";
 
 type Props = {
   modulo: string;
@@ -19,6 +20,8 @@ export const BlockRefLink = ({ modulo, blocco }: Props) => {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
+  const online = useOnline();
+
 
   useEffect(() => {
     setDraft("");
@@ -40,6 +43,9 @@ export const BlockRefLink = ({ modulo, blocco }: Props) => {
       setBusy(false);
     }
   };
+
+  // Senza connessione i link esterni non sono raggiungibili: box nascosto.
+  if (!online) return null;
 
   return (
     <div className="mt-6 pt-4 border-t border-border/60">

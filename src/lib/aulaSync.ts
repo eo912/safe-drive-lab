@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { isOnline, onConnectivityChange } from "./connectivity";
 import type { Resource } from "./instructorTypes";
 import type { PauseAtmosphere } from "./pauseAtmosphere";
 import type { EmbedPayload } from "./sceneMedia";
@@ -81,8 +82,15 @@ const remoteHandlers = {
 
 let remoteChannel: ReturnType<typeof supabase.channel> | null = null;
 
+/**
+ * Il canale remoto è solo un "di più": serve a un eventuale secondo
+ * dispositivo in rete. Regia e Aula sullo stesso computer restano allineate
+ * da BroadcastChannel + localStorage, che funzionano anche senza internet.
+ * Quindi: nessuna sottoscrizione remota quando siamo offline.
+ */
 const getRemoteChannel = () => {
   if (typeof window === "undefined") return null;
+  if (!isOnline()) return null;
   if (remoteChannel) return remoteChannel;
   remoteChannel = supabase
     .channel(REMOTE_ROOM, { config: { broadcast: { self: false } } })
@@ -102,12 +110,35 @@ const getRemoteChannel = () => {
 const remoteSend = (event: string, payload: unknown) => {
   const ch = getRemoteChannel();
   if (!ch) return;
-  void Promise.resolve(ch.send({ type: "broadcast", event, payload })).catch(
-    () => {
-      /* offline: resta la sincronizzazione locale */
-    },
-  );
+  try {
+    void Promise.resolve(ch.send({ type: "broadcast", event, payload })).catch(
+      () => {
+        /* offline: resta la sincronizzazione locale */
+      },
+    );
+  } catch {
+    /* offline: resta la sincronizzazione locale */
+  }
 };
+
+// Al ritorno della rete ricreiamo la sottoscrizione remota da zero.
+if (typeof window !== "undefined") {
+  onConnectivityChange((online) => {
+    if (online) {
+      getRemoteChannel();
+      return;
+    }
+    const ch = remoteChannel;
+    remoteChannel = null;
+    if (ch) {
+      try {
+        void supabase.removeChannel(ch);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+}
 
 const useRemoteListener = <T,>(
   set: Set<(v: T) => void>,
@@ -201,6 +232,17 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
     const last = lastPublishedRef.current;
     if (last) remoteSend("state", last);
   });
+
+  // Rete tornata: ripubblichiamo lo stato corrente per eventuali altri device.
+  useEffect(() => {
+    const off = onConnectivityChange((online) => {
+      const last = lastPublishedRef.current;
+      if (online && last) window.setTimeout(() => remoteSend("state", last), 600);
+    });
+    return () => {
+      off();
+    };
+  }, []);
 
   return { previewState, liveState, setPreview, publish };
 };

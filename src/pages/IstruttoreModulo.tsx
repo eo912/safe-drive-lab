@@ -59,6 +59,8 @@ import { BlockImagesPanel } from "@/components/istruttore/BlockImagesPanel";
 import { isEditMode } from "@/lib/editMode";
 import { StudioLivePreview } from "@/components/istruttore/StudioLivePreview";
 import { AulaStatusBadge } from "@/components/istruttore/AulaStatusBadge";
+import { OfflineNotice, OfflineStatus } from "@/components/istruttore/OfflineStatus";
+import { useOnline } from "@/lib/connectivity";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { EmbedPayload } from "@/lib/sceneMedia";
 import type { Resource } from "@/lib/instructorTypes";
@@ -88,6 +90,7 @@ const KindLabel: Record<ModuleBlock["kind"], string> = {
 const IstruttoreModulo = () => {
   const { slug = "" } = useParams();
   const navigate = useNavigate();
+  const online = useOnline();
   // (navigate non più necessario: la pagina sta in /istruttore/:slug)
 
   const module = useMemo(() => modules.find((m) => m.slug === slug), [slug]);
@@ -636,6 +639,8 @@ const IstruttoreModulo = () => {
 
           <AulaStatusBadge modulo={slug} blocks={blocks} />
 
+          <OfflineStatus />
+
 
           {/* Drawer triggers — solo sotto lg */}
           <Sheet open={timelineOpen} onOpenChange={setTimelineOpen}>
@@ -1153,52 +1158,60 @@ const IstruttoreModulo = () => {
                     </p>
                   </div>
 
-                  {isEditMode() && (
-                    <a
-                      href="/studio/file"
-                      className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted/60"
-                    >
-                      Gestione file (archivio)
-                    </a>
+                  {!online && <OfflineNotice what="Lo Studio (modifica dei contenuti)" />}
+
+                  {online && (
+                    <>
+                      {isEditMode() && (
+                        <a
+                          href="/studio/file"
+                          className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-muted/60"
+                        >
+                          Gestione file (archivio)
+                        </a>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setContentDrawerOpen(true)}
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors"
+                      >
+                        <Inbox className="w-3.5 h-3.5" />
+                        Apri cassetto contenuti
+                      </button>
+
+                      <SlideContentsPanel
+                        modulo={slug}
+                        blocco={previewState.blocco}
+                        liveMediaId={liveMediaId}
+                        onProject={projectMedia}
+                        onHide={hideMedia}
+                        onOpenArchive={() => setView("archivio")}
+                      />
+
+                      <SceneMediaPanel
+                        modulo={slug}
+                        blocco={previewState.blocco}
+                        step={previewState.step}
+                        onPublishEmbeds={publishEmbeds}
+                        onProjectOverlay={projectMedia}
+                      />
+
+                      <StudioLivePreview
+                        modulo={slug}
+                        blocco={previewState.blocco}
+                        step={previewState.step}
+                        title={active.title}
+                      />
+
+                      <BlockImagesPanel
+                        modulo={slug}
+                        blocco={previewState.blocco}
+                      />
+                    </>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={() => setContentDrawerOpen(true)}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-border text-xs font-medium hover:bg-secondary transition-colors"
-                  >
-                    <Inbox className="w-3.5 h-3.5" />
-                    Apri cassetto contenuti
-                  </button>
 
-                  <SlideContentsPanel
-                    modulo={slug}
-                    blocco={previewState.blocco}
-                    liveMediaId={liveMediaId}
-                    onProject={projectMedia}
-                    onHide={hideMedia}
-                    onOpenArchive={() => setView("archivio")}
-                  />
-
-                  <SceneMediaPanel
-                    modulo={slug}
-                    blocco={previewState.blocco}
-                    step={previewState.step}
-                    onPublishEmbeds={publishEmbeds}
-                    onProjectOverlay={projectMedia}
-                  />
-
-                  <StudioLivePreview
-                    modulo={slug}
-                    blocco={previewState.blocco}
-                    step={previewState.step}
-                    title={active.title}
-                  />
-
-                  <BlockImagesPanel
-                    modulo={slug}
-                    blocco={previewState.blocco}
-                  />
 
 
 
