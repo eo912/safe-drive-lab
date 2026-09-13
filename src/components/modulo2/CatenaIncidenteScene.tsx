@@ -72,7 +72,7 @@ const NODI: Nodo[] = [
   },
 ];
 
-const PROB_MIN = 0.1;
+const PROB_MIN = 0.08;
 
 /** Cause esterne dell'incidente, coerenti col nodo in cui scatta l'esito. */
 const CAUSE_ESTERNE: Record<string, string[]> = {
@@ -129,7 +129,7 @@ export const CatenaIncidenteScene = ({
   const [causa, setCausa] = useState<string | null>(null);
 
   // stato NASCOSTO
-  const probRef = useRef(0.2);
+  const probRef = useRef(0.1);
   const logRef = useRef<string[]>([]);
   const rischioseRef = useRef(0);
 
@@ -138,7 +138,7 @@ export const CatenaIncidenteScene = ({
   );
 
   const reset = () => {
-    probRef.current = 0.2;
+    probRef.current = 0.1;
     logRef.current = [];
     setIdx(0);
     setEsito(null);
@@ -148,7 +148,7 @@ export const CatenaIncidenteScene = ({
     rischioseRef.current = 0;
     setChiamante(Math.random() < 0.5 ? "Mamma" : "Moglie");
     setFase("intro");
-    onRiskChange?.(0.2);
+    onRiskChange?.(0.1);
   };
 
   const nodo = NODI[idx];
@@ -186,7 +186,7 @@ export const CatenaIncidenteScene = ({
   }, [effectivePhonePhase]);
 
   const registra = (etichetta: string, delta: number) => {
-    probRef.current = Math.max(PROB_MIN, Math.min(0.95, probRef.current + delta));
+    probRef.current = Math.max(PROB_MIN, Math.min(0.45, probRef.current + delta));
     logRef.current.push(`${etichetta} → p=${Math.round(probRef.current * 100)}%`);
     // Log interno riservato all'istruttore, mai visibile in aula.
     // eslint-disable-next-line no-console
@@ -220,11 +220,11 @@ export const CatenaIncidenteScene = ({
     if (scelta.rischiosa) rischioseRef.current += 1;
 
     if (primoStep) {
-      registra(`stanchezza:${scelta.rischiosa ? "rischiosa" : "prudente"}`, scelta.rischiosa ? 0.2 : 0);
+      registra(`stanchezza:${scelta.rischiosa ? "rischiosa" : "prudente"}`, scelta.rischiosa ? 0.08 : 0);
     } else {
       registra(
         `${nodo.id}:${scelta.rischiosa ? "rischiosa" : "prudente"}${extra ? "+richiamata" : ""}`,
-        scelta.rischiosa ? (extra ? 0.25 : 0.2) : -0.05,
+        scelta.rischiosa ? 0.08 : -0.03,
       );
     }
 
