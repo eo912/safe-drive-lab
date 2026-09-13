@@ -20,6 +20,8 @@ export const BlockRefLink = ({ modulo, blocco }: Props) => {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
+  const online = useOnline();
+
 
   useEffect(() => {
     setDraft("");
