@@ -44,6 +44,9 @@ export const BlockRefLink = ({ modulo, blocco }: Props) => {
     }
   };
 
+  // Senza connessione i link esterni non sono raggiungibili: box nascosto.
+  if (!online) return null;
+
   return (
     <div className="mt-6 pt-4 border-t border-border/60">
       <p className="mb-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
