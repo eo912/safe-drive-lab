@@ -169,22 +169,6 @@ if (typeof window !== "undefined") {
   });
 }
 
-const resolveSigned = async (path: string) => {
-  if (signed[path]) return signed[path];
-  if (!isOnline()) return null;
-  try {
-    const { data } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_TTL);
-    if (data?.signedUrl) {
-      rememberSigned(path, data.signedUrl);
-      markBackendOk();
-      emit();
-      return data.signedUrl;
-    }
-  } catch {
-    markBackendFailure();
-  }
-  return null;
-};
 
 /** Prefisso per un indirizzo esterno (YouTube, Drive, ecc.). */
 export const EXTERNAL_PREFIX = "ext::";
