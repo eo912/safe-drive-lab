@@ -48,27 +48,44 @@ export const BlockRefLink = ({ modulo, blocco }: Props) => {
         Link di riferimento
       </p>
 
-      {saved && (
-        <div className="mb-2 flex items-start gap-2">
-          <a
-            href={saved}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex min-w-0 items-center gap-1.5 text-xs text-primary underline underline-offset-2 hover:text-primary/80"
-          >
-            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-            <span className="truncate">{saved}</span>
-          </a>
-          <button
-            type="button"
-            onClick={() => clearRefLink(modulo, blocco)}
-            aria-label="Rimuovi link di riferimento"
-            className="shrink-0 text-muted-foreground hover:text-destructive"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
+      {saved && (() => {
+        const video = detectVideoLink(saved);
+        return (
+          <div className="mb-2 flex items-start gap-2">
+            {video ? (
+              <button
+                type="button"
+                onClick={() => setPlaying(true)}
+                className="inline-flex min-w-0 items-center gap-1.5 text-left text-xs text-primary underline underline-offset-2 hover:text-primary/80"
+              >
+                <Play className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">{saved}</span>
+              </button>
+            ) : (
+              <a
+                href={saved}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-w-0 items-center gap-1.5 text-xs text-primary underline underline-offset-2 hover:text-primary/80"
+              >
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">{saved}</span>
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={() => clearRefLink(modulo, blocco)}
+              aria-label="Rimuovi link di riferimento"
+              className="shrink-0 text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+            {playing && video && (
+              <VideoLinkPlayer url={saved} video={video} onClose={() => setPlaying(false)} />
+            )}
+          </div>
+        );
+      })()}
 
       <div className="flex gap-2">
         <input
