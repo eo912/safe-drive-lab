@@ -219,17 +219,19 @@ export const deleteFiles = async (paths: string[]): Promise<BulkResult> => {
   const CHUNK = 100;
   for (let i = 0; i < paths.length; i += CHUNK) {
     const chunk = paths.slice(i, i + CHUNK);
-    const { data, error } = await supabase.storage.from(BUCKET).remove(chunk);
-    if (error) {
-      for (const p of chunk) result.failed.push({ path: p, message: error.message });
-      continue;
-    }
-    const removed = new Set((data ?? []).map((d) => d.name));
-    for (const p of chunk) {
-      if (removed.size === 0 || removed.has(p)) result.ok.push(p);
-      else result.failed.push({ path: p, message: "file non trovato" });
+    try {
+      const removedList = await removeAssets(chunk);
+      const removed = new Set(removedList);
+      for (const p of chunk) {
+        if (removed.size === 0 || removed.has(p)) result.ok.push(p);
+        else result.failed.push({ path: p, message: "file non trovato" });
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "errore";
+      for (const p of chunk) result.failed.push({ path: p, message });
     }
   }
+
 
   if (usedIds.length > 0) {
     await supabase.from("placeholder_images").delete().in("placeholder_id", usedIds);
