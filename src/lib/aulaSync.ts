@@ -24,6 +24,12 @@ export type AulaState = {
   media?: Resource | null;
   // Media embedded inline nella scena (più di uno consentito).
   embeds?: EmbedPayload[];
+  /** Stato overlay telefono (solo lato Aula Live). */
+  phonePhase?: "idle" | "ringing" | "visible";
+  /** Blocco a cui è associato l'overlay telefono. */
+  phoneBlock?: string;
+  /** Timestamp dell'ultimo comando telefono, per scartare comandi vecchi dopo un reset locale. */
+  phoneTs?: number;
   ts: number;
 };
 

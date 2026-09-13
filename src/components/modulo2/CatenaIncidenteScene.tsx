@@ -1,7 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { ImagePlaceholder } from "./ImagePlaceholder";
+import { PhoneCallOverlay, type PhonePhase } from "./PhoneCallOverlay";
+import ringtoneUrl from "@/assets/ringtone.mp3";
 
 type RenderLevel = "full" | "live" | "preview";
 
@@ -99,7 +101,15 @@ type Fase = "intro" | "nodi" | "esito" | "riflessione";
  * La probabilità accumulata è uno stato interno: non viene mai mostrata a schermo
  * (solo in console, come log per l'istruttore). Nessun punteggio per l'utente.
  */
-export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
+export const CatenaIncidenteScene = ({
+  level,
+  phonePhase: remotePhonePhase = "idle",
+  phoneTs = 0,
+}: {
+  level: RenderLevel;
+  phonePhase?: PhonePhase;
+  phoneTs?: number;
+}) => {
   const [fase, setFase] = useState<Fase>("intro");
   const [idx, setIdx] = useState(0);
   const [esito, setEsito] = useState<"casa" | "incidente" | null>(null);
@@ -130,6 +140,38 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
   };
 
   const nodo = NODI[idx];
+
+  // Gestione suoneria: solo in Aula Live (level === "full").
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Resetta l'overlay telefono quando cambia il contesto della chiamata
+  // (prima chiamata / secondo callback / altro nodo), così la sequenza
+  // può ripartire da idle sul nuovo evento.
+  const [callResetTs, setCallResetTs] = useState(0);
+  const callKeyRef = useRef(`${nodo.id}-${secondaChiamata ? "bis" : "uno"}`);
+  useEffect(() => {
+    const key = `${nodo.id}-${secondaChiamata ? "bis" : "uno"}`;
+    if (callKeyRef.current !== key) {
+      callKeyRef.current = key;
+      setCallResetTs(Date.now());
+    }
+  }, [nodo.id, secondaChiamata]);
+
+  const effectivePhonePhase: PhonePhase =
+    level === "full" && phoneTs > callResetTs ? remotePhonePhase : "idle";
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (effectivePhonePhase === "ringing" || effectivePhonePhase === "visible") {
+      audio.play().catch(() => {
+        // Autoplay bloccato finché l'utente non interagisce con la pagina.
+      });
+    } else {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  }, [effectivePhonePhase]);
 
   const registra = (etichetta: string, delta: number) => {
     probRef.current = Math.max(PROB_MIN, Math.min(0.95, probRef.current + delta));
@@ -417,6 +459,23 @@ export const CatenaIncidenteScene = ({ level }: { level: RenderLevel }) => {
           </button>
         </div>
       )}
+
+      {/* Audio suoneria: sempre presente ma muto finché non serve */}
+      <audio ref={audioRef} src={ringtoneUrl} loop preload="auto" />
+
+      {/* Overlay telefono: solo quando la regia lo rende visibile */}
+      <AnimatePresence>
+        {effectivePhonePhase === "visible" && (
+          <PhoneCallOverlay
+            key="phone"
+            callerName={chiamante}
+            onClose={() => {
+              // Il docente chiude anche cliccando sullo sfondo;
+              // la chiusura reale però avviene dalla regia con OK.
+            }}
+          />
+        )}
+      </AnimatePresence>
       </div>
     </div>
   );
