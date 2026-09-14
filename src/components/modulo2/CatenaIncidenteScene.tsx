@@ -264,7 +264,9 @@ export const CatenaIncidenteScene = ({
    * rosso = non risponde (probabilità invariata). L'overlay si chiude subito.
    */
   const rispondiAlTelefono = (answered: boolean) => {
-    setDismissTs(Date.now());
+    const now = Date.now();
+    setDismissTs(now);
+    onPhoneDismiss?.(now);
     if (answered) rischioseRef.current += 1;
     registra(
       `${nodo.id}:telefono:${answered ? "risponde" : "rifiuta"}`,
