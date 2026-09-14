@@ -480,7 +480,7 @@ const AulaModulo7 = () => {
               </h2>
             </div>
 
-            <motion.ol {...fade} className="grid grid-cols-2 gap-4">
+            <ol className="grid grid-cols-2 gap-4">
               {[
                 "Pianifica il percorso prima di partire",
                 "Guida con regolarità, senza manovre brusche",
@@ -499,7 +499,7 @@ const AulaModulo7 = () => {
                   </span>
                 </li>
               ))}
-            </motion.ol>
+            </ol>
           </div>
         </div>
         <ModuloNextNav to="/aula/modulo-8-applicazione-est" label="Modulo successivo" />
