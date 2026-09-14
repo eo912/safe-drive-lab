@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
+import { EditableImageSlot } from "@/components/edit/EditableImageSlot";
 
 export type Hotspot = {
   id: string;
@@ -15,6 +16,8 @@ export type Hotspot = {
   /** Immagine opzionale mostrata sopra il testo nel pannello di dettaglio */
   image?: string;
   imageAlt?: string;
+  /** Etichetta opzionale per un'immagine gestibile dallo Studio; ha priorità su image */
+  imageLabel?: string;
 };
 
 type Props = {
@@ -105,7 +108,19 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
                 >
                   <X className="w-4 h-4" />
                 </button>
-                {active.image && !failedImages.includes(active.id) && (
+                {active.imageLabel && (
+                  <EditableImageSlot
+                    label={active.imageLabel}
+                    className="h-[18vh] min-h-36 w-full"
+                  >
+                    <div className="flex h-[18vh] min-h-36 w-full items-center justify-center border-b border-dashed border-border/70 bg-background/40 px-6 text-center">
+                      <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                        {active.title}
+                      </span>
+                    </div>
+                  </EditableImageSlot>
+                )}
+                {!active.imageLabel && active.image && !failedImages.includes(active.id) && (
                   <img
                     src={active.image}
                     alt={active.imageAlt ?? active.title}
@@ -117,7 +132,7 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
                     className="h-[18vh] min-h-36 w-full object-cover"
                   />
                 )}
-                {active.image && failedImages.includes(active.id) && (
+                {!active.imageLabel && active.image && failedImages.includes(active.id) && (
                   <ImagePlaceholder
                     label="Vista dagli specchietti retrovisori"
                     className="h-[18vh] min-h-36 rounded-none border-x-0 border-t-0"
