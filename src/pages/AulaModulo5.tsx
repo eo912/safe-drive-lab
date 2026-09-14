@@ -301,13 +301,13 @@ const AulaModulo5 = () => {
                 className="h-[30vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Accelerando, frenando o curvando, il peso si sposta tra le ruote:{" "}
                   <span className="text-foreground font-medium">si sposta</span>.
                   avanti in frenata, indietro in accelerazione e verso l'esterno in
                   curva.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   È fisica normale, ma cambia continuamente{" "}
                   <span className="text-primary font-semibold">
                     quanta aderenza ha davvero a disposizione ciascuna ruota
@@ -385,7 +385,7 @@ const AulaModulo5 = () => {
                 <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
                   Sottosterzo
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                    Le ruote anteriori perdono aderenza e l'auto allarga la curva.
                    Rilascia l'acceleratore, non aumentare lo sterzo e lascia che
                    l'avantreno recuperi aderenza.
@@ -398,7 +398,7 @@ const AulaModulo5 = () => {
                 <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
                   Sovrasterzo
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                    Le ruote posteriori perdono aderenza e il retrotreno scivola.
                    Correggi con dolcezza nella direzione dello scivolamento.
                 </p>
@@ -443,7 +443,7 @@ const AulaModulo5 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-6 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   Lo spazio di arresto somma reazione e frenata. La frenata cresce
                   con{" "}
                   <span className="text-foreground font-medium">
@@ -451,7 +451,7 @@ const AulaModulo5 = () => {
                   </span>
                   : raddoppiare la velocità moltiplica lo spazio per circa quattro.
                 </p>
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   Nella guida quotidiana frena in modo{" "}
                   <span className="text-primary font-semibold">progressiva</span>{" "}
                   . In emergenza premi subito a fondo e mantieni la pressione. Con

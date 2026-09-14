@@ -355,7 +355,7 @@ const AulaModulo6 = () => {
                 className="h-[34vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Guidare con fluidità significa usare acceleratore, freno e
                   volante con{" "}
                   <span className="text-foreground font-medium">
@@ -367,7 +367,7 @@ const AulaModulo6 = () => {
                   già «usando» tutta l'attenzione e tutto il controllo del mezzo
                   in una manovra brusca.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Ogni manovra andrebbe preparata con anticipo: frenare
                   all'ultimo istante, sterzare bruscamente o accelerare senza
                   motivo aumenta il rischio, per te e per chi ti circonda.
@@ -393,7 +393,7 @@ const AulaModulo6 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-6 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   La sequenza corretta per affrontare una curva: osserva in
                   anticipo il raggio e la visibilità,{" "}
                   <span className="text-foreground font-medium">
@@ -403,7 +403,7 @@ const AulaModulo6 = () => {
                   l'acceleratore in modo progressivo solo dopo il punto più
                   stretto della curva.
                 </p>
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   Frenare dentro la curva, quando lo pneumatico sta già usando
                   gran parte del suo budget di aderenza per sterzare, è una delle
                   situazioni che più facilmente porta a perdere il controllo
