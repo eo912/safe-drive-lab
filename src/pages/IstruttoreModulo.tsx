@@ -42,7 +42,7 @@ import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { syncTrace } from "@/lib/syncTrace";
 import {
-  useAulaPosition,
+  useAulaStatus,
   useAulaPublisher,
   type AulaState,
   type AulaStep,
@@ -104,7 +104,6 @@ const IstruttoreModulo = () => {
     liveState,
     setPreview,
     publish: publishBase,
-    syncLiveFromAula,
   } = useAulaPublisher(slug, blocks[0]?.id ?? "");
 
   // Stato overlay telefono: solo lato Aula Live, controllato dalla Regia con OK.
@@ -302,43 +301,22 @@ const IstruttoreModulo = () => {
   const liveBlockId = liveState?.blocco ?? null;
   const liveStep = liveState?.step ?? null;
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
-  // Posizione dichiarata dall'Aula dopo un gesto dell'utente (un solo evento).
-  const aulaHeartbeat = useAulaPosition(slug);
-
-  // Quando l'Aula cambia scena, la Regia si allinea: nessun comando di ritorno.
-  const lastAulaPosRef = useRef<string | null>(null);
+  // Sincronizzazione UNIDIREZIONALE (Regia → Aula): la Regia si fida solo
+  // del proprio stato locale (previewState/liveState). Dall'Aula arriva solo
+  // lo stato non-posizionale (chiusura telefono, probabilità di rischio),
+  // che non può riportare indietro la scena.
+  const aulaStatus = useAulaStatus(slug);
 
   // L'Aula ha chiuso il telefono con verde/rosso: la sequenza di regia
   // riparte da zero, così il prossimo OK fa squillare di nuovo.
   const lastPhoneDismissRef = useRef(0);
   useEffect(() => {
-    const ts = aulaHeartbeat?.phoneDismissTs ?? 0;
+    const ts = aulaStatus?.phoneDismissTs ?? 0;
     if (ts && ts !== lastPhoneDismissRef.current) {
       lastPhoneDismissRef.current = ts;
       phonePhaseRef.current = "idle";
     }
-  }, [aulaHeartbeat?.phoneDismissTs]);
-  useEffect(() => {
-    if (!aulaHeartbeat) return;
-    const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;
-    if (lastAulaPosRef.current === key) return;
-    lastAulaPosRef.current = key;
-    syncTrace("LOCAL_EFFECT", "IstruttoreModulo.alignToAulaPosition", {
-      moduleId: slug,
-      previousBlockId: previewState.blocco,
-      resultBlockId: aulaHeartbeat.blocco,
-      step: aulaHeartbeat.step,
-      receivedAt: Date.now(),
-    });
-    setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
-    syncLiveFromAula({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
-  }, [
-    aulaHeartbeat,
-    setPreview,
-    syncLiveFromAula,
-    slug,
-    previewState.blocco,
-  ]);
+  }, [aulaStatus?.phoneDismissTs]);
 
 
 
@@ -388,16 +366,10 @@ const IstruttoreModulo = () => {
   useEffect(() => {
     stepRemoteRef.current = (dir: 1 | -1) => {
       if (sequence.length === 0) return;
-      // Priorità alla posizione realmente visibile in Aula (heartbeat).
-      // Se abbiamo appena pubblicato, il comando appena inviato è più recente
-      // di qualsiasi battito: è lui la posizione di partenza.
-      const freshPublish = liveState != null && Date.now() - liveState.ts < 2500;
-      const fromBlocco = freshPublish
-        ? liveState.blocco
-        : (aulaHeartbeat?.blocco ?? liveState?.blocco ?? previewState.blocco);
-      const fromStep = freshPublish
-        ? liveState.step
-        : (aulaHeartbeat?.step ?? liveState?.step ?? previewState.step);
+      // Unidirezionale: si parte dallo stato locale della Regia
+      // (liveState se abbiamo già pubblicato, altrimenti anteprima).
+      const fromBlocco = liveState?.blocco ?? previewState.blocco;
+      const fromStep = liveState?.step ?? previewState.step;
       const cur = findPositionIndex(sequence, fromBlocco, fromStep);
       const safe = cur === -1 ? 0 : cur;
       const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
@@ -409,7 +381,6 @@ const IstruttoreModulo = () => {
         fromIndex: cur,
         requestedBlockId: sequence[next]?.blocco,
         requestedStep: sequence[next]?.step,
-        heartbeatBlockId: aulaHeartbeat?.blocco ?? null,
         liveBlockId: liveState?.blocco ?? null,
         previewBlockId: previewState.blocco,
       });
@@ -428,8 +399,6 @@ const IstruttoreModulo = () => {
     previewState.blocco,
     previewState.step,
     liveState,
-    aulaHeartbeat?.blocco,
-    aulaHeartbeat?.step,
     publish,
   ]);
 
@@ -463,7 +432,7 @@ const IstruttoreModulo = () => {
 
   const startHazard = () => {
     if (active.id !== "catena-incidente") return;
-    const snapshot = aulaHeartbeat?.riskProbability ?? 0.2;
+    const snapshot = aulaStatus?.riskProbability ?? 0.2;
     setHazardSnapshot(snapshot);
     const suggested = Math.random() < snapshot ? "failed" : "stopped";
     setHazardSuggestion(suggested);
