@@ -34,8 +34,17 @@ export const moduloUnoBlocks: ModuleBlock[] = [
       "Frase di apertura: «Non è un'idea nuova. È una storia che comincia più di vent'anni fa — e che oggi passa anche da questa aula.» Pausa, poi passare al blocco tre leve.",
   },
   {
-    id: "tre-leve",
+    id: "video-mistakes",
     index: 3,
+    expectedSeconds: 120,
+    title: "Un esempio",
+    kind: "video",
+    notes:
+      "Spot neozelandese sulla velocità e sul margine necessario per compensare gli errori altrui. Lasciare parlare il video, senza anticiparne il messaggio.",
+  },
+  {
+    id: "tre-leve",
+    index: 4,
     expectedSeconds: 180,
     title: "Le tre leve",
     kind: "scenario",
@@ -46,7 +55,7 @@ export const moduloUnoBlocks: ModuleBlock[] = [
   },
   {
     id: "numeri-2001-2024",
-    index: 4,
+    index: 5,
     expectedSeconds: 150,
     title: "2001 vs oggi",
     kind: "dati",
@@ -57,7 +66,7 @@ export const moduloUnoBlocks: ModuleBlock[] = [
   },
   {
     id: "costi-stato",
-    index: 5,
+    index: 6,
     expectedSeconds: 90,
     title: "Il costo per tutti",
     kind: "chiusura",
