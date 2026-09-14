@@ -71,7 +71,7 @@ export type AulaHeartbeat = {
  * Busta                                                               *
  * ------------------------------------------------------------------ */
 
-export type EventKind = "navigation_command" | "aula_position";
+export type EventKind = "navigation_command" | "aula_position" | "aula_status";
 
 type Envelope = {
   kind: EventKind;
@@ -390,18 +390,22 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
 };
 
 /**
- * Aula → Regia. Nessun battito periodico: un solo evento quando la posizione
- * realmente visibile cambia per un gesto dell'utente.
+ * Aula: solo effetti locali. La sincronizzazione è UNIDIREZIONALE
+ * (Regia → Aula): l'Aula determina la propria posizione visibile per il
+ * proprio funzionamento interno (URL, timer, scroll) ma NON la trasmette
+ * più alla Regia — nessun evento "aula_position" viene inviato, così una
+ * posizione vecchia non può tornare indietro come falsa conferma (ack)
+ * del comando appena pubblicato.
+ *
+ * Eccezione dedicata: "aula_status" porta SOLO dati di stato che non
+ * muovono la scena (chiusura overlay telefono, probabilità di rischio),
+ * senza blocco/step: non può creare rimbalzi di posizione.
  */
 export const useAulaHeartbeat = (
   enabled: boolean,
   payload: Omit<AulaHeartbeat, "ts">,
   _intervalMs = 1500,
 ) => {
-  const ref = useRef(payload);
-  ref.current = payload;
-  const firstRunRef = useRef(true);
-
   // L'indirizzo della finestra Aula riflette la scena realmente visibile.
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
@@ -410,44 +414,61 @@ export const useAulaHeartbeat = (
     writeToUrl({ blocco, step });
   }, [enabled, payload.blocco, payload.step, payload]);
 
-  const signature = `${payload.blocco}:${payload.step}:${payload.paused}:${payload.pauseAtmosphere ?? ""}:${payload.riskProbability ?? ""}:${payload.phoneDismissTs ?? ""}`;
+  // Evento dedicato e separato dalla posizione: solo stato non-posizionale.
+  const statusSignature = `${payload.riskProbability ?? ""}:${payload.phoneDismissTs ?? ""}`;
+  const firstStatusRef = useRef(true);
+  const statusRef = useRef(payload);
+  statusRef.current = payload;
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
-    if (firstRunRef.current) {
-      firstRunRef.current = false;
+    if (firstStatusRef.current) {
+      firstStatusRef.current = false;
       return;
     }
-    const p = ref.current;
-    const key = posKey(p.blocco, p.step);
-    if (suppressedPosition !== null && Date.now() < suppressUntil) {
-      // Posizione (o passaggio intermedio) prodotta dal comando remoto:
-      // non è un gesto dell'utente, quindi non torna indietro.
-      if (suppressedPosition === key) suppressedPosition = null;
-      syncTrace("AULA", "useAulaHeartbeat.suppressed", {
-        roomId: ROOM_ID,
-        moduleId: p.modulo,
-        blockId: p.blocco,
-        step: p.step,
-        reason: "remote-applied",
-      });
-      return;
-    }
-    const env = makeEnvelope("aula_position", p.modulo, {
-      blockId: p.blocco,
-      step: p.step,
-      payload: { ...p, ts: Date.now() } as AulaHeartbeat,
+    const p = statusRef.current;
+    const env = makeEnvelope("aula_status", p.modulo, {
+      payload: {
+        modulo: p.modulo,
+        riskProbability: p.riskProbability,
+        phoneDismissTs: p.phoneDismissTs,
+        ts: Date.now(),
+      },
     });
-    syncTrace("AULA", "useAulaHeartbeat.send", {
+    syncTrace("AULA", "useAulaHeartbeat.sendStatus", {
       kind: env.kind,
       roomId: env.roomId,
       senderInstanceId: env.senderInstanceId,
       eventId: env.eventId,
       moduleId: env.moduleId,
-      blockId: env.blockId,
-      step: env.step,
       sentAt: env.sentAt,
     });
     sendEnvelope(env);
-  }, [enabled, signature]);
+  }, [enabled, statusSignature]);
+};
+
+/** Stato non-posizionale dichiarato dall'Aula (telefono, rischio). */
+export type AulaStatus = {
+  modulo: string;
+  riskProbability?: number;
+  phoneDismissTs?: number;
+  ts: number;
+};
+
+/** Regia: ultimo stato non-posizionale dell'Aula (nessuna posizione). */
+export const useAulaStatus = (modulo: string): AulaStatus | null => {
+  const [status, setStatus] = useState<AulaStatus | null>(null);
+
+  useBusListener("aula_status", (e) => {
+    const p = e.payload as AulaStatus | undefined;
+    if (!p) return;
+    if (p.modulo !== modulo) {
+      traceEnv("regia.rejectStatus", e, { reason: "other-module" });
+      return;
+    }
+    traceEnv("regia.applyAulaStatus", e, { reason: "accepted" });
+    setStatus({ ...p, ts: Date.now() });
+  });
+
+  return status;
 };
