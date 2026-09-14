@@ -17,6 +17,11 @@ import { SyncToggle } from "@/components/sync/SyncToggle";
 
 const MODULO = "modulo-5-dinamica-del-veicolo";
 
+// TODO: incollare qui l'URL pubblico Supabase del video
+const VIDEO_NEUTRO_URL = "";
+const VIDEO_SOTTOSTERZO_URL = "";
+const VIDEO_SOVRASTERZO_URL = "";
+
 const fade = {
   initial: { opacity: 0, y: 20, scale: 0.98 },
   whileInView: { opacity: 1, y: 0, scale: 1 },
@@ -54,6 +59,38 @@ const Slide = ({
     >
       {children}
     </section>
+  );
+};
+
+type VideoScenarioProps = {
+  src: string;
+  label: string;
+};
+
+const VideoScenario = ({ src, label }: VideoScenarioProps) => {
+  const hasVideo = src.trim().length > 0;
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary text-center">
+        {label}
+      </p>
+      {hasVideo ? (
+        <video
+          src={src}
+          controls
+          muted
+          loop
+          playsInline
+          className="w-full h-[16vh] md:h-[18vh] rounded-lg border border-border/60 bg-black object-cover"
+        />
+      ) : (
+        <div className="w-full h-[16vh] md:h-[18vh] flex items-center justify-center rounded-lg border border-dashed border-border/70 bg-muted/20 overflow-hidden">
+          <p className="font-mono text-xs md:text-sm uppercase tracking-widest text-muted-foreground px-4 text-center leading-relaxed">
+            [Video] {label}
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -405,11 +442,7 @@ const AulaModulo5 = () => {
               </motion.div>
             </div>
 
-            <div className="grid md:grid-cols-[1fr_1.35fr] gap-6 items-center">
-              <ImagePlaceholder
-                label="Schema auto in curva con traiettoria allargata (sottosterzo) vs stretta/rotante (sovrasterzo) (placeholder generico)"
-                className="h-[22vh] w-full"
-              />
+            <div className="grid md:grid-cols-[1fr_1.35fr] gap-6 items-start">
               <div className="rounded-lg border border-primary/60 bg-background/90 px-5 py-4">
                 <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
                   L'obiettivo
@@ -422,6 +455,11 @@ const AulaModulo5 = () => {
                   — con velocità adeguata e ingresso in curva corretto, quasi mai
                   si presentano.
                 </p>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <VideoScenario src={VIDEO_NEUTRO_URL} label="Neutro" />
+                <VideoScenario src={VIDEO_SOTTOSTERZO_URL} label="Sottosterzo" />
+                <VideoScenario src={VIDEO_SOVRASTERZO_URL} label="Sovrasterzo" />
               </div>
             </div>
           </div>
