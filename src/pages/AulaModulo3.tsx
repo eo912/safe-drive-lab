@@ -16,6 +16,8 @@ import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 
 const MODULO = "modulo-3-il-conducente";
+const ASSET_BASE =
+  "https://bqibmsptsnewfqsemqpt.supabase.co/storage/v1/object/public/safe-drive-labs-assets";
 
 const fade = {
   initial: { opacity: 0, y: 20, scale: 0.98 },
@@ -63,15 +65,15 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
   {
     id: "sedile",
     label: "Sedile",
-    x: 29,
-    y: 62,
+    x: 34,
+    y: 78,
     title: "Sedile",
     text: "Distanza dai pedali tale da poter premere il freno a fondo con il ginocchio leggermente flesso. Schienale che sostiene la schiena, non troppo reclinato.",
   },
   {
     id: "volante",
     label: "Volante",
-    x: 59,
+    x: 62,
     y: 58,
     title: "Volante",
     text: "Braccia leggermente flesse quando le mani sono sul volante, non tese. Mani in posizione 9 e 3 (o 8 e 4) — garantisce il massimo controllo e la corretta apertura dell'airbag.",
@@ -79,27 +81,27 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
   {
     id: "poggiatesta",
     label: "Poggiatesta",
-    x: 32,
-    y: 43,
+    x: 34,
+    y: 25,
     title: "Poggiatesta",
     text: "Regolato all'altezza degli occhi/parte superiore della testa, non del collo. È un dispositivo di sicurezza attivo, non un cuscino.",
   },
   {
     id: "cintura",
     label: "Cintura",
-    x: 45,
-    y: 65,
+    x: 44,
+    y: 68,
     title: "Cintura",
     text: "Aderente, non attorcigliata. La fascia diagonale passa sulla clavicola, mai sul collo.",
   },
   {
     id: "specchi",
     label: "Specchi",
-    x: 63,
-    y: 37,
+    x: 68,
+    y: 34,
     title: "Specchi",
     text: "Si regolano prima di partire, mai durante la marcia. Gli specchietti esterni vanno aperti leggermente più «larghi» dell'istinto — riduce gli angoli ciechi laterali. Ma restano zone scoperte: prima di cambiare corsia serve sempre un'occhiata diretta, non solo lo specchio.",
-    image: "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/37/86/85/b5/40/v1_E10/E105QC1I.jpeg?w=600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto",
+    image: `${ASSET_BASE}/03_GRAFICHE/modulo-3-hotspot-specchi.png`,
     imageAlt: "Regolazione degli specchietti retrovisori",
   },
 ];
@@ -127,7 +129,7 @@ const HOTSPOT_VISIONE: Hotspot[] = [
     id: "specchietto",
     label: "Specchietto",
     x: 50,
-    y: 14,
+    y: 19,
     title: "Scanning",
     text: "Scanning: lo sguardo si sposta regolarmente tra punto lontano, specchi e area vicina, invece di restare fisso in un solo punto.",
   },
@@ -373,6 +375,7 @@ const AulaModulo3 = () => {
         <HotspotScene
           illustrationLabel="Conducente visto di profilo / tre quarti seduto in abitacolo (illustrazione 3D-style — placeholder)"
           hotspots={HOTSPOT_POSIZIONE}
+          frameClassName="h-[44vh] max-w-[78.22vh] mx-auto"
         />
       </Slide>
 
@@ -399,6 +402,7 @@ const AulaModulo3 = () => {
         <HotspotScene
           illustrationLabel="Visuale frontale del conducente attraverso il parabrezza, prospettiva soggettiva, con specchietto retrovisore (placeholder)"
           hotspots={HOTSPOT_VISIONE}
+          frameClassName="h-[28vh] min-h-[180px] max-w-[68.32vh] mx-auto"
           compact
         >
           {/* Tempo di reazione — stesso stile dello specchietto del Modulo 2 */}

@@ -262,59 +262,29 @@ const AulaModulo9 = () => {
         </Link>
       )}
 
-      {/* ============================================================
-          BLOCCO 1 — TEST FINALE, DOMANDE 1-5
-          ============================================================ */}
-      <Slide bg="black" blockId="verifica-1" className="items-stretch">
-        <div className="relative z-10 w-full h-full px-6 md:px-12 py-3 md:py-4">
-          <div className="max-w-6xl mx-auto flex flex-col gap-2 justify-center min-h-full">
-            <div className="text-center">
-              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-0.5">
-                Verifica finale · Test di apprendimento
-              </p>
-              <h1 className="text-lg md:text-xl font-bold leading-tight">
-                Dieci domande,{" "}
-                <span className="text-primary">una sola cosa conta</span>: capire
-              </h1>
-              <p className="text-[11px] md:text-xs text-muted-foreground mt-0.5">
-                Il docente legge la domanda, l'aula risponde a voce, il docente
-                evidenzia l'opzione con il mouse.
-              </p>
+      {[quizFinale.slice(0, 3), quizFinale.slice(3, 6), quizFinale.slice(6, 8), quizFinale.slice(8, 10)].map((questions, groupIndex) => {
+        const firstNumber = groupIndex < 2 ? groupIndex * 3 + 1 : groupIndex === 2 ? 7 : 9;
+        return (
+          <Slide key={groupIndex} bg="black" blockId={`verifica-${groupIndex + 1}`} className="items-stretch">
+            <div className="relative z-10 w-full h-full px-6 md:px-12 py-5 md:py-6">
+              <div className="max-w-6xl mx-auto flex flex-col gap-4 justify-center min-h-full">
+                <div className="text-center">
+                  <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-1">
+                    Verifica finale · {groupIndex + 1}/4
+                  </p>
+                  <h1 className="text-xl md:text-2xl font-bold leading-tight">Test di apprendimento</h1>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {questions.map((q, i) => (
+                    <QuizQuestion key={q.id} data={q} number={firstNumber + i} />
+                  ))}
+                </div>
+              </div>
             </div>
-
-            <div className="flex flex-col gap-1.5">
-              {quizFinale.slice(0, 5).map((q, i) => (
-                <QuizQuestion key={q.id} data={q} number={i + 1} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </Slide>
-
-      {/* ============================================================
-          BLOCCO 2 — TEST FINALE, DOMANDE 6-10
-          ============================================================ */}
-      <Slide bg="black" blockId="verifica-2" className="items-stretch">
-        <div className="relative z-10 w-full h-full px-6 md:px-12 py-3 md:py-4">
-          <div className="max-w-6xl mx-auto flex flex-col gap-2 justify-center min-h-full">
-            <div className="text-center">
-              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-0.5">
-                Verifica finale · Seconda parte
-              </p>
-              <h1 className="text-lg md:text-xl font-bold leading-tight">
-                Ultime cinque domande
-              </h1>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              {quizFinale.slice(5).map((q, i) => (
-                <QuizQuestion key={q.id} data={q} number={i + 6} />
-              ))}
-            </div>
-          </div>
-        </div>
-        <ModuloNextNav to="/aula" label="Torna all'indice moduli" backToIndex />
-      </Slide>
+            {groupIndex === 3 && <ModuloNextNav to="/aula" label="Torna all'indice moduli" backToIndex />}
+          </Slide>
+        );
+      })}
     </div>
   );
 };

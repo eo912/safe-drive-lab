@@ -291,16 +291,13 @@ const AulaModulo5 = () => {
               />
               <motion.div {...fade} className="flex flex-col gap-3">
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Ogni volta che acceleri, freni o affronti una curva, il peso del
-                  veicolo non resta distribuito uniformemente sulle quattro ruote:{" "}
+                  Accelerando, frenando o curvando, il peso si sposta tra le ruote:{" "}
                   <span className="text-foreground font-medium">si sposta</span>.
-                  In frenata va in avanti (per questo i freni anteriori lavorano
-                  sempre di più). In accelerazione va indietro. In curva va verso
-                  l'esterno, scaricando le ruote interne.
+                  avanti in frenata, indietro in accelerazione e verso l'esterno in
+                  curva.
                 </p>
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Non è un difetto — è fisica normale. Ma cambia, istante per
-                  istante,{" "}
+                  È fisica normale, ma cambia continuamente{" "}
                   <span className="text-primary font-semibold">
                     quanta aderenza ha davvero a disposizione ciascuna ruota
                   </span>
@@ -378,11 +375,9 @@ const AulaModulo5 = () => {
                   Sottosterzo
                 </p>
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Le ruote anteriori perdono aderenza per prime — l'auto «allarga»
-                  la curva, non gira quanto chiesto dal volante. È il più comune e
-                  il più gestibile: si corregge riducendo leggermente l'input
-                  (rilasciare l'acceleratore, non sterzare di più) e lasciando che
-                  l'avantreno recuperi grip.
+                   Le ruote anteriori perdono aderenza e l'auto allarga la curva.
+                   Rilascia l'acceleratore, non aumentare lo sterzo e lascia che
+                   l'avantreno recuperi aderenza.
                 </p>
               </motion.div>
               <motion.div
@@ -393,10 +388,8 @@ const AulaModulo5 = () => {
                   Sovrasterzo
                 </p>
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Le ruote posteriori perdono aderenza per prime — il retrotreno
-                  «gira» più dell'avantreno, rischio testacoda. Si corregge
-                  contro-sterzando con dolcezza nella direzione in cui il
-                  retrotreno sta scivolando.
+                   Le ruote posteriori perdono aderenza e il retrotreno scivola.
+                   Correggi con dolcezza nella direzione dello scivolamento.
                 </p>
               </motion.div>
             </div>
@@ -440,26 +433,18 @@ const AulaModulo5 = () => {
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-6 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Lo spazio di arresto è la somma di due parti: lo spazio percorso
-                  nel tempo di reazione più lo spazio di frenata vero e proprio.
-                  Il secondo cresce con{" "}
+                  Lo spazio di arresto somma reazione e frenata. La frenata cresce
+                  con{" "}
                   <span className="text-foreground font-medium">
                     il quadrato della velocità
                   </span>
-                  : raddoppiare la velocità non raddoppia lo spazio di frenata, lo
-                  moltiplica per circa quattro. Ecco perché pochi km/h in più,
-                  specialmente a velocità già sostenute, fanno una differenza
-                  sproporzionata.
+                  : raddoppiare la velocità moltiplica lo spazio per circa quattro.
                 </p>
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Nella guida quotidiana la frenata dovrebbe essere{" "}
+                  Nella guida quotidiana frena in modo{" "}
                   <span className="text-primary font-semibold">progressiva</span>{" "}
-                  — pressione crescente, non un colpo secco. La frenata di
-                  emergenza è diversa: pressione decisa e immediata a fondo,
-                  mantenuta fino all'arresto. Con l'ABS che funziona, è corretto
-                  tenere il pedale premuto senza «pompare» — è l'ABS a gestire il
-                  bloccaggio, tu continui a sterzare se serve per evitare
-                  l'ostacolo.
+                  . In emergenza premi subito a fondo e mantieni la pressione. Con
+                  ABS attivo non pompare il pedale: continua a sterzare se serve.
                 </p>
               </motion.div>
               <ImagePlaceholder

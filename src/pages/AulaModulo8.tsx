@@ -395,42 +395,30 @@ const AulaModulo8 = () => {
 
             <div className="grid md:grid-cols-[1.4fr_1fr] gap-4 items-start">
               <motion.div {...fade} className="flex flex-col gap-2.5">
-                <p className="text-sm text-foreground/80 leading-relaxed">
-                  Quando un trasferimento diventa emergenza, cambia il contesto
-                  operativo —{" "}
-                  <span className="text-foreground font-medium">
-                    non le leggi della fisica
-                  </span>
-                  . L'obiettivo non è la velocità massima possibile, ma il minor
-                  tempo di intervento compatibile col mantenimento del controllo
-                  del veicolo. Un operatore in controllo, fluido e lucido, è quasi
-                  sempre anche più rapido di uno che guida teso e a scatti. Chi
-                  perde il controllo o si trova un imprevisto mal preparato arriva
-                  più tardi, non prima.
+                <p className="text-base text-foreground/80 leading-relaxed">
+                  In emergenza cambia il contesto, non la fisica. L'obiettivo è
+                  arrivare nel minor tempo compatibile con il pieno controllo del
+                  veicolo. Una guida fluida e lucida è più efficace di una guida
+                  tesa e a scatti.
                 </p>
                 <div className="rounded-lg border border-border/60 bg-card/70 px-4 py-3">
-                  <p className="text-xs md:text-sm text-foreground/85 leading-snug">
-                    Attivare lampeggianti e sirena non è un gesto neutro:{" "}
+                  <p className="text-sm md:text-base text-foreground/85 leading-snug">
+                    Lampeggianti e sirena{" "}
                     <span className="text-primary font-semibold">
                       modifica il tuo stato psicofisico
                     </span>
-                    . Insieme, tipicamente: più attivazione fisica, più carico
-                    mentale (guida + urgenza + radio), più pressione percepita, un
-                    aumento involontario della velocità spesso non percepito come
-                    tale, margini che si restringono senza accorgersene, il rischio
-                    di fissarsi sull'obiettivo finale invece che su cosa succede
-                    pochi metri davanti.
+                    : aumentano attivazione, carico mentale e pressione percepita.
+                    La velocità può salire senza accorgersene e l'attenzione può
+                    fissarsi sull'obiettivo invece che sulla strada.
                   </p>
                 </div>
                 <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-2.5">
                   <p className="font-mono text-xs uppercase tracking-[0.25em] text-destructive mb-1">
                     Errore frequente
                   </p>
-                  <p className="text-xs md:text-sm text-foreground/85 leading-snug">
-                    Pensare di essere immuni perché «so di dovermi calmare». La
-                    contromisura non è la convinzione di controllarlo, ma un
-                    margine di sicurezza deciso a mente fredda, prima che la
-                    situazione si presenti.
+                  <p className="text-sm md:text-base text-foreground/85 leading-snug">
+                    Non basta pensare «so calmarmi». Il margine di sicurezza va
+                    deciso a mente fredda, prima dell'intervento.
                   </p>
                 </div>
               </motion.div>

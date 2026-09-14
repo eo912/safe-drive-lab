@@ -63,40 +63,40 @@ const HOTSPOT_PNEUMATICI: Hotspot[] = [
   {
     id: "pressione",
     label: "Pressione",
-    x: 22,
-    y: 40,
+    x: 61,
+    y: 43,
     title: "Pressione",
     text: "Troppo bassa aumenta la flessione del fianco e riduce la precisione; troppo alta riduce l'area di contatto. Va controllata a freddo.",
   },
   {
     id: "battistrada",
     label: "Battistrada",
-    x: 50,
-    y: 18,
+    x: 45,
+    y: 27,
     title: "Battistrada",
     text: "Sotto la soglia minima (1,6 mm in Italia, meglio sostituire prima) la capacità di drenare l'acqua crolla.",
   },
   {
     id: "aquaplaning",
     label: "Aquaplaning",
-    x: 50,
-    y: 78,
+    x: 44,
+    y: 85,
     title: "Aquaplaning",
     text: "Quando un velo d'acqua non viene più sgomberato dal battistrada e lo pneumatico «galleggia», perdendo aderenza.",
   },
   {
     id: "estive",
     label: "Gomme estive",
-    x: 76,
-    y: 32,
+    x: 68,
+    y: 48,
     title: "Gomme estive",
     text: "Mescola più rigida, pensata per temperature sopra i 7°C: aderenza ottimale su asfalto asciutto e bagnato in stagione calda.",
   },
   {
     id: "invernali",
     label: "Gomme invernali",
-    x: 76,
-    y: 62,
+    x: 62,
+    y: 66,
     title: "Gomme invernali",
     text: "Mescola più morbida anche a basse temperature, battistrada disegnato per neve/ghiaccio: mantengono aderenza dove le estive induriscono e perdono grip.",
   },
@@ -348,6 +348,7 @@ const AulaModulo4 = () => {
         <HotspotScene
           illustrationLabel="Pneumatico visto lateralmente e dall'alto, con area di contatto evidenziata (placeholder generico)"
           hotspots={HOTSPOT_PNEUMATICI}
+          frameClassName="h-[28vh] min-h-[180px] max-w-[49.78vh] mx-auto"
           compact
         />
       </Slide>
@@ -372,28 +373,22 @@ const AulaModulo4 = () => {
               />
               <motion.div {...fade} className="flex flex-col gap-3">
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Un'auto di medie dimensioni pesa più di una tonnellata. A 90
-                  km/h, fermarla in sicurezza significa fare un lavoro enorme in
-                  pochi secondi — e a farlo sono{" "}
+                  A 90 km/h, fermare oltre una tonnellata richiede un lavoro enorme
+                  in pochi secondi. A farlo sono{" "}
                   <span className="text-foreground font-medium">
                     quattro pastiglie, non più grandi di un mazzo di carte
                   </span>{" "}
-                  ciascuna. Tutta quella forza diventa calore, in un attimo.
+                  ciascuna: tutta la forza diventa calore.
                 </p>
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  È per questo che i freni si «stancano»: in una discesa lunga,
-                  frenare in continuazione li fa surriscaldare — le pastiglie
-                  perdono grip proprio come una gomma che pattina troppo a lungo
-                  sull'asfalto. Il pedale sembra ancora premuto a fondo, ma la
-                  frenata risponde sempre meno. Si chiama{" "}
+                  In discesa, frenare continuamente surriscalda le pastiglie e
+                  riduce l'efficacia, anche col pedale premuto. Si chiama{" "}
                   <span className="text-primary font-semibold">fading</span>, e si
-                  previene lasciando lavorare il motore al posto dei freni nei
-                  tratti lunghi in discesa, invece di tenerli sempre schiacciati.
+                  previene usando il freno motore nei tratti lunghi.
                 </p>
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Pastiglie e dischi vanno tenuti efficienti, non solo «presenti»:
-                  pastiglie consumate allungano lo spazio di frenata anche se il
-                  pedale sembra rispondere normalmente.
+                  Pastiglie e dischi consumati allungano lo spazio di frenata anche
+                  quando il pedale sembra normale.
                 </p>
               </motion.div>
             </div>
@@ -461,7 +456,7 @@ const AulaModulo4 = () => {
                 },
                 {
                   sigla: "ESP",
-                  text: "Frena selettivamente una o più ruote quando la traiettoria non corrisponde a quella voluta, contrastando sottosterzo o sovrasterzo. Non crea aderenza dove non c'è.",
+                   text: "Frena una o più ruote per correggere la traiettoria. Non crea aderenza dove non c'è.",
                 },
                 {
                   sigla: "ASR",
@@ -493,10 +488,8 @@ const AulaModulo4 = () => {
                   L'errore comune
                 </p>
                 <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
-                  Pensare che questi sistemi permettano di guidare più vicino al
-                  limite in sicurezza. In realtà spostano il limite un po' più in
-                  là — il margine reale per l'imprevisto resta lo stesso, o si
-                  riduce se compensi aumentando la velocità.
+                  Pensare che permettano di guidare vicino al limite. Aiutano a
+                  recuperare il controllo, ma non sostituiscono il margine.
                 </p>
               </div>
             </div>

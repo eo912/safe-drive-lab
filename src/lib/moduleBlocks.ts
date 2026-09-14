@@ -395,7 +395,7 @@ export const moduloNoveBlocks: ModuleBlock[] = [
     id: "verifica-1",
     index: 1,
     expectedSeconds: 420,
-    title: "Test finale — Domande 1-5",
+    title: "Test finale — Domande 1-3",
     kind: "chiusura",
     notes:
       "Correzione guidata dal vivo: leggere la domanda a voce, far rispondere l'aula a voce, poi cliccare con il mouse l'opzione indicata. L'opzione si colora (verde = corretta, rosso = sbagliata) e compare la spiegazione con la risposta giusta. Si possono cliccare più opzioni in sequenza sulla stessa domanda. Nessun punteggio a schermo: la valutazione resta al docente su supporto esterno.",
@@ -404,10 +404,26 @@ export const moduloNoveBlocks: ModuleBlock[] = [
     id: "verifica-2",
     index: 2,
     expectedSeconds: 420,
-    title: "Test finale — Domande 6-10",
+    title: "Test finale — Domande 4-6",
     kind: "chiusura",
     notes:
       "Seconda parte del test finale. Stessa meccanica: domanda a voce, risposta dell'aula, click sull'opzione. Verdi = corrette, rosse = sbagliate, spiegazione sempre visibile dopo il primo click. Chiudere il corso ricordando che il punteggio viene registrato dal docente a parte.",
+  },
+  {
+    id: "verifica-3",
+    index: 3,
+    expectedSeconds: 300,
+    title: "Test finale — Domande 7-8",
+    kind: "chiusura",
+    notes: "Terza parte del test finale. Leggere la domanda, raccogliere la risposta e mostrare la spiegazione con un click.",
+  },
+  {
+    id: "verifica-4",
+    index: 4,
+    expectedSeconds: 300,
+    title: "Test finale — Domande 9-10",
+    kind: "chiusura",
+    notes: "Ultima parte del test finale. Chiudere ricordando che la valutazione viene registrata dal docente a parte.",
   },
 ];
 
