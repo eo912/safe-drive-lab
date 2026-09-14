@@ -4,6 +4,7 @@ import { isOnline, onConnectivityChange } from "./connectivity";
 import type { Resource } from "./instructorTypes";
 import type { PauseAtmosphere } from "./pauseAtmosphere";
 import type { EmbedPayload } from "./sceneMedia";
+import { syncTrace, SYNC_SESSION_ID } from "./syncTrace";
 
 /**
  * Stato condiviso tra Istruttore e Aula.
@@ -217,6 +218,13 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
         } catch {
           /* ignore */
         }
+        syncTrace("REGIA", "useAulaPublisher.publish", {
+          moduleId: next.modulo,
+          previousBlockId: prev.blocco,
+          requestedBlockId: next.blocco,
+          step: next.step,
+          sentAt: next.ts,
+        });
         channel?.postMessage(next);
         remoteSend("state", next);
         lastPublishedRef.current = next;
@@ -262,6 +270,13 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
   useRemoteListener(remoteHandlers.state, (incoming: AulaState) => {
     if (!incoming || incoming.modulo !== modulo) return;
     if (incoming.ts < lastRemoteTsRef.current) return;
+    syncTrace("REALTIME", "useAulaSubscriber.remote", {
+      moduleId: incoming.modulo,
+      requestedBlockId: incoming.blocco,
+      step: incoming.step,
+      sentAt: incoming.ts,
+      receivedAt: Date.now(),
+    });
     lastRemoteTsRef.current = incoming.ts;
     lastTsRef.current = Date.now();
     writeToUrl(incoming);
@@ -281,6 +296,13 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
       if (incoming.modulo !== modulo) return;
       // Tolleriamo ts uguale (clock low-res): scartiamo solo i veri "vecchi".
       if (incoming.ts < lastTsRef.current) return;
+      syncTrace("AULA", "useAulaSubscriber.applyLocal", {
+        moduleId: incoming.modulo,
+        requestedBlockId: incoming.blocco,
+        step: incoming.step,
+        sentAt: incoming.ts,
+        receivedAt: Date.now(),
+      });
       lastTsRef.current = incoming.ts;
       writeToUrl(incoming);
       setState(incoming);
@@ -335,6 +357,12 @@ export const useAulaHeartbeat = (
     if (!enabled || typeof window === "undefined") return;
     const send = () => {
       const beat: AulaHeartbeat = { ...ref.current, ts: Date.now() };
+      syncTrace("HEARTBEAT", "useAulaHeartbeat.send", {
+        moduleId: beat.modulo,
+        resultBlockId: beat.blocco,
+        step: beat.step,
+        sentAt: beat.ts,
+      });
       try {
         localStorage.setItem(HEARTBEAT_STORAGE, JSON.stringify(beat));
       } catch {
@@ -370,6 +398,13 @@ export const useAulaHeartbeatMonitor = (
   // normalizziamo sull'ora locale per il calcolo online/offline.
   useRemoteListener(remoteHandlers.heartbeat, (b: AulaHeartbeat) => {
     if (!b) return;
+    syncTrace("HEARTBEAT", "monitor.remoteBeat", {
+      moduleId: b.modulo,
+      resultBlockId: b.blocco,
+      step: b.step,
+      sentAt: b.ts,
+      receivedAt: Date.now(),
+    });
     setLast({ ...b, ts: Date.now() });
   });
 

@@ -1,4 +1,5 @@
 import { useEffect, useState, type RefObject } from "react";
+import { syncTrace } from "./syncTrace";
 
 /**
  * Traccia la scheda (`<section data-block="...">`) realmente visibile a schermo
@@ -39,7 +40,17 @@ export const useVisibleBlock = (
             bestId = id;
           }
         });
-        if (bestId) setVisible(bestId);
+        if (bestId)
+          setVisible((prev) => {
+            if (prev !== bestId)
+              syncTrace("LOCAL_EFFECT", "useVisibleBlock.observer", {
+                previousBlockId: prev,
+                resultBlockId: bestId,
+                ratio: best,
+                observed: sections.length,
+              });
+            return bestId;
+          });
       },
       {
         root: scroller,
@@ -47,6 +58,10 @@ export const useVisibleBlock = (
       },
     );
 
+    syncTrace("INIT", "useVisibleBlock.observe", {
+      observed: sections.map((s) => s.dataset.block),
+      fallback,
+    });
     sections.forEach((s) => observer.observe(s));
     return () => observer.disconnect();
   }, [scrollerRef, enabled]);
