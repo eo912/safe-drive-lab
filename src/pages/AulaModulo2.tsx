@@ -79,6 +79,7 @@ const AulaModulo2 = () => {
   const navigate = useNavigate();
   const [showExit, setShowExit] = useState(false);
   const [riskProbability, setRiskProbability] = useState(0.2);
+  const [phoneDismissTs, setPhoneDismissTs] = useState(0);
   const aulaState = useAulaSubscriber(MODULO, "sicurezza-rischio");
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
