@@ -37,6 +37,11 @@ export type AulaState = {
   hazardVariant?: "car-braking";
   hazardOutcome?: "stopped" | "failed";
   hazardTs?: number;
+  /** Versione del comando: ts assegnato dalla Regia al momento della pubblicazione.
+   *  Non viene mai riscritto dai destinatari: serve all'Aula per dichiarare
+   *  QUALE comando sta eseguendo (ack) e alla Regia per scartare battiti
+   *  obsoleti o provenienti da un'altra sessione. */
+  cmdTs?: number;
   ts: number;
 };
 
@@ -54,6 +59,8 @@ export type AulaHeartbeat = {
   pauseAtmosphere?: PauseAtmosphere;
   /** Probabilità corrente della catena, riservata alla Regia. */
   riskProbability?: number;
+  /** Comando (cmdTs) che l'Aula sta eseguendo nel momento del battito. */
+  ackTs?: number;
   ts: number;
 };
 
@@ -210,6 +217,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           ...prev,
           ...(patch ?? {}),
           modulo,
+          cmdTs: Date.now(),
           ts: Date.now(),
         };
         writeToUrl(next);
