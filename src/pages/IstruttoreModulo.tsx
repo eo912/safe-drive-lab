@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/sheet";
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
+import { syncTrace } from "@/lib/syncTrace";
 import {
   useAulaHeartbeatMonitor,
   useAulaPublisher,
@@ -295,7 +296,7 @@ const IstruttoreModulo = () => {
   const liveStep = liveState?.step ?? null;
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
   const { liveHeartbeat: aulaHeartbeat, foreignModulo } =
-    useAulaHeartbeatMonitor(slug);
+    useAulaHeartbeatMonitor(slug, liveState?.cmdTs ?? null);
 
   // L'Aula comunica la posizione realmente visibile: quando cambia (anche per
   // scroll manuale lato Aula) la Regia si allinea, così blocco selezionato,
@@ -306,8 +307,16 @@ const IstruttoreModulo = () => {
     const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;
     if (lastAulaPosRef.current === key) return;
     lastAulaPosRef.current = key;
+    syncTrace("LOCAL_EFFECT", "IstruttoreModulo.alignToHeartbeat", {
+      moduleId: slug,
+      previousBlockId: previewState.blocco,
+      resultBlockId: aulaHeartbeat.blocco,
+      step: aulaHeartbeat.step,
+      beatSentAt: aulaHeartbeat.ts,
+      receivedAt: Date.now(),
+    });
     setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
-  }, [aulaHeartbeat, setPreview]);
+  }, [aulaHeartbeat, setPreview, liveState, slug, previewState.blocco]);
 
   // L'Aula è passata da sola a un altro modulo (es. avanzando oltre l'ultimo
   // blocco): la Regia lo segue, altrimenti i comandi finirebbero nel vuoto.
@@ -367,12 +376,30 @@ const IstruttoreModulo = () => {
     stepRemoteRef.current = (dir: 1 | -1) => {
       if (sequence.length === 0) return;
       // Priorità alla posizione realmente visibile in Aula (heartbeat).
-      const fromBlocco =
-        aulaHeartbeat?.blocco ?? liveState?.blocco ?? previewState.blocco;
-      const fromStep = aulaHeartbeat?.step ?? liveState?.step ?? previewState.step;
+      // Se abbiamo appena pubblicato, il comando appena inviato è più recente
+      // di qualsiasi battito: è lui la posizione di partenza.
+      const freshPublish = liveState != null && Date.now() - liveState.ts < 2500;
+      const fromBlocco = freshPublish
+        ? liveState.blocco
+        : (aulaHeartbeat?.blocco ?? liveState?.blocco ?? previewState.blocco);
+      const fromStep = freshPublish
+        ? liveState.step
+        : (aulaHeartbeat?.step ?? liveState?.step ?? previewState.step);
       const cur = findPositionIndex(sequence, fromBlocco, fromStep);
       const safe = cur === -1 ? 0 : cur;
       const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
+      syncTrace("REGIA", "IstruttoreModulo.stepRemote", {
+        moduleId: slug,
+        dir,
+        fromBlockId: fromBlocco,
+        fromStep,
+        fromIndex: cur,
+        requestedBlockId: sequence[next]?.blocco,
+        requestedStep: sequence[next]?.step,
+        heartbeatBlockId: aulaHeartbeat?.blocco ?? null,
+        liveBlockId: liveState?.blocco ?? null,
+        previewBlockId: previewState.blocco,
+      });
       if (next === safe && cur !== -1) return;
       // Cambio slide: chiude eventuale overlay telefono.
       phonePhaseRef.current = "idle";
@@ -387,8 +414,7 @@ const IstruttoreModulo = () => {
     sequence,
     previewState.blocco,
     previewState.step,
-    liveState?.blocco,
-    liveState?.step,
+    liveState,
     aulaHeartbeat?.blocco,
     aulaHeartbeat?.step,
     publish,
@@ -673,7 +699,11 @@ const IstruttoreModulo = () => {
             </div>
           </div>
 
-          <AulaStatusBadge modulo={slug} blocks={blocks} />
+          <AulaStatusBadge
+            modulo={slug}
+            blocks={blocks}
+            expectedAckTs={liveState?.cmdTs ?? null}
+          />
 
           <OfflineStatus />
 

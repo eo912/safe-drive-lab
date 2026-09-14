@@ -4,6 +4,7 @@ import { isOnline, onConnectivityChange } from "./connectivity";
 import type { Resource } from "./instructorTypes";
 import type { PauseAtmosphere } from "./pauseAtmosphere";
 import type { EmbedPayload } from "./sceneMedia";
+import { syncTrace, SYNC_SESSION_ID } from "./syncTrace";
 
 /**
  * Stato condiviso tra Istruttore e Aula.
@@ -36,6 +37,11 @@ export type AulaState = {
   hazardVariant?: "car-braking";
   hazardOutcome?: "stopped" | "failed";
   hazardTs?: number;
+  /** Versione del comando: ts assegnato dalla Regia al momento della pubblicazione.
+   *  Non viene mai riscritto dai destinatari: serve all'Aula per dichiarare
+   *  QUALE comando sta eseguendo (ack) e alla Regia per scartare battiti
+   *  obsoleti o provenienti da un'altra sessione. */
+  cmdTs?: number;
   ts: number;
 };
 
@@ -53,6 +59,8 @@ export type AulaHeartbeat = {
   pauseAtmosphere?: PauseAtmosphere;
   /** Probabilità corrente della catena, riservata alla Regia. */
   riskProbability?: number;
+  /** Comando (cmdTs) che l'Aula sta eseguendo nel momento del battito. */
+  ackTs?: number;
   ts: number;
 };
 
@@ -209,6 +217,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           ...prev,
           ...(patch ?? {}),
           modulo,
+          cmdTs: Date.now(),
           ts: Date.now(),
         };
         writeToUrl(next);
@@ -217,6 +226,13 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
         } catch {
           /* ignore */
         }
+        syncTrace("REGIA", "useAulaPublisher.publish", {
+          moduleId: next.modulo,
+          previousBlockId: prev.blocco,
+          requestedBlockId: next.blocco,
+          step: next.step,
+          sentAt: next.ts,
+        });
         channel?.postMessage(next);
         remoteSend("state", next);
         lastPublishedRef.current = next;
@@ -255,13 +271,46 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
   const [state, setState] = useState<AulaState>(() => readFromUrl(modulo, defaultBlocco));
   const lastTsRef = useRef(state.ts);
   const lastRemoteTsRef = useRef(0);
+  // Istante di apertura: nei primi secondi accettiamo anche uno stato
+  // "vecchio", perché è la risposta alla nostra richiesta di allineamento.
+  const mountedAtRef = useRef(Date.now());
 
   // Comandi provenienti da un ALTRO dispositivo (PC regia → TV).
   // Il timestamp arriva da un altro orologio: confrontiamo solo con l'ultimo
   // messaggio remoto ricevuto, mai con quello locale.
   useRemoteListener(remoteHandlers.state, (incoming: AulaState) => {
     if (!incoming || incoming.modulo !== modulo) return;
-    if (incoming.ts < lastRemoteTsRef.current) return;
+    // Ripetizioni dello stesso comando (ogni Regia collegata risponde alle
+    // richieste di allineamento delle altre): riapplicarle faceva saltare
+    // l'Aula indietro sulla scena di un'altra sessione.
+    if (incoming.ts <= lastRemoteTsRef.current) {
+      syncTrace("REALTIME", "useAulaSubscriber.rejectDuplicate", {
+        moduleId: incoming.modulo,
+        requestedBlockId: incoming.blocco,
+        sentAt: incoming.ts,
+        lastAppliedAt: lastRemoteTsRef.current,
+      });
+      return;
+    }
+    // Comando più vecchio dell'apertura di questa schermata: è valido solo
+    // come risposta alla richiesta iniziale di allineamento.
+    const joinWindow = Date.now() - mountedAtRef.current < 5000;
+    if (incoming.ts < mountedAtRef.current && !joinWindow) {
+      syncTrace("REALTIME", "useAulaSubscriber.rejectStaleCommand", {
+        moduleId: incoming.modulo,
+        requestedBlockId: incoming.blocco,
+        sentAt: incoming.ts,
+        mountedAt: mountedAtRef.current,
+      });
+      return;
+    }
+    syncTrace("REALTIME", "useAulaSubscriber.remote", {
+      moduleId: incoming.modulo,
+      requestedBlockId: incoming.blocco,
+      step: incoming.step,
+      sentAt: incoming.ts,
+      receivedAt: Date.now(),
+    });
     lastRemoteTsRef.current = incoming.ts;
     lastTsRef.current = Date.now();
     writeToUrl(incoming);
@@ -281,6 +330,13 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
       if (incoming.modulo !== modulo) return;
       // Tolleriamo ts uguale (clock low-res): scartiamo solo i veri "vecchi".
       if (incoming.ts < lastTsRef.current) return;
+      syncTrace("AULA", "useAulaSubscriber.applyLocal", {
+        moduleId: incoming.modulo,
+        requestedBlockId: incoming.blocco,
+        step: incoming.step,
+        sentAt: incoming.ts,
+        receivedAt: Date.now(),
+      });
       lastTsRef.current = incoming.ts;
       writeToUrl(incoming);
       setState(incoming);
@@ -335,6 +391,12 @@ export const useAulaHeartbeat = (
     if (!enabled || typeof window === "undefined") return;
     const send = () => {
       const beat: AulaHeartbeat = { ...ref.current, ts: Date.now() };
+      syncTrace("HEARTBEAT", "useAulaHeartbeat.send", {
+        moduleId: beat.modulo,
+        resultBlockId: beat.blocco,
+        step: beat.step,
+        sentAt: beat.ts,
+      });
       try {
         localStorage.setItem(HEARTBEAT_STORAGE, JSON.stringify(beat));
       } catch {
@@ -361,21 +423,50 @@ export const useAulaHeartbeat = (
  */
 export const useAulaHeartbeatMonitor = (
   modulo: string,
+  expectedAckTs: number | null = null,
   offlineAfterMs = 6000,
 ) => {
   const [last, setLast] = useState<AulaHeartbeat | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
 
+  // Un battito è valido solo se dichiara di eseguire l'ULTIMO comando
+  // pubblicato da questa Regia. Scarta sia i battiti in ritardo (l'Aula non
+  // si è ancora allineata) sia quelli di un'altra sessione sullo stesso
+  // canale: entrambi facevano tornare indietro la Regia.
+  const ackRef = useRef<number | null>(expectedAckTs);
+  ackRef.current = expectedAckTs;
+  const accepts = useCallback((b: AulaHeartbeat) => {
+    const expected = ackRef.current;
+    if (expected == null) return true;
+    if (b.ackTs === expected) return true;
+    syncTrace("HEARTBEAT", "monitor.rejectStaleBeat", {
+      moduleId: b.modulo,
+      resultBlockId: b.blocco,
+      beatAckTs: b.ackTs ?? null,
+      expectedAckTs: expected,
+    });
+    return false;
+  }, []);
+
   // Battito da un altro dispositivo: l'orologio è diverso, quindi lo
   // normalizziamo sull'ora locale per il calcolo online/offline.
   useRemoteListener(remoteHandlers.heartbeat, (b: AulaHeartbeat) => {
     if (!b) return;
+    if (!accepts(b)) return;
+    syncTrace("HEARTBEAT", "monitor.remoteBeat", {
+      moduleId: b.modulo,
+      resultBlockId: b.blocco,
+      step: b.step,
+      sentAt: b.ts,
+      receivedAt: Date.now(),
+    });
     setLast({ ...b, ts: Date.now() });
   });
 
 
   useEffect(() => {
     const apply = (b: AulaHeartbeat) => {
+      if (!accepts(b)) return;
       setLast((prev) => (prev && prev.ts > b.ts ? prev : b));
     };
     const onMsg = (e: MessageEvent<AulaHeartbeat>) => apply(e.data);
@@ -404,7 +495,7 @@ export const useAulaHeartbeatMonitor = (
       window.removeEventListener("storage", onStorage);
       window.clearInterval(tick);
     };
-  }, []);
+  }, [accepts]);
 
   const sinceMs = last ? now - last.ts : Infinity;
   const connected = last !== null && sinceMs < offlineAfterMs;

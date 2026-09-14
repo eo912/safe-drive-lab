@@ -7,6 +7,8 @@ import { modules } from "@/lib/modules";
 type Props = {
   modulo: string;
   blocks: ModuleBlock[];
+  /** Ultimo comando pubblicato: filtra i battiti obsoleti o di altre sessioni. */
+  expectedAckTs?: number | null;
 };
 
 const fmtSince = (ms: number) => {
@@ -27,9 +29,9 @@ const fmtSince = (ms: number) => {
  *
  * Volutamente non-tecnico: niente ping/log/diagnostica.
  */
-export const AulaStatusBadge = ({ modulo, blocks }: Props) => {
+export const AulaStatusBadge = ({ modulo, blocks, expectedAckTs = null }: Props) => {
   const { heartbeat, online, sinceMs, foreignModulo } =
-    useAulaHeartbeatMonitor(modulo);
+    useAulaHeartbeatMonitor(modulo, expectedAckTs);
 
   const block = heartbeat
     ? blocks.find((b) => b.id === heartbeat.blocco) ?? null
