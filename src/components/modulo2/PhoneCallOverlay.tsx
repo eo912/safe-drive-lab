@@ -15,7 +15,12 @@ type Props = {
  * Rendering solo lato Aula Live: la Regia non monta mai questo componente.
  * Telefono centrato, non fullscreen, con blur/scurimento dello slide dietro.
  */
-export const PhoneCallOverlay = ({ callerName, onClose }: Props) => {
+export const PhoneCallOverlay = ({
+  callerName,
+  onClose,
+  onAnswer,
+  onDecline,
+}: Props) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
