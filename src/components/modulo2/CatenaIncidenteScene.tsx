@@ -169,8 +169,14 @@ export const CatenaIncidenteScene = ({
     }
   }, [nodo.id, secondaChiamata]);
 
+  // Chiusura immediata dopo il click su verde/rosso: ignora il comando remoto
+  // finché la regia non fa ripartire una nuova chiamata (nuovo phoneTs).
+  const [dismissTs, setDismissTs] = useState(0);
+
   const effectivePhonePhase: PhonePhase =
-    level === "full" && phoneTs > callResetTs ? remotePhonePhase : "idle";
+    level === "full" && phoneTs > Math.max(callResetTs, dismissTs)
+      ? remotePhonePhase
+      : "idle";
 
   useEffect(() => {
     const audio = audioRef.current;
