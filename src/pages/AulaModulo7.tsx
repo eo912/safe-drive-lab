@@ -13,6 +13,7 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
+import { SyncToggle } from "@/components/sync/SyncToggle";
 
 const MODULO = "modulo-7-guida-professionale";
 
@@ -249,6 +250,16 @@ const AulaModulo7 = () => {
       )}
 
       {!isPaused && <AulaWatermark />}
+
+      {!embedMode && (
+
+        <div data-aula-sync-toggle className="fixed bottom-4 right-4 z-40">
+
+          <SyncToggle />
+
+        </div>
+
+      )}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />

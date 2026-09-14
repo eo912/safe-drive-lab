@@ -22,6 +22,7 @@ import { CatenaIncidenteScene } from "@/components/modulo2/CatenaIncidenteScene"
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
+import { SyncToggle } from "@/components/sync/SyncToggle";
 import { EditableIcon } from "@/components/edit/EditableIcon";
 
 const MODULO = "modulo-2-sicurezza-e-rischio";
@@ -280,6 +281,16 @@ const AulaModulo2 = () => {
       )}
 
       {!isPaused && <AulaWatermark />}
+
+      {!embedMode && (
+
+        <div data-aula-sync-toggle className="fixed bottom-4 right-4 z-40">
+
+          <SyncToggle />
+
+        </div>
+
+      )}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />

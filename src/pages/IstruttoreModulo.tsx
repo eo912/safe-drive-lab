@@ -42,11 +42,12 @@ import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { syncTrace } from "@/lib/syncTrace";
 import {
-  useAulaHeartbeatMonitor,
+  useAulaPosition,
   useAulaPublisher,
   type AulaState,
   type AulaStep,
 } from "@/lib/aulaSync";
+import { SyncToggle } from "@/components/sync/SyncToggle";
 import { openAulaWindow } from "@/lib/aulaWindow";
 import { withRoom } from "@/lib/aulaRoom";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
@@ -60,8 +61,7 @@ import { SceneMediaPanel } from "@/components/istruttore/SceneMediaPanel";
 import { BlockImagesPanel } from "@/components/istruttore/BlockImagesPanel";
 import { isEditMode } from "@/lib/editMode";
 import { StudioLivePreview } from "@/components/istruttore/StudioLivePreview";
-import { AulaStatusBadge } from "@/components/istruttore/AulaStatusBadge";
-import { OfflineNotice, OfflineStatus } from "@/components/istruttore/OfflineStatus";
+import { OfflineNotice } from "@/components/istruttore/OfflineStatus";
 import { useOnline } from "@/lib/connectivity";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { EmbedPayload } from "@/lib/sceneMedia";
@@ -301,17 +301,10 @@ const IstruttoreModulo = () => {
   const liveBlockId = liveState?.blocco ?? null;
   const liveStep = liveState?.step ?? null;
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
-  const {
-    liveHeartbeat: aulaHeartbeat,
-    heartbeat: aulaLastBeat,
-    foreignModulo,
-    online: aulaOnline,
-    sinceMs: aulaSinceMs,
-  } = useAulaHeartbeatMonitor(slug, liveState?.cmdTs ?? null);
+  // Posizione dichiarata dall'Aula dopo un gesto dell'utente (un solo evento).
+  const aulaHeartbeat = useAulaPosition(slug);
 
-  // L'Aula comunica la posizione realmente visibile: quando cambia (anche per
-  // scroll manuale lato Aula) la Regia si allinea, così blocco selezionato,
-  // titolo, note e suggerimenti riflettono la scena in onda.
+  // Quando l'Aula cambia scena, la Regia si allinea: nessun comando di ritorno.
   const lastAulaPosRef = useRef<string | null>(null);
 
   // L'Aula ha chiuso il telefono con verde/rosso: la sequenza di regia
@@ -329,38 +322,24 @@ const IstruttoreModulo = () => {
     const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;
     if (lastAulaPosRef.current === key) return;
     lastAulaPosRef.current = key;
-    syncTrace("LOCAL_EFFECT", "IstruttoreModulo.alignToHeartbeat", {
+    syncTrace("LOCAL_EFFECT", "IstruttoreModulo.alignToAulaPosition", {
       moduleId: slug,
       previousBlockId: previewState.blocco,
       resultBlockId: aulaHeartbeat.blocco,
       step: aulaHeartbeat.step,
-      beatSentAt: aulaHeartbeat.ts,
       receivedAt: Date.now(),
     });
     setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
-    // Unica fonte di verità per "in onda": la scena che l'Aula dichiara di
-    // mostrare. Aggiorna riquadro IN AULA e URL della Regia senza rimandare
-    // alcun comando all'Aula (nessun eco).
     syncLiveFromAula({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
   }, [
     aulaHeartbeat,
     setPreview,
     syncLiveFromAula,
-    liveState,
     slug,
     previewState.blocco,
   ]);
 
-  // L'Aula è passata da sola a un altro modulo (es. avanzando oltre l'ultimo
-  // blocco): la Regia lo segue, altrimenti i comandi finirebbero nel vuoto.
-  useEffect(() => {
-    if (!foreignModulo) return;
-    if (!modules.some((m) => m.slug === foreignModulo)) return;
-    const id = window.setTimeout(() => {
-      navigate(`/istruttore/${foreignModulo}`, { replace: true });
-    }, 1200);
-    return () => window.clearTimeout(id);
-  }, [foreignModulo, navigate]);
+
 
 
   // Tempo per slide: previsto (config + override locale) + cronometro live.
@@ -732,15 +711,9 @@ const IstruttoreModulo = () => {
             </div>
           </div>
 
-          <AulaStatusBadge
-            blocks={blocks}
-            heartbeat={aulaLastBeat}
-            online={aulaOnline}
-            sinceMs={aulaSinceMs}
-            foreignModulo={foreignModulo}
-          />
+          <SyncToggle className="hidden md:inline-flex" />
 
-          <OfflineStatus />
+
 
 
           {/* Drawer triggers — solo sotto lg */}
@@ -1135,10 +1108,7 @@ const IstruttoreModulo = () => {
                         )}
                       </button>
                     ) : (
-                      <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider shrink-0">
-                        <Radio className="w-3 h-3" />
-                        Sync automatica
-                      </span>
+                      <SyncToggle />
                     )}
                   </div>
 

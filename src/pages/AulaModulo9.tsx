@@ -11,6 +11,7 @@ import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
+import { SyncToggle } from "@/components/sync/SyncToggle";
 import { QuizQuestion } from "@/components/moduloQuiz/QuizQuestion";
 import { quizFinale } from "@/lib/quizFinale";
 
@@ -242,6 +243,16 @@ const AulaModulo9 = () => {
       )}
 
       {!isPaused && <AulaWatermark />}
+
+      {!embedMode && (
+
+        <div data-aula-sync-toggle className="fixed bottom-4 right-4 z-40">
+
+          <SyncToggle />
+
+        </div>
+
+      )}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />
