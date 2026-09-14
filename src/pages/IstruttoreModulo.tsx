@@ -135,6 +135,25 @@ const IstruttoreModulo = () => {
     [publishWithPhone],
   );
 
+  // Toggle telefono: stessa logica per tasto Invio/OK e bottone UI.
+  const togglePhone = useCallback(() => {
+    if (viewRef.current !== "live" || activeRef.current?.id !== "catena-incidente") {
+      return false;
+    }
+    const cur = phonePhaseRef.current;
+    const next: "idle" | "ringing" | "visible" =
+      cur === "idle" ? "ringing" : cur === "ringing" ? "visible" : "idle";
+    phonePhaseRef.current = next;
+    phoneBlockRef.current = activeRef.current.id;
+    publishWithPhone({ phoneTs: Date.now() });
+    return true;
+  }, [publishWithPhone]);
+  const togglePhoneRef = useRef(togglePhone);
+  useEffect(() => {
+    togglePhoneRef.current = togglePhone;
+  }, [togglePhone]);
+
+
   const [mode, setMode] = useState<Mode>("regia");
   const modeRef = useRef<Mode>(mode);
   useEffect(() => {
