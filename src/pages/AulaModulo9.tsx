@@ -300,7 +300,7 @@ const AulaModulo9 = () => {
           BLOCCO FINALE — CHIUSURA
           ============================================================ */}
       <Slide bg="black" blockId="chiusura">
-        <div className="relative z-10 text-center px-6 max-w-4xl flex flex-col items-center gap-10">
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-6 flex flex-col items-center justify-center text-center pb-20">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.1]">
             Grazie per l'attenzione
           </h1>
