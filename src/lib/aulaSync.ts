@@ -1,23 +1,30 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { isOnline, onConnectivityChange } from "./connectivity";
 import { INSTANCE_ID, ROOM_ID } from "./aulaRoom";
 import type { Resource } from "./instructorTypes";
 import type { PauseAtmosphere } from "./pauseAtmosphere";
 import type { EmbedPayload } from "./sceneMedia";
 import { syncTrace } from "./syncTrace";
+import { isSyncEnabled, onSyncEnabledChange } from "./syncEnabled";
 
 /**
- * Sincronizzazione Regia ↔ Aula.
+ * Sincronizzazione Regia ↔ Aula — versione semplificata.
  *
- * Tre tipi di evento, semanticamente separati:
- *  - `navigation_command`  Regia → Aula. L'UNICO evento che può navigare/scrollare.
- *  - `observed_position`   Aula → Regia. Posizione realmente visibile in Aula.
- *  - `presence`            Aula → Regia. Solo liveness: non tocca mai blocco/step.
+ * Due soli eventi, un solo trasporto (Supabase Realtime), una sola
+ * sottoscrizione per pagina/stanza:
+ *  - `navigation_command`  Regia → Aula: destinazione richiesta.
+ *  - `aula_position`       Aula → Regia: posizione scelta dall'utente in Aula.
  *
- * Ogni evento viaggia in una busta con roomId, mittente, eventId e seq
- * monotono: fuori stanza, di se stessi, duplicati o non crescenti vengono
- * scartati (con motivo tracciato nei log SYNC_TRACE).
+ * Regole:
+ *  - la ricezione applica in locale e basta: nessun evento di risposta;
+ *  - la posizione risultante da un comando remoto è soppressa una sola volta,
+ *    così lo scroll pilotato non viene scambiato per un gesto dell'utente;
+ *  - con SINCRONIZZAZIONE OFF non si apre alcun canale, non si invia e non si
+ *    applica nulla.
+ *
+ * Disattivati in questa versione (codice rimosso dal flusso attivo):
+ * heartbeat/presence, monitor di connessione, polling, request_state, retry
+ * alla riconnessione, snapshot da localStorage, BroadcastChannel locale.
  */
 
 export type AulaStep = "intro" | "scenario" | "esiti" | "spiegazione" | "approfondimento";
@@ -46,7 +53,7 @@ export type AulaState = {
   ts: number;
 };
 
-/** Posizione dichiarata dall'Aula (observed_position). */
+/** Posizione dichiarata dall'Aula dopo un gesto dell'utente. */
 export type AulaHeartbeat = {
   modulo: string;
   blocco: string;
@@ -54,7 +61,6 @@ export type AulaHeartbeat = {
   paused: boolean;
   pauseAtmosphere?: PauseAtmosphere;
   riskProbability?: number;
-  /** Comando (cmdTs) che l'Aula sta eseguendo nel momento dell'osservazione. */
   ackTs?: number;
   /** Momento in cui l'Aula ha chiuso da sola l'overlay telefono (verde/rosso). */
   phoneDismissTs?: number;
@@ -62,52 +68,28 @@ export type AulaHeartbeat = {
 };
 
 /* ------------------------------------------------------------------ *
- * Busta comune                                                        *
+ * Busta                                                               *
  * ------------------------------------------------------------------ */
 
-export type EventKind =
-  | "navigation_command"
-  | "observed_position"
-  | "presence"
-  | "request_state";
+export type EventKind = "navigation_command" | "aula_position";
 
 type Envelope = {
   kind: EventKind;
   roomId: string;
   senderInstanceId: string;
   eventId: string;
-  seq: number;
   sentAt: number;
   moduleId: string;
-  /** Solo per observed_position e navigation_command. */
   blockId?: string;
   step?: AulaStep;
   payload?: unknown;
 };
 
-const LOCAL_CHANNEL = `safedrivelab-aula:${ROOM_ID}`;
-const STORAGE_KEY = `safedrivelab-aula-state:${ROOM_ID}`;
 const REMOTE_ROOM = `safedrivelab-aula-live:${ROOM_ID}`;
 
 let seqCounter = 0;
 const seenEventIds = new Set<string>();
 const seenOrder: string[] = [];
-const lastSeqBySender = new Map<string, number>();
-
-const makeEnvelope = (
-  kind: EventKind,
-  moduleId: string,
-  extra: Partial<Envelope> = {},
-): Envelope => ({
-  kind,
-  roomId: ROOM_ID,
-  senderInstanceId: INSTANCE_ID,
-  eventId: `${INSTANCE_ID}-${++seqCounter}`,
-  seq: seqCounter,
-  sentAt: Date.now(),
-  moduleId,
-  ...extra,
-});
 
 const rememberEvent = (id: string) => {
   seenEventIds.add(id);
@@ -118,13 +100,26 @@ const rememberEvent = (id: string) => {
   }
 };
 
+const makeEnvelope = (
+  kind: EventKind,
+  moduleId: string,
+  extra: Partial<Envelope> = {},
+): Envelope => ({
+  kind,
+  roomId: ROOM_ID,
+  senderInstanceId: INSTANCE_ID,
+  eventId: `${INSTANCE_ID}-${++seqCounter}`,
+  sentAt: Date.now(),
+  moduleId,
+  ...extra,
+});
+
 const traceEnv = (where: string, e: Envelope, extra: Record<string, unknown> = {}) =>
   syncTrace("REALTIME", where, {
     kind: e.kind,
     roomId: e.roomId,
     senderInstanceId: e.senderInstanceId,
     eventId: e.eventId,
-    seq: e.seq,
     sentAt: e.sentAt,
     moduleId: e.moduleId,
     blockId: e.blockId,
@@ -133,31 +128,27 @@ const traceEnv = (where: string, e: Envelope, extra: Record<string, unknown> = {
     ...extra,
   });
 
-/** Filtro unico: stanza, self, duplicati, seq non crescente. */
 const acceptEnvelope = (e: Envelope | null | undefined): e is Envelope => {
   if (!e || typeof e !== "object" || !e.kind || !e.eventId) return false;
+  if (!isSyncEnabled()) {
+    traceEnv("bus.reject", e, { reason: "sync-off" });
+    return false;
+  }
   if (e.roomId !== ROOM_ID) {
     traceEnv("bus.reject", e, { reason: "wrong-room", expectedRoomId: ROOM_ID });
     return false;
   }
-  if (e.senderInstanceId === INSTANCE_ID) return false; // self-originated
+  if (e.senderInstanceId === INSTANCE_ID) return false;
   if (seenEventIds.has(e.eventId)) {
     traceEnv("bus.reject", e, { reason: "duplicate-event" });
     return false;
   }
-  const key = `${e.senderInstanceId}:${e.kind}`;
-  const last = lastSeqBySender.get(key);
-  if (last != null && e.seq <= last) {
-    traceEnv("bus.reject", e, { reason: "stale-seq", lastSeq: last });
-    return false;
-  }
-  lastSeqBySender.set(key, e.seq);
   rememberEvent(e.eventId);
   return true;
 };
 
 /* ------------------------------------------------------------------ *
- * Bus: una sola sottoscrizione locale + una sola remota, per stanza.   *
+ * Una sola sottoscrizione remota per pagina/stanza                     *
  * ------------------------------------------------------------------ */
 
 type Handler = (e: Envelope) => void;
@@ -169,81 +160,84 @@ const dispatch = (raw: unknown) => {
   handlers.get(e.kind)?.forEach((fn) => fn(e));
 };
 
-const localBus: BroadcastChannel | null =
-  typeof window !== "undefined" && "BroadcastChannel" in window
-    ? new BroadcastChannel(LOCAL_CHANNEL)
-    : null;
+let channel: ReturnType<typeof supabase.channel> | null = null;
+let listenerCount = 0;
 
-localBus?.addEventListener("message", (ev: MessageEvent) => dispatch(ev.data));
-
-let remoteChannel: ReturnType<typeof supabase.channel> | null = null;
-
-const getRemoteChannel = () => {
+const openChannel = () => {
   if (typeof window === "undefined") return null;
-  if (!isOnline()) return null;
-  if (remoteChannel) return remoteChannel;
-  remoteChannel = supabase
+  if (!isSyncEnabled() || listenerCount === 0) return null;
+  if (channel) return channel;
+  channel = supabase
     .channel(REMOTE_ROOM, { config: { broadcast: { self: false } } })
     .on("broadcast", { event: "sync" }, ({ payload }) => dispatch(payload));
-  remoteChannel.subscribe();
-  return remoteChannel;
+  channel.subscribe();
+  return channel;
 };
 
-const sendEnvelope = (e: Envelope) => {
-  rememberEvent(e.eventId);
-  localBus?.postMessage(e);
-  const ch = getRemoteChannel();
+const closeChannel = () => {
+  const ch = channel;
+  channel = null;
   if (!ch) return;
   try {
-    void Promise.resolve(ch.send({ type: "broadcast", event: "sync", payload: e })).catch(
-      () => {
-        /* offline: resta la sincronizzazione locale */
-      },
-    );
+    void supabase.removeChannel(ch);
   } catch {
-    /* offline: resta la sincronizzazione locale */
+    /* ignore */
   }
 };
 
 if (typeof window !== "undefined") {
-  onConnectivityChange((online) => {
-    if (online) {
-      getRemoteChannel();
-      return;
-    }
-    const ch = remoteChannel;
-    remoteChannel = null;
-    if (ch) {
-      try {
-        void supabase.removeChannel(ch);
-      } catch {
-        /* ignore */
-      }
-    }
-  });
+  onSyncEnabledChange((on) => (on ? openChannel() : closeChannel()));
 }
 
-/** Una sola registrazione stabile per componente, con cleanup garantito. */
+const sendEnvelope = (e: Envelope) => {
+  if (!isSyncEnabled()) {
+    traceEnv("bus.skip", e, { reason: "sync-off" });
+    return;
+  }
+  rememberEvent(e.eventId);
+  const ch = openChannel();
+  if (!ch) return;
+  try {
+    void Promise.resolve(
+      ch.send({ type: "broadcast", event: "sync", payload: e }),
+    ).catch(() => {
+      /* rete assente: il cambio locale resta comunque applicato */
+    });
+  } catch {
+    /* rete assente: il cambio locale resta comunque applicato */
+  }
+};
+
 const useBusListener = (kind: EventKind, fn: Handler) => {
   const ref = useRef(fn);
   ref.current = fn;
   useEffect(() => {
     const handler: Handler = (e) => ref.current(e);
-    getRemoteChannel();
     let set = handlers.get(kind);
     if (!set) {
       set = new Set();
       handlers.set(kind, set);
     }
     set.add(handler);
+    listenerCount += 1;
+    openChannel();
     return () => {
       set?.delete(handler);
+      listenerCount = Math.max(0, listenerCount - 1);
+      if (listenerCount === 0) closeChannel();
     };
   }, [kind]);
 };
 
 /* ------------------------------------------------------------------ *
- * URL                                                                  *
+ * Soppressione one-shot della posizione comandata                      *
+ * ------------------------------------------------------------------ */
+
+let suppressedPosition: string | null = null;
+const posKey = (blocco: string, step: AulaStep) => `${blocco}:${step}`;
+
+/* ------------------------------------------------------------------ *
+ * URL (solo locale: replaceState, nessun invio)                        *
  * ------------------------------------------------------------------ */
 
 const readFromUrl = (modulo: string, fallbackBlocco: string): AulaState => {
@@ -281,7 +275,6 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
   const initial = readFromUrl(modulo, defaultBlocco);
   const [previewState, setPreviewState] = useState<AulaState>(initial);
   const [liveState, setLiveState] = useState<AulaState | null>(null);
-  const lastPublishedRef = useRef<AulaState | null>(null);
 
   const setPreview = useCallback(
     (patch: Partial<Omit<AulaState, "ts" | "modulo">>) => {
@@ -290,6 +283,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
     [modulo],
   );
 
+  /** Gesto dell'utente in Regia: applica subito in locale, invia un solo evento. */
   const publish = useCallback(
     (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) => {
       setPreviewState((prev) => {
@@ -301,11 +295,6 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           ts: Date.now(),
         };
         writeToUrl(next);
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        } catch {
-          /* ignore */
-        }
         const env = makeEnvelope("navigation_command", modulo, {
           blockId: next.blocco,
           step: next.step,
@@ -316,7 +305,6 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           roomId: env.roomId,
           senderInstanceId: env.senderInstanceId,
           eventId: env.eventId,
-          seq: env.seq,
           moduleId: next.modulo,
           previousBlockId: prev.blocco,
           requestedBlockId: next.blocco,
@@ -324,7 +312,6 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           sentAt: env.sentAt,
         });
         sendEnvelope(env);
-        lastPublishedRef.current = next;
         setLiveState(next);
         return next;
       });
@@ -332,65 +319,36 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
     [modulo],
   );
 
-  /**
-   * Allinea lo stato "in onda" alla posizione osservata in Aula.
-   * Non pubblica nulla: nessun comando torna verso l'Aula (nessun eco).
-   */
+  /** Allinea "in onda" alla posizione dichiarata dall'Aula. Non invia nulla. */
   const syncLiveFromAula = useCallback((pos: { blocco: string; step: AulaStep }) => {
     setLiveState((prev) => {
       if (!prev) return prev;
       if (prev.blocco === pos.blocco && prev.step === pos.step) return prev;
       const next: AulaState = { ...prev, blocco: pos.blocco, step: pos.step };
       writeToUrl(next);
-      lastPublishedRef.current = next;
-      syncTrace("HEARTBEAT", "useAulaPublisher.syncLiveFromAula", {
-        kind: "observed_position",
-        roomId: ROOM_ID,
-        moduleId: next.modulo,
-        previousBlockId: prev.blocco,
-        resultBlockId: next.blocco,
-        step: next.step,
-        receivedAt: Date.now(),
-      });
       return next;
     });
   }, []);
 
-  // Un'Aula che si collega dopo chiede lo stato corrente.
-  useBusListener("request_state", () => {
-    const last = lastPublishedRef.current;
-    if (!last) return;
-    sendEnvelope(
-      makeEnvelope("navigation_command", last.modulo, {
-        blockId: last.blocco,
-        step: last.step,
-        payload: last,
-      }),
-    );
+  return { previewState, liveState, setPreview, publish, syncLiveFromAula };
+};
+
+/** Regia: ultima posizione dichiarata dall'Aula (nessuna risposta generata). */
+export const useAulaPosition = (modulo: string) => {
+  const [position, setPosition] = useState<AulaHeartbeat | null>(null);
+
+  useBusListener("aula_position", (e) => {
+    const p = e.payload as AulaHeartbeat | undefined;
+    if (!p) return;
+    if (p.modulo !== modulo) {
+      traceEnv("regia.reject", e, { reason: "other-module" });
+      return;
+    }
+    traceEnv("regia.applyAulaPosition", e, { reason: "accepted" });
+    setPosition({ ...p, ts: Date.now() });
   });
 
-  useEffect(() => {
-    const off = onConnectivityChange((online) => {
-      const last = lastPublishedRef.current;
-      if (!online || !last) return;
-      window.setTimeout(
-        () =>
-          sendEnvelope(
-            makeEnvelope("navigation_command", last.modulo, {
-              blockId: last.blocco,
-              step: last.step,
-              payload: last,
-            }),
-          ),
-        600,
-      );
-    });
-    return () => {
-      off();
-    };
-  }, []);
-
-  return { previewState, liveState, setPreview, publish, syncLiveFromAula };
+  return position;
 };
 
 /* ------------------------------------------------------------------ *
@@ -400,7 +358,6 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
 export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
   const [state, setState] = useState<AulaState>(() => readFromUrl(modulo, defaultBlocco));
   const lastCmdTsRef = useRef(0);
-  const mountedAtRef = useRef(Date.now());
 
   useBusListener("navigation_command", (e) => {
     const incoming = e.payload as AulaState | undefined;
@@ -416,195 +373,75 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
       });
       return;
     }
-    const joinWindow = Date.now() - mountedAtRef.current < 5000;
-    if (cmdTs < mountedAtRef.current && !joinWindow) {
-      traceEnv("useAulaSubscriber.reject", e, {
-        reason: "older-than-mount",
-        mountedAt: mountedAtRef.current,
-      });
-      return;
-    }
     traceEnv("useAulaSubscriber.apply", e, { reason: "accepted" });
     lastCmdTsRef.current = cmdTs;
+    // Soppressione one-shot: la posizione prodotta da questo comando non è
+    // un gesto dell'utente e non deve tornare indietro come aula_position.
+    suppressedPosition = posKey(incoming.blocco, incoming.step);
     writeToUrl(incoming);
     setState({ ...incoming, ts: Date.now() });
   });
-
-  // All'apertura chiediamo lo stato corrente alla Regia della stanza.
-  useEffect(() => {
-    getRemoteChannel();
-    const id = window.setTimeout(
-      () => sendEnvelope(makeEnvelope("request_state", modulo)),
-      800,
-    );
-    return () => window.clearTimeout(id);
-  }, [modulo]);
-
-  // Snapshot locale: SOLO al montaggio (niente listener "storage": era la
-  // seconda strada che faceva applicare due volte lo stesso comando).
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const snap = JSON.parse(raw) as AulaState;
-      if (snap.modulo !== modulo) return;
-      const cmdTs = snap.cmdTs ?? snap.ts;
-      if (cmdTs <= lastCmdTsRef.current) return;
-      lastCmdTsRef.current = cmdTs;
-      syncTrace("INIT", "useAulaSubscriber.snapshot", {
-        kind: "navigation_command",
-        roomId: ROOM_ID,
-        moduleId: snap.modulo,
-        resultBlockId: snap.blocco,
-        step: snap.step,
-        sentAt: cmdTs,
-      });
-      writeToUrl(snap);
-      setState({ ...snap, ts: Date.now() });
-    } catch {
-      /* ignore */
-    }
-  }, [modulo]);
 
   return state;
 };
 
 /**
- * Aula → Regia. `presence` ogni `intervalMs` (solo liveness),
- * `observed_position` quando la posizione osservata cambia davvero.
+ * Aula → Regia. Nessun battito periodico: un solo evento quando la posizione
+ * realmente visibile cambia per un gesto dell'utente.
  */
 export const useAulaHeartbeat = (
   enabled: boolean,
   payload: Omit<AulaHeartbeat, "ts">,
-  intervalMs = 1500,
+  _intervalMs = 1500,
 ) => {
   const ref = useRef(payload);
   ref.current = payload;
+  const firstRunRef = useRef(true);
 
   // L'indirizzo della finestra Aula riflette la scena realmente visibile.
-  // Solo replaceState: non pubblica e non invia nulla.
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
     const { blocco, step } = payload;
     if (!blocco) return;
     writeToUrl({ blocco, step });
-    syncTrace("LOCAL_EFFECT", "useAulaHeartbeat.syncUrl", {
-      roomId: ROOM_ID,
-      moduleId: payload.modulo,
-      resultBlockId: blocco,
-      step,
-    });
-  }, [enabled, payload.modulo, payload.blocco, payload.step, payload]);
+  }, [enabled, payload.blocco, payload.step, payload]);
 
-  // presence: liveness e basta.
+  const signature = `${payload.blocco}:${payload.step}:${payload.paused}:${payload.pauseAtmosphere ?? ""}:${payload.riskProbability ?? ""}:${payload.phoneDismissTs ?? ""}`;
+
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
-    const beat = () => {
-      const env = makeEnvelope("presence", ref.current.modulo);
-      syncTrace("HEARTBEAT", "useAulaHeartbeat.presence", {
-        kind: env.kind,
-        roomId: env.roomId,
-        senderInstanceId: env.senderInstanceId,
-        eventId: env.eventId,
-        seq: env.seq,
-        moduleId: env.moduleId,
-        sentAt: env.sentAt,
-      });
-      sendEnvelope(env);
-    };
-    beat();
-    const id = window.setInterval(beat, intervalMs);
-    return () => window.clearInterval(id);
-  }, [enabled, intervalMs]);
-
-  // observed_position: solo quando cambia qualcosa di osservato.
-  const signature = JSON.stringify(payload);
-  useEffect(() => {
-    if (!enabled || typeof window === "undefined") return;
+    if (firstRunRef.current) {
+      firstRunRef.current = false;
+      return;
+    }
     const p = ref.current;
-    const env = makeEnvelope("observed_position", p.modulo, {
+    const key = posKey(p.blocco, p.step);
+    if (suppressedPosition === key) {
+      suppressedPosition = null;
+      syncTrace("AULA", "useAulaHeartbeat.suppressed", {
+        roomId: ROOM_ID,
+        moduleId: p.modulo,
+        blockId: p.blocco,
+        step: p.step,
+        reason: "remote-applied",
+      });
+      return;
+    }
+    const env = makeEnvelope("aula_position", p.modulo, {
       blockId: p.blocco,
       step: p.step,
       payload: { ...p, ts: Date.now() } as AulaHeartbeat,
     });
-    syncTrace("HEARTBEAT", "useAulaHeartbeat.observedPosition", {
+    syncTrace("AULA", "useAulaHeartbeat.send", {
       kind: env.kind,
       roomId: env.roomId,
       senderInstanceId: env.senderInstanceId,
       eventId: env.eventId,
-      seq: env.seq,
       moduleId: env.moduleId,
       blockId: env.blockId,
       step: env.step,
-      ackTs: p.ackTs ?? null,
       sentAt: env.sentAt,
     });
     sendEnvelope(env);
   }, [enabled, signature]);
-};
-
-/**
- * Regia: presenza + posizione osservata dell'Aula della stanza.
- * La presenza NON tocca mai blocco/step.
- */
-export const useAulaHeartbeatMonitor = (
-  modulo: string,
-  expectedAckTs: number | null = null,
-  offlineAfterMs = 6000,
-) => {
-  const [observed, setObserved] = useState<AulaHeartbeat | null>(null);
-  const [presence, setPresence] = useState<{ moduleId: string; at: number } | null>(null);
-  const [now, setNow] = useState<number>(() => Date.now());
-
-  const ackRef = useRef<number | null>(expectedAckTs);
-  ackRef.current = expectedAckTs;
-
-  useBusListener("presence", (e) => {
-    setPresence({ moduleId: e.moduleId, at: Date.now() });
-  });
-
-  useBusListener("observed_position", (e) => {
-    const b = e.payload as AulaHeartbeat | undefined;
-    if (!b) return;
-    const expected = ackRef.current;
-    // Regola esplicita: durante una transizione comandata accettiamo la nuova
-    // posizione osservata solo quando l'Aula conferma il comando in corso.
-    if (expected != null && b.ackTs !== expected && b.modulo === modulo) {
-      traceEnv("monitor.reject", e, {
-        reason: "not-acking-current-command",
-        beatAckTs: b.ackTs ?? null,
-        expectedAckTs: expected,
-      });
-      return;
-    }
-    traceEnv("monitor.observedPosition", e, { reason: "accepted" });
-    setObserved({ ...b, ts: Date.now() });
-  });
-
-  useEffect(() => {
-    const tick = window.setInterval(() => setNow(Date.now()), 500);
-    return () => window.clearInterval(tick);
-  }, []);
-
-  const presenceAt = presence?.at ?? 0;
-  const sinceMs = presenceAt ? now - presenceAt : Infinity;
-  const connected = presenceAt > 0 && sinceMs < offlineAfterMs;
-  const aulaModule = presence?.moduleId ?? observed?.modulo;
-  const sameModule = aulaModule === modulo;
-  const last = observed && observed.modulo === modulo ? observed : null;
-
-  return useMemo(
-    () => ({
-      /** Ultima posizione osservata del modulo corrente. */
-      heartbeat: last,
-      /** Posizione osservata con Aula presente: unica fonte di posizione. */
-      liveHeartbeat: connected && sameModule ? last : null,
-      /** Modulo su cui si trova davvero l'Aula, se diverso da quello in Regia. */
-      foreignModulo: connected && !sameModule ? (aulaModule ?? null) : null,
-      connected,
-      online: connected && sameModule,
-      sinceMs,
-    }),
-    [last, connected, sameModule, aulaModule, sinceMs],
-  );
 };
