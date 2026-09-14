@@ -47,6 +47,7 @@ import {
   type AulaState,
   type AulaStep,
 } from "@/lib/aulaSync";
+import { isSyncEnabled } from "@/lib/syncEnabled";
 import { SyncToggle } from "@/components/sync/SyncToggle";
 import { openAulaWindow } from "@/lib/aulaWindow";
 import { withRoom } from "@/lib/aulaRoom";
