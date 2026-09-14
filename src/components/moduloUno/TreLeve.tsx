@@ -121,7 +121,7 @@ const TreLeve = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: "-10%" }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="text-center text-xl md:text-2xl font-semibold text-foreground"
+          className="text-center text-2xl md:text-3xl font-semibold text-foreground"
         >
           Anche voi oggi siete dentro la{" "}
           <span className="text-primary">terza leva</span>.
