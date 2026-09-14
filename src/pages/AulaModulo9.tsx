@@ -295,6 +295,18 @@ const AulaModulo9 = () => {
           </Slide>
         );
       })}
+
+      {/* ============================================================
+          BLOCCO FINALE — CHIUSURA
+          ============================================================ */}
+      <Slide bg="black" blockId="chiusura">
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.1]">
+            Grazie per l'attenzione
+          </h1>
+          <ModuloNextNav to="/aula" label="Torna all'indice moduli" backToIndex />
+        </div>
+      </Slide>
     </div>
   );
 };
