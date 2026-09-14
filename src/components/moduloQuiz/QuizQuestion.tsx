@@ -32,13 +32,13 @@ export const QuizQuestion = ({
   };
 
   return (
-    <div className="rounded-md border border-border/50 bg-card/60 px-3 py-1.5">
-      <p className="text-xs md:text-sm font-semibold text-foreground leading-snug">
+    <div className="rounded-md border border-border/50 bg-card/60 px-4 py-3">
+      <p className="text-sm md:text-base font-semibold text-foreground leading-snug">
         <span className="text-primary font-mono mr-2">{number}.</span>
         {data.question}
       </p>
 
-      <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+      <div className="mt-2.5 grid grid-cols-3 gap-2">
         {data.options.map((opt, idx) => {
           const state = states[idx];
           const style =
@@ -58,11 +58,11 @@ export const QuizQuestion = ({
               key={idx}
               type="button"
               onClick={() => handleClick(idx)}
-              className="flex items-center gap-1.5 rounded border border-border/60 bg-background/60 px-2 py-1.5 text-left transition-colors hover:border-primary/70"
+              className="flex items-center gap-2 rounded border border-border/60 bg-background/60 px-3 py-2 text-left transition-colors hover:border-primary/70"
               style={style}
             >
               <span
-                className="shrink-0 w-5 h-5 rounded-full border border-border/70 flex items-center justify-center font-mono text-[11px] font-bold"
+                className="shrink-0 w-6 h-6 rounded-full border border-border/70 flex items-center justify-center font-mono text-xs font-bold"
                 style={
                   state === "correct"
                     ? {
@@ -87,7 +87,7 @@ export const QuizQuestion = ({
                   LETTERS[idx]
                 )}
               </span>
-              <span className="text-[11px] md:text-xs text-foreground/90 leading-tight">
+              <span className="text-xs md:text-sm text-foreground/90 leading-snug">
                 {opt}
               </span>
             </button>
@@ -96,7 +96,7 @@ export const QuizQuestion = ({
       </div>
 
       {/* Spazio riservato alla spiegazione: evita salti di layout al click. */}
-      <div className="min-h-[2.6rem] mt-0.5">
+      <div className="min-h-[3rem] mt-1">
         <AnimatePresence>
           {answered && (
             <motion.p
@@ -104,7 +104,7 @@ export const QuizQuestion = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="text-[11px] md:text-xs text-muted-foreground leading-snug line-clamp-2"
+              className="text-xs md:text-sm text-muted-foreground leading-snug"
             >
               <span className="text-primary font-semibold">
                 Risposta corretta: {LETTERS[data.correctIndex]}.

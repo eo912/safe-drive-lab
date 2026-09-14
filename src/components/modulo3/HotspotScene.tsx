@@ -25,6 +25,8 @@ type Props = {
   children?: React.ReactNode;
   /** Riduce l'ingombro verticale quando illustrazione e contenuti condividono la schermata */
   compact?: boolean;
+  imageFit?: "cover" | "contain";
+  frameClassName?: string;
 };
 
 /**
@@ -32,7 +34,7 @@ type Props = {
  * con punti interattivi cliccabili che aprono un pannello di dettaglio
  * senza cambiare schermata.
  */
-export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = false }: Props) => {
+export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = false, imageFit = "contain", frameClassName = "" }: Props) => {
   const [active, setActive] = useState<Hotspot | null>(null);
   const [failedImages, setFailedImages] = useState<string[]>([]);
 
@@ -48,10 +50,11 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
         }`}
       >
         {/* Illustrazione + hotspot */}
-        <div className="relative w-full">
+        <div className={`relative w-full ${frameClassName}`}>
           <ImagePlaceholder
             label={illustrationLabel}
             className={`${compact ? "h-[28vh] min-h-[180px]" : "h-[44vh]"} w-full`}
+            imageFit={imageFit}
           />
           {hotspots.map((h) => {
             const isActive = active?.id === h.id;

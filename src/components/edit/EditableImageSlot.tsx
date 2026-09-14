@@ -4,6 +4,7 @@ type Props = {
   /** Etichetta descrittiva del segnaposto: genera l'id stabile */
   label: string;
   className?: string;
+  imageFit?: "cover" | "contain";
   /** Contenuto segnaposto originale, mostrato quando non c'è immagine */
   children: React.ReactNode;
 };
@@ -15,7 +16,7 @@ type Props = {
  * Nessun controllo di modifica in aula: i contenuti si gestiscono
  * esclusivamente dallo Studio della Regia.
  */
-export const EditableImageSlot = ({ label, className = "", children }: Props) => {
+export const EditableImageSlot = ({ label, className = "", imageFit = "cover", children }: Props) => {
   const media = usePlaceholderMedia(placeholderId(label));
 
   if (!media) return <>{children}</>;
@@ -26,7 +27,7 @@ export const EditableImageSlot = ({ label, className = "", children }: Props) =>
         <img
           src={media.url}
           alt={label}
-          className="w-full h-full object-cover rounded-lg border border-border/50"
+          className={`w-full h-full ${imageFit === "contain" ? "object-contain" : "object-cover"} rounded-lg border border-border/50`}
         />
       )}
       {media.kind === "video" && (

@@ -71,16 +71,16 @@ const HOTSPOT_PNEUMATICI: Hotspot[] = [
   {
     id: "battistrada",
     label: "Battistrada",
-    x: 50,
-    y: 18,
+    x: 45,
+    y: 20,
     title: "Battistrada",
     text: "Sotto la soglia minima (1,6 mm in Italia, meglio sostituire prima) la capacità di drenare l'acqua crolla.",
   },
   {
     id: "aquaplaning",
     label: "Aquaplaning",
-    x: 50,
-    y: 78,
+    x: 42,
+    y: 84,
     title: "Aquaplaning",
     text: "Quando un velo d'acqua non viene più sgomberato dal battistrada e lo pneumatico «galleggia», perdendo aderenza.",
   },
@@ -348,6 +348,7 @@ const AulaModulo4 = () => {
         <HotspotScene
           illustrationLabel="Pneumatico visto lateralmente e dall'alto, con area di contatto evidenziata (placeholder generico)"
           hotspots={HOTSPOT_PNEUMATICI}
+          frameClassName="max-w-5xl mx-auto aspect-video"
           compact
         />
       </Slide>

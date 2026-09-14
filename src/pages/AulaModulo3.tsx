@@ -79,8 +79,8 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
   {
     id: "poggiatesta",
     label: "Poggiatesta",
-    x: 32,
-    y: 43,
+    x: 25,
+    y: 27,
     title: "Poggiatesta",
     text: "Regolato all'altezza degli occhi/parte superiore della testa, non del collo. È un dispositivo di sicurezza attivo, non un cuscino.",
   },
@@ -95,11 +95,11 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
   {
     id: "specchi",
     label: "Specchi",
-    x: 63,
-    y: 37,
+    x: 68,
+    y: 34,
     title: "Specchi",
     text: "Si regolano prima di partire, mai durante la marcia. Gli specchietti esterni vanno aperti leggermente più «larghi» dell'istinto — riduce gli angoli ciechi laterali. Ma restano zone scoperte: prima di cambiare corsia serve sempre un'occhiata diretta, non solo lo specchio.",
-    image: "https://elements-resized.envatousercontent.com/envato-dam-assets-production/EVA/TRX/37/86/85/b5/40/v1_E10/E105QC1I.jpeg?w=600&cf_fit=scale-down&mark-alpha=18&mark=https%3A%2F%2Felements-assets.envato.com%2Fstatic%2Fwatermark4.png&q=85&format=auto",
+    image: `${ASSET_BASE}/03_GRAFICHE/modulo-3-hotspot-specchi.png`,
     imageAlt: "Regolazione degli specchietti retrovisori",
   },
 ];
@@ -127,7 +127,7 @@ const HOTSPOT_VISIONE: Hotspot[] = [
     id: "specchietto",
     label: "Specchietto",
     x: 50,
-    y: 14,
+    y: 19,
     title: "Scanning",
     text: "Scanning: lo sguardo si sposta regolarmente tra punto lontano, specchi e area vicina, invece di restare fisso in un solo punto.",
   },
@@ -373,6 +373,7 @@ const AulaModulo3 = () => {
         <HotspotScene
           illustrationLabel="Conducente visto di profilo / tre quarti seduto in abitacolo (illustrazione 3D-style — placeholder)"
           hotspots={HOTSPOT_POSIZIONE}
+          frameClassName="max-w-5xl mx-auto aspect-video"
         />
       </Slide>
 
@@ -399,6 +400,7 @@ const AulaModulo3 = () => {
         <HotspotScene
           illustrationLabel="Visuale frontale del conducente attraverso il parabrezza, prospettiva soggettiva, con specchietto retrovisore (placeholder)"
           hotspots={HOTSPOT_VISIONE}
+          frameClassName="max-w-5xl mx-auto aspect-[2.44/1]"
           compact
         >
           {/* Tempo di reazione — stesso stile dello specchietto del Modulo 2 */}
