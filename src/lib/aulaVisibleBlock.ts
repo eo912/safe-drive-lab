@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { syncTrace } from "./syncTrace";
 
 /**
@@ -6,7 +6,11 @@ import { syncTrace } from "./syncTrace";
  * in Aula, indipendentemente da come ci si è arrivati: comando dalla Regia
  * oppure scroll manuale locale (tastiera / rotellina / touch).
  *
- * Serve per alimentare l'heartbeat verso la Regia con la posizione REALE.
+ * Fonte di verità: geometria reale delle sezioni rispetto al viewport dello
+ * scroller, ricalcolata a scroll FERMO. Gli eventi intermedi dello scroll
+ * fluido non decidono nulla: in passato l'ultimo callback di
+ * IntersectionObserver poteva congelare un vincitore sbagliato (la scheda
+ * precedente) e l'heartbeat restava indietro per sempre.
  */
 export const useVisibleBlock = (
   scrollerRef: RefObject<HTMLElement>,
@@ -14,56 +18,61 @@ export const useVisibleBlock = (
   enabled = true,
 ): string => {
   const [visible, setVisible] = useState<string | null>(null);
+  const visibleRef = useRef<string | null>(null);
+  visibleRef.current = visible;
 
   useEffect(() => {
     if (!enabled) return;
     const scroller = scrollerRef.current;
-    if (!scroller || typeof IntersectionObserver === "undefined") return;
+    if (!scroller) return;
 
-    const sections = Array.from(
-      scroller.querySelectorAll<HTMLElement>("section[data-block]"),
-    );
-    if (sections.length === 0) return;
-
-    const ratios = new Map<string, number>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const id = (entry.target as HTMLElement).dataset.block;
-          if (id) ratios.set(id, entry.intersectionRatio);
+    const compute = (reason: string) => {
+      const sections = Array.from(
+        scroller.querySelectorAll<HTMLElement>("section[data-block]"),
+      );
+      if (sections.length === 0) return;
+      const root = scroller.getBoundingClientRect();
+      let bestId: string | null = null;
+      let best = 0;
+      for (const s of sections) {
+        const r = s.getBoundingClientRect();
+        const overlap =
+          Math.min(r.bottom, root.bottom) - Math.max(r.top, root.top);
+        if (overlap > best) {
+          best = overlap;
+          bestId = s.dataset.block ?? null;
         }
-        let bestId: string | null = null;
-        let best = 0;
-        ratios.forEach((ratio, id) => {
-          if (ratio > best) {
-            best = ratio;
-            bestId = id;
-          }
-        });
-        if (bestId)
-          setVisible((prev) => {
-            if (prev !== bestId)
-              syncTrace("LOCAL_EFFECT", "useVisibleBlock.observer", {
-                previousBlockId: prev,
-                resultBlockId: bestId,
-                ratio: best,
-                observed: sections.length,
-              });
-            return bestId;
-          });
-      },
-      {
-        root: scroller,
-        threshold: [0, 0.25, 0.5, 0.75, 1],
-      },
-    );
+      }
+      if (!bestId || bestId === visibleRef.current) return;
+      syncTrace("LOCAL_EFFECT", "useVisibleBlock.compute", {
+        previousBlockId: visibleRef.current,
+        resultBlockId: bestId,
+        overlapPx: Math.round(best),
+        reason,
+        observed: sections.length,
+      });
+      visibleRef.current = bestId;
+      setVisible(bestId);
+    };
 
-    syncTrace("INIT", "useVisibleBlock.observe", {
-      observed: sections.map((s) => s.dataset.block),
-      fallback,
-    });
-    sections.forEach((s) => observer.observe(s));
-    return () => observer.disconnect();
+    let timer = 0;
+    const schedule = (reason: string) => {
+      window.clearTimeout(timer);
+      // Attende la fine dello scroll fluido prima di decidere.
+      timer = window.setTimeout(() => compute(reason), 180);
+    };
+
+    const onScroll = () => schedule("scroll");
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    // Prima misurazione dopo il montaggio/scroll iniziale.
+    schedule("init");
+
+    return () => {
+      window.clearTimeout(timer);
+      scroller.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [scrollerRef, enabled]);
 
   return visible ?? fallback;
