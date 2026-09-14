@@ -224,18 +224,12 @@ const IstruttoreModulo = () => {
       // OK/Invio: sequenza telefono a toggle sul blocco "catena-incidente".
       // Agisce solo quando nessun campo di input è focalizzato e la Regia è in vista LIVE.
       if (e.key === "Enter") {
-        if (viewRef.current !== "live" || activeRef.current?.id !== "catena-incidente") {
-          return;
+        if (togglePhoneRef.current?.()) {
+          e.preventDefault();
         }
-        e.preventDefault();
-        const cur = phonePhaseRef.current;
-        const next: "idle" | "ringing" | "visible" =
-          cur === "idle" ? "ringing" : cur === "ringing" ? "visible" : "idle";
-        phonePhaseRef.current = next;
-        phoneBlockRef.current = activeRef.current.id;
-        publishWithPhone({ phoneTs: Date.now() });
         return;
       }
+
 
       // Delete è libero sul telecomando: avvia la scena improvvisa senza interferire con OK.
       if (e.key === "Delete") {
