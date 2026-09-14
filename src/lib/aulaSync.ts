@@ -397,15 +397,36 @@ export const useAulaHeartbeat = (
  */
 export const useAulaHeartbeatMonitor = (
   modulo: string,
+  expectedAckTs: number | null = null,
   offlineAfterMs = 6000,
 ) => {
   const [last, setLast] = useState<AulaHeartbeat | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
 
+  // Un battito è valido solo se dichiara di eseguire l'ULTIMO comando
+  // pubblicato da questa Regia. Scarta sia i battiti in ritardo (l'Aula non
+  // si è ancora allineata) sia quelli di un'altra sessione sullo stesso
+  // canale: entrambi facevano tornare indietro la Regia.
+  const ackRef = useRef<number | null>(expectedAckTs);
+  ackRef.current = expectedAckTs;
+  const accepts = useCallback((b: AulaHeartbeat) => {
+    const expected = ackRef.current;
+    if (expected == null) return true;
+    if (b.ackTs === expected) return true;
+    syncTrace("HEARTBEAT", "monitor.rejectStaleBeat", {
+      moduleId: b.modulo,
+      resultBlockId: b.blocco,
+      beatAckTs: b.ackTs ?? null,
+      expectedAckTs: expected,
+    });
+    return false;
+  }, []);
+
   // Battito da un altro dispositivo: l'orologio è diverso, quindi lo
   // normalizziamo sull'ora locale per il calcolo online/offline.
   useRemoteListener(remoteHandlers.heartbeat, (b: AulaHeartbeat) => {
     if (!b) return;
+    if (!accepts(b)) return;
     syncTrace("HEARTBEAT", "monitor.remoteBeat", {
       moduleId: b.modulo,
       resultBlockId: b.blocco,
@@ -419,6 +440,7 @@ export const useAulaHeartbeatMonitor = (
 
   useEffect(() => {
     const apply = (b: AulaHeartbeat) => {
+      if (!accepts(b)) return;
       setLast((prev) => (prev && prev.ts > b.ts ? prev : b));
     };
     const onMsg = (e: MessageEvent<AulaHeartbeat>) => apply(e.data);
@@ -447,7 +469,7 @@ export const useAulaHeartbeatMonitor = (
       window.removeEventListener("storage", onStorage);
       window.clearInterval(tick);
     };
-  }, []);
+  }, [accepts]);
 
   const sinceMs = last ? now - last.ts : Infinity;
   const connected = last !== null && sinceMs < offlineAfterMs;

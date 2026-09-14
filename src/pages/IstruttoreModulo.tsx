@@ -296,7 +296,7 @@ const IstruttoreModulo = () => {
   const liveStep = liveState?.step ?? null;
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
   const { liveHeartbeat: aulaHeartbeat, foreignModulo } =
-    useAulaHeartbeatMonitor(slug);
+    useAulaHeartbeatMonitor(slug, liveState?.cmdTs ?? null);
 
   // L'Aula comunica la posizione realmente visibile: quando cambia (anche per
   // scroll manuale lato Aula) la Regia si allinea, così blocco selezionato,
@@ -304,22 +304,6 @@ const IstruttoreModulo = () => {
   const lastAulaPosRef = useRef<string | null>(null);
   useEffect(() => {
     if (!aulaHeartbeat) return;
-    // Un battito che descrive ancora la scena PRECEDENTE al comando appena
-    // inviato è obsoleto: l'Aula non ha finito di allinearsi. Applicarlo
-    // riporterebbe indietro la Regia (rollback 04 -> 03).
-    if (
-      liveState &&
-      aulaHeartbeat.blocco !== liveState.blocco &&
-      Date.now() - liveState.ts < 2500
-    ) {
-      syncTrace("LOCAL_EFFECT", "IstruttoreModulo.rejectStaleBeat", {
-        moduleId: slug,
-        resultBlockId: aulaHeartbeat.blocco,
-        expectedBlockId: liveState.blocco,
-        ageMs: Date.now() - liveState.ts,
-      });
-      return;
-    }
     const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;
     if (lastAulaPosRef.current === key) return;
     lastAulaPosRef.current = key;
