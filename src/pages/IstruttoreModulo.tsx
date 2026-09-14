@@ -1109,10 +1109,7 @@ const IstruttoreModulo = () => {
                         )}
                       </button>
                     ) : (
-                      <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-500/10 text-emerald-500 text-[11px] font-mono uppercase tracking-wider shrink-0">
-                        <Radio className="w-3 h-3" />
-                        Sync automatica
-                      </span>
+                      <SyncToggle />
                     )}
                   </div>
 
