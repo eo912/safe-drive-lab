@@ -20,6 +20,7 @@ import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { SyncToggle } from "@/components/sync/SyncToggle";
 import { BrandLogoSlot } from "@/components/brand/BrandLogoSlot";
+import { EditableImageSlot } from "@/components/edit/EditableImageSlot";
 
 const MODULO = "modulo-1-perche-un-corso";
 
@@ -484,6 +485,56 @@ const AulaModulo1 = () => {
               className="min-w-40 text-xs"
               imgClassName="h-24 md:h-28 w-auto max-w-[22rem] object-contain"
             />
+          </motion.div>
+        </div>
+      </Slide>
+
+      {/* ============================================================
+          BLOCCO 1b — PROGRAMMA DELLA GIORNATA
+          ============================================================ */}
+      <Slide bg="black" blockId="programma-giornata">
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-6 flex flex-col items-center justify-center gap-8">
+          <motion.p
+            {...fade}
+            className="font-mono text-xs tracking-[0.3em] uppercase text-primary"
+          >
+            Programma della giornata
+          </motion.p>
+
+          <motion.div
+            {...fade}
+            className="w-full max-w-2xl space-y-4"
+          >
+            {[
+              { orario: "08:30 – 11:00", luogo: "Aula" },
+              { orario: "11:00 – 12:00", luogo: "Piazzale" },
+              { orario: "13:30 – 17:30", luogo: "Piazzale" },
+            ].map((fascia) => (
+              <div
+                key={fascia.orario}
+                className="flex items-center justify-between rounded-lg border border-border/60 bg-card/40 px-6 py-4"
+              >
+                <span className="font-mono text-sm md:text-base tracking-wider text-foreground">
+                  {fascia.orario}
+                </span>
+                <span className="text-lg md:text-xl font-semibold text-foreground">
+                  {fascia.luogo}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div {...fade} className="w-full max-w-2xl">
+            <EditableImageSlot
+              label="Cartina piazzale — Modulo 1 programma giornata"
+              className="w-full h-[30vh]"
+            >
+              <div className="w-full h-full rounded-lg border-2 border-dashed border-border/60 flex items-center justify-center">
+                <p className="font-mono text-sm tracking-wider uppercase text-muted-foreground">
+                  Cartina del piazzale
+                </p>
+              </div>
+            </EditableImageSlot>
           </motion.div>
         </div>
       </Slide>
