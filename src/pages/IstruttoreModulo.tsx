@@ -440,10 +440,9 @@ const IstruttoreModulo = () => {
     hazardOutcomeRef.current = undefined;
     setHazardPhase("idle");
     setHazardOutcome(undefined);
-    publish({
+    applyPosition({
       blocco: previewState.blocco,
       step: previewState.step,
-      paused: false,
     });
   };
 
