@@ -234,6 +234,9 @@ const useBusListener = (kind: EventKind, fn: Handler) => {
  * ------------------------------------------------------------------ */
 
 let suppressedPosition: string | null = null;
+/** Finestra di assestamento dello scroll pilotato dal comando remoto. */
+let suppressUntil = 0;
+const SETTLE_MS = 1800;
 const posKey = (blocco: string, step: AulaStep) => `${blocco}:${step}`;
 
 /* ------------------------------------------------------------------ *
@@ -378,6 +381,7 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
     // Soppressione one-shot: la posizione prodotta da questo comando non è
     // un gesto dell'utente e non deve tornare indietro come aula_position.
     suppressedPosition = posKey(incoming.blocco, incoming.step);
+    suppressUntil = Date.now() + SETTLE_MS;
     writeToUrl(incoming);
     setState({ ...incoming, ts: Date.now() });
   });
@@ -416,8 +420,8 @@ export const useAulaHeartbeat = (
     }
     const p = ref.current;
     const key = posKey(p.blocco, p.step);
-    if (suppressedPosition === key) {
-      suppressedPosition = null;
+    if (suppressedPosition === key || Date.now() < suppressUntil) {
+      if (suppressedPosition === key) suppressedPosition = null;
       syncTrace("AULA", "useAulaHeartbeat.suppressed", {
         roomId: ROOM_ID,
         moduleId: p.modulo,
