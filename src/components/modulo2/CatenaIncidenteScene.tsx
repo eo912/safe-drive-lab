@@ -257,6 +257,23 @@ export const CatenaIncidenteScene = ({
     avanza();
   };
 
+  /**
+   * Interazione sul telefono: verde = risponde (rischio +0,08),
+   * rosso = non risponde (probabilità invariata). L'overlay si chiude subito.
+   */
+  const rispondiAlTelefono = (answered: boolean) => {
+    setDismissTs(Date.now());
+    if (answered) rischioseRef.current += 1;
+    registra(
+      `${nodo.id}:telefono:${answered ? "risponde" : "rifiuta"}`,
+      answered ? 0.08 : 0,
+    );
+    if (nodo.id === "notifica") {
+      if (answered) setSpecchietto(true);
+      else avanza();
+    }
+  };
+
   const chiudiSpecchietto = () => {
     setSpecchietto(false);
     setSecondaChiamata(false);
