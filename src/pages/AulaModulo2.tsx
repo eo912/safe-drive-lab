@@ -425,6 +425,7 @@ const AulaModulo2 = () => {
           hazardPhase={hazardPhase}
           hazardOutcome={hazardOutcome}
           onRiskChange={setRiskProbability}
+          onPhoneDismiss={setPhoneDismissTs}
         />
       </Slide>
 
