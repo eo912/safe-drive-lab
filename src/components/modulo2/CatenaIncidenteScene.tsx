@@ -509,10 +509,8 @@ export const CatenaIncidenteScene = ({
           <PhoneCallOverlay
             key="phone"
             callerName={chiamante}
-            onClose={() => {
-              // Il docente chiude anche cliccando sullo sfondo;
-              // la chiusura reale però avviene dalla regia con OK.
-            }}
+            onAnswer={() => rispondiAlTelefono(true)}
+            onDecline={() => rispondiAlTelefono(false)}
           />
         )}
       </AnimatePresence>
