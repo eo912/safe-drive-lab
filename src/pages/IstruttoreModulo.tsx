@@ -42,11 +42,12 @@ import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { syncTrace } from "@/lib/syncTrace";
 import {
-  useAulaHeartbeatMonitor,
+  useAulaPosition,
   useAulaPublisher,
   type AulaState,
   type AulaStep,
 } from "@/lib/aulaSync";
+import { SyncToggle } from "@/components/sync/SyncToggle";
 import { openAulaWindow } from "@/lib/aulaWindow";
 import { withRoom } from "@/lib/aulaRoom";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
