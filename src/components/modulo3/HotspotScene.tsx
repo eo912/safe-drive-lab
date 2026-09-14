@@ -53,7 +53,7 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
         <div className={`relative w-full ${frameClassName}`}>
           <ImagePlaceholder
             label={illustrationLabel}
-            className={`${compact ? "h-[28vh] min-h-[180px]" : "h-[44vh]"} w-full`}
+            className={`${frameClassName ? "h-full" : compact ? "h-[28vh] min-h-[180px]" : "h-[44vh]"} w-full`}
             imageFit={imageFit}
           />
           {hotspots.map((h) => {

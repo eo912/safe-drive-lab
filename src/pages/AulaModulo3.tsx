@@ -65,15 +65,15 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
   {
     id: "sedile",
     label: "Sedile",
-    x: 29,
-    y: 62,
+    x: 34,
+    y: 78,
     title: "Sedile",
     text: "Distanza dai pedali tale da poter premere il freno a fondo con il ginocchio leggermente flesso. Schienale che sostiene la schiena, non troppo reclinato.",
   },
   {
     id: "volante",
     label: "Volante",
-    x: 59,
+    x: 62,
     y: 58,
     title: "Volante",
     text: "Braccia leggermente flesse quando le mani sono sul volante, non tese. Mani in posizione 9 e 3 (o 8 e 4) — garantisce il massimo controllo e la corretta apertura dell'airbag.",
@@ -81,16 +81,16 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
   {
     id: "poggiatesta",
     label: "Poggiatesta",
-    x: 25,
-    y: 27,
+    x: 34,
+    y: 25,
     title: "Poggiatesta",
     text: "Regolato all'altezza degli occhi/parte superiore della testa, non del collo. È un dispositivo di sicurezza attivo, non un cuscino.",
   },
   {
     id: "cintura",
     label: "Cintura",
-    x: 45,
-    y: 65,
+    x: 44,
+    y: 68,
     title: "Cintura",
     text: "Aderente, non attorcigliata. La fascia diagonale passa sulla clavicola, mai sul collo.",
   },
@@ -375,7 +375,7 @@ const AulaModulo3 = () => {
         <HotspotScene
           illustrationLabel="Conducente visto di profilo / tre quarti seduto in abitacolo (illustrazione 3D-style — placeholder)"
           hotspots={HOTSPOT_POSIZIONE}
-          frameClassName="max-w-5xl mx-auto aspect-video"
+          frameClassName="h-[44vh] max-w-[78.22vh] mx-auto"
         />
       </Slide>
 
@@ -402,7 +402,7 @@ const AulaModulo3 = () => {
         <HotspotScene
           illustrationLabel="Visuale frontale del conducente attraverso il parabrezza, prospettiva soggettiva, con specchietto retrovisore (placeholder)"
           hotspots={HOTSPOT_VISIONE}
-          frameClassName="max-w-5xl mx-auto aspect-[2.44/1]"
+          frameClassName="h-[28vh] min-h-[180px] max-w-[68.32vh] mx-auto"
           compact
         >
           {/* Tempo di reazione — stesso stile dello specchietto del Modulo 2 */}

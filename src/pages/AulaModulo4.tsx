@@ -63,8 +63,8 @@ const HOTSPOT_PNEUMATICI: Hotspot[] = [
   {
     id: "pressione",
     label: "Pressione",
-    x: 22,
-    y: 40,
+    x: 61,
+    y: 43,
     title: "Pressione",
     text: "Troppo bassa aumenta la flessione del fianco e riduce la precisione; troppo alta riduce l'area di contatto. Va controllata a freddo.",
   },
@@ -72,31 +72,31 @@ const HOTSPOT_PNEUMATICI: Hotspot[] = [
     id: "battistrada",
     label: "Battistrada",
     x: 45,
-    y: 20,
+    y: 27,
     title: "Battistrada",
     text: "Sotto la soglia minima (1,6 mm in Italia, meglio sostituire prima) la capacità di drenare l'acqua crolla.",
   },
   {
     id: "aquaplaning",
     label: "Aquaplaning",
-    x: 42,
-    y: 84,
+    x: 44,
+    y: 85,
     title: "Aquaplaning",
     text: "Quando un velo d'acqua non viene più sgomberato dal battistrada e lo pneumatico «galleggia», perdendo aderenza.",
   },
   {
     id: "estive",
     label: "Gomme estive",
-    x: 76,
-    y: 32,
+    x: 68,
+    y: 48,
     title: "Gomme estive",
     text: "Mescola più rigida, pensata per temperature sopra i 7°C: aderenza ottimale su asfalto asciutto e bagnato in stagione calda.",
   },
   {
     id: "invernali",
     label: "Gomme invernali",
-    x: 76,
-    y: 62,
+    x: 62,
+    y: 66,
     title: "Gomme invernali",
     text: "Mescola più morbida anche a basse temperature, battistrada disegnato per neve/ghiaccio: mantengono aderenza dove le estive induriscono e perdono grip.",
   },
@@ -348,7 +348,7 @@ const AulaModulo4 = () => {
         <HotspotScene
           illustrationLabel="Pneumatico visto lateralmente e dall'alto, con area di contatto evidenziata (placeholder generico)"
           hotspots={HOTSPOT_PNEUMATICI}
-          frameClassName="max-w-5xl mx-auto aspect-video"
+          frameClassName="h-[28vh] min-h-[180px] max-w-[49.78vh] mx-auto"
           compact
         />
       </Slide>
