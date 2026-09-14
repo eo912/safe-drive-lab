@@ -271,13 +271,39 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
   const [state, setState] = useState<AulaState>(() => readFromUrl(modulo, defaultBlocco));
   const lastTsRef = useRef(state.ts);
   const lastRemoteTsRef = useRef(0);
+  // Istante di apertura: nei primi secondi accettiamo anche uno stato
+  // "vecchio", perché è la risposta alla nostra richiesta di allineamento.
+  const mountedAtRef = useRef(Date.now());
 
   // Comandi provenienti da un ALTRO dispositivo (PC regia → TV).
   // Il timestamp arriva da un altro orologio: confrontiamo solo con l'ultimo
   // messaggio remoto ricevuto, mai con quello locale.
   useRemoteListener(remoteHandlers.state, (incoming: AulaState) => {
     if (!incoming || incoming.modulo !== modulo) return;
-    if (incoming.ts < lastRemoteTsRef.current) return;
+    // Ripetizioni dello stesso comando (ogni Regia collegata risponde alle
+    // richieste di allineamento delle altre): riapplicarle faceva saltare
+    // l'Aula indietro sulla scena di un'altra sessione.
+    if (incoming.ts <= lastRemoteTsRef.current) {
+      syncTrace("REALTIME", "useAulaSubscriber.rejectDuplicate", {
+        moduleId: incoming.modulo,
+        requestedBlockId: incoming.blocco,
+        sentAt: incoming.ts,
+        lastAppliedAt: lastRemoteTsRef.current,
+      });
+      return;
+    }
+    // Comando più vecchio dell'apertura di questa schermata: è valido solo
+    // come risposta alla richiesta iniziale di allineamento.
+    const joinWindow = Date.now() - mountedAtRef.current < 5000;
+    if (incoming.ts < mountedAtRef.current && !joinWindow) {
+      syncTrace("REALTIME", "useAulaSubscriber.rejectStaleCommand", {
+        moduleId: incoming.modulo,
+        requestedBlockId: incoming.blocco,
+        sentAt: incoming.ts,
+        mountedAt: mountedAtRef.current,
+      });
+      return;
+    }
     syncTrace("REALTIME", "useAulaSubscriber.remote", {
       moduleId: incoming.modulo,
       requestedBlockId: incoming.blocco,
