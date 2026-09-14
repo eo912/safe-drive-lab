@@ -62,6 +62,38 @@ const Slide = ({
   );
 };
 
+type VideoScenarioProps = {
+  src: string;
+  label: string;
+};
+
+const VideoScenario = ({ src, label }: VideoScenarioProps) => {
+  const hasVideo = src.trim().length > 0;
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary text-center">
+        {label}
+      </p>
+      {hasVideo ? (
+        <video
+          src={src}
+          controls
+          muted
+          loop
+          playsInline
+          className="w-full h-[16vh] md:h-[18vh] rounded-lg border border-border/60 bg-black object-cover"
+        />
+      ) : (
+        <div className="w-full h-[16vh] md:h-[18vh] flex items-center justify-center rounded-lg border border-dashed border-border/70 bg-muted/20 overflow-hidden">
+          <p className="font-mono text-xs md:text-sm uppercase tracking-widest text-muted-foreground px-4 text-center leading-relaxed">
+            [Video] {label}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const AulaModulo5 = () => {
   const navigate = useNavigate();
   const [showExit, setShowExit] = useState(false);
