@@ -292,10 +292,21 @@ const AulaModulo9 = () => {
                 </div>
               </div>
             </div>
-            {groupIndex === 3 && <ModuloNextNav to="/aula" label="Torna all'indice moduli" backToIndex />}
           </Slide>
         );
       })}
+
+      {/* ============================================================
+          BLOCCO FINALE — CHIUSURA
+          ============================================================ */}
+      <Slide bg="black" blockId="chiusura">
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-6 flex flex-col items-center justify-center text-center pb-20">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.1]">
+            Grazie per l'attenzione
+          </h1>
+          <ModuloNextNav to="/aula" label="Torna all'indice moduli" backToIndex />
+        </div>
+      </Slide>
     </div>
   );
 };
