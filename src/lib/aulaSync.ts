@@ -288,7 +288,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
     };
   }, []);
 
-  return { previewState, liveState, setPreview, publish };
+  return { previewState, liveState, setPreview, publish, syncLiveFromAula };
 };
 
 /**
