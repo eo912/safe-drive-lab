@@ -6,6 +6,8 @@ export type PhonePhase = "idle" | "ringing" | "visible";
 type Props = {
   callerName: string;
   onClose?: () => void;
+  onAnswer?: () => void;
+  onDecline?: () => void;
 };
 
 /**
