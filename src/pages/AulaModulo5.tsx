@@ -18,9 +18,7 @@ import { SyncToggle } from "@/components/sync/SyncToggle";
 const MODULO = "modulo-5-dinamica-del-veicolo";
 
 // TODO: incollare qui l'URL pubblico Supabase del video
-const VIDEO_NEUTRO_URL = "";
-const VIDEO_SOTTOSTERZO_URL = "";
-const VIDEO_SOVRASTERZO_URL = "";
+const VIDEO_URL = "";
 
 const fade = {
   initial: { opacity: 0, y: 20, scale: 0.98 },
@@ -65,10 +63,12 @@ const Slide = ({
 type VideoScenarioProps = {
   src: string;
   label: string;
+  className?: string;
 };
 
-const VideoScenario = ({ src, label }: VideoScenarioProps) => {
+const VideoScenario = ({ src, label, className }: VideoScenarioProps) => {
   const hasVideo = src.trim().length > 0;
+  const sizeClass = className || "h-[16vh] md:h-[18vh]";
   return (
     <div className="flex flex-col gap-2">
       <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary text-center">
@@ -81,10 +81,10 @@ const VideoScenario = ({ src, label }: VideoScenarioProps) => {
           muted
           loop
           playsInline
-          className="w-full h-[16vh] md:h-[18vh] rounded-lg border border-border/60 bg-black object-cover"
+          className={`w-full rounded-lg border border-border/60 bg-black object-cover ${sizeClass}`}
         />
       ) : (
-        <div className="w-full h-[16vh] md:h-[18vh] flex items-center justify-center rounded-lg border border-dashed border-border/70 bg-muted/20 overflow-hidden">
+        <div className={`w-full flex items-center justify-center rounded-lg border border-dashed border-border/70 bg-muted/20 overflow-hidden ${sizeClass}`}>
           <p className="font-mono text-xs md:text-sm uppercase tracking-widest text-muted-foreground px-4 text-center leading-relaxed">
             [Video] {label}
           </p>
@@ -456,11 +456,11 @@ const AulaModulo5 = () => {
                   si presentano.
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <VideoScenario src={VIDEO_NEUTRO_URL} label="Neutro" />
-                <VideoScenario src={VIDEO_SOTTOSTERZO_URL} label="Sottosterzo" />
-                <VideoScenario src={VIDEO_SOVRASTERZO_URL} label="Sovrasterzo" />
-              </div>
+              <VideoScenario
+                src={VIDEO_URL}
+                label="Sottosterzo e sovrasterzo"
+                className="h-[24vh]"
+              />
             </div>
           </div>
         </div>
