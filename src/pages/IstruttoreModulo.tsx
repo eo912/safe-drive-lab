@@ -732,9 +732,11 @@ const IstruttoreModulo = () => {
           </div>
 
           <AulaStatusBadge
-            modulo={slug}
             blocks={blocks}
-            expectedAckTs={liveState?.cmdTs ?? null}
+            heartbeat={aulaLastBeat}
+            online={aulaOnline}
+            sinceMs={aulaSinceMs}
+            foreignModulo={foreignModulo}
           />
 
           <OfflineStatus />
