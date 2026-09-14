@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/sheet";
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
+import { syncTrace } from "@/lib/syncTrace";
 import {
   useAulaHeartbeatMonitor,
   useAulaPublisher,
@@ -306,6 +307,14 @@ const IstruttoreModulo = () => {
     const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;
     if (lastAulaPosRef.current === key) return;
     lastAulaPosRef.current = key;
+    syncTrace("LOCAL_EFFECT", "IstruttoreModulo.alignToHeartbeat", {
+      moduleId: slug,
+      previousBlockId: previewState.blocco,
+      resultBlockId: aulaHeartbeat.blocco,
+      step: aulaHeartbeat.step,
+      beatSentAt: aulaHeartbeat.ts,
+      receivedAt: Date.now(),
+    });
     setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
   }, [aulaHeartbeat, setPreview]);
 
@@ -373,6 +382,18 @@ const IstruttoreModulo = () => {
       const cur = findPositionIndex(sequence, fromBlocco, fromStep);
       const safe = cur === -1 ? 0 : cur;
       const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
+      syncTrace("REGIA", "IstruttoreModulo.stepRemote", {
+        moduleId: slug,
+        dir,
+        fromBlockId: fromBlocco,
+        fromStep,
+        fromIndex: cur,
+        requestedBlockId: sequence[next]?.blocco,
+        requestedStep: sequence[next]?.step,
+        heartbeatBlockId: aulaHeartbeat?.blocco ?? null,
+        liveBlockId: liveState?.blocco ?? null,
+        previewBlockId: previewState.blocco,
+      });
       if (next === safe && cur !== -1) return;
       // Cambio slide: chiude eventuale overlay telefono.
       phonePhaseRef.current = "idle";
