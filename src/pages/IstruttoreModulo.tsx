@@ -304,6 +304,22 @@ const IstruttoreModulo = () => {
   const lastAulaPosRef = useRef<string | null>(null);
   useEffect(() => {
     if (!aulaHeartbeat) return;
+    // Un battito che descrive ancora la scena PRECEDENTE al comando appena
+    // inviato è obsoleto: l'Aula non ha finito di allinearsi. Applicarlo
+    // riporterebbe indietro la Regia (rollback 04 -> 03).
+    if (
+      liveState &&
+      aulaHeartbeat.blocco !== liveState.blocco &&
+      Date.now() - liveState.ts < 2500
+    ) {
+      syncTrace("LOCAL_EFFECT", "IstruttoreModulo.rejectStaleBeat", {
+        moduleId: slug,
+        resultBlockId: aulaHeartbeat.blocco,
+        expectedBlockId: liveState.blocco,
+        ageMs: Date.now() - liveState.ts,
+      });
+      return;
+    }
     const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;
     if (lastAulaPosRef.current === key) return;
     lastAulaPosRef.current = key;
@@ -316,7 +332,7 @@ const IstruttoreModulo = () => {
       receivedAt: Date.now(),
     });
     setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
-  }, [aulaHeartbeat, setPreview]);
+  }, [aulaHeartbeat, setPreview, liveState, slug, previewState.blocco]);
 
   // L'Aula è passata da sola a un altro modulo (es. avanzando oltre l'ultimo
   // blocco): la Regia lo segue, altrimenti i comandi finirebbero nel vuoto.
@@ -376,9 +392,15 @@ const IstruttoreModulo = () => {
     stepRemoteRef.current = (dir: 1 | -1) => {
       if (sequence.length === 0) return;
       // Priorità alla posizione realmente visibile in Aula (heartbeat).
-      const fromBlocco =
-        aulaHeartbeat?.blocco ?? liveState?.blocco ?? previewState.blocco;
-      const fromStep = aulaHeartbeat?.step ?? liveState?.step ?? previewState.step;
+      // Se abbiamo appena pubblicato, il comando appena inviato è più recente
+      // di qualsiasi battito: è lui la posizione di partenza.
+      const freshPublish = liveState != null && Date.now() - liveState.ts < 2500;
+      const fromBlocco = freshPublish
+        ? liveState.blocco
+        : (aulaHeartbeat?.blocco ?? liveState?.blocco ?? previewState.blocco);
+      const fromStep = freshPublish
+        ? liveState.step
+        : (aulaHeartbeat?.step ?? liveState?.step ?? previewState.step);
       const cur = findPositionIndex(sequence, fromBlocco, fromStep);
       const safe = cur === -1 ? 0 : cur;
       const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
@@ -408,8 +430,7 @@ const IstruttoreModulo = () => {
     sequence,
     previewState.blocco,
     previewState.step,
-    liveState?.blocco,
-    liveState?.step,
+    liveState,
     aulaHeartbeat?.blocco,
     aulaHeartbeat?.step,
     publish,
