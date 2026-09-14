@@ -498,17 +498,11 @@ const AulaModulo8 = () => {
                 <p className="text-sm text-foreground/80 leading-relaxed">
                   Regola pratica:{" "}
                   <span className="text-foreground font-medium">
-                    non impegnare mai uno spazio che non riesci a verificare e
-                    gestire
+                    non impegnare mai uno spazio che non riesci a verificare
                   </span>
-                  . In galleria: carreggiata e margini laterali limitati, altri
-                  utenti e mezzi pesanti con capacità di reazione diverse,
-                  illuminazione artificiale costante ma percezione comunque
-                  variabile, possibili veicoli fermi o ostacoli lungo il percorso.
-                  In uno spazio confinato, gli altri hanno oggettivamente meno
-                  possibilità di scostarsi — spesso la scelta corretta è adattare
-                  la propria velocità alla capacità di reazione altrui, non il
-                  contrario.
+                  . In galleria lo spazio laterale è ridotto e gli altri utenti
+                  hanno meno possibilità di scostarsi. Adatta quindi la velocità
+                  alla loro capacità di reazione, non il contrario.
                 </p>
                 <div className="rounded-lg border border-primary/60 bg-background/90 px-5 py-4">
                   <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">

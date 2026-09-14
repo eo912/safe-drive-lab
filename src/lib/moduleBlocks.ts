@@ -326,12 +326,22 @@ export const moduloSetteBlocks: ModuleBlock[] = [
   {
     id: "riepilogo-professionale",
     index: 4,
-    expectedSeconds: 180,
+    expectedSeconds: 90,
     title: "Non guidi solo per te",
     kind: "chiusura",
     hasExplanation: true,
     notes:
-      "Il veicolo aziendale è anche immagine dell'organizzazione. Chiudere leggendo il riepilogo voce per voce: pianificazione, regolarità, gestione della stanchezza, comunicazione delle intenzioni, conoscenza del veicolo allestito, prevedibilità sotto pressione.",
+      "Il veicolo aziendale è anche immagine dell'organizzazione. Uno stile sicuro e composto tutela la persona e rappresenta l'organizzazione. Passare poi alla schermata autonoma di riepilogo.",
+  },
+  {
+    id: "principi-professionali",
+    index: 5,
+    expectedSeconds: 180,
+    title: "Sei principi per una guida professionale",
+    kind: "chiusura",
+    hasExplanation: true,
+    notes:
+      "Leggere il riepilogo voce per voce: pianificazione, regolarità, gestione della stanchezza, comunicazione delle intenzioni, conoscenza del veicolo allestito, prevedibilità sotto pressione.",
   },
 ];
 
