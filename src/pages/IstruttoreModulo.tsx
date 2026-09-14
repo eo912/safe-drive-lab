@@ -97,8 +97,13 @@ const IstruttoreModulo = () => {
   const module = useMemo(() => modules.find((m) => m.slug === slug), [slug]);
   const blocks = blocksBySlug[slug] ?? [];
 
-  const { previewState, liveState, setPreview, publish: publishBase } =
-    useAulaPublisher(slug, blocks[0]?.id ?? "");
+  const {
+    previewState,
+    liveState,
+    setPreview,
+    publish: publishBase,
+    syncLiveFromAula,
+  } = useAulaPublisher(slug, blocks[0]?.id ?? "");
 
   // Stato overlay telefono: solo lato Aula Live, controllato dalla Regia con OK.
   const phonePhaseRef = useRef<"idle" | "ringing" | "visible">("idle");
@@ -316,7 +321,18 @@ const IstruttoreModulo = () => {
       receivedAt: Date.now(),
     });
     setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
-  }, [aulaHeartbeat, setPreview, liveState, slug, previewState.blocco]);
+    // Unica fonte di verità per "in onda": la scena che l'Aula dichiara di
+    // mostrare. Aggiorna riquadro IN AULA e URL della Regia senza rimandare
+    // alcun comando all'Aula (nessun eco).
+    syncLiveFromAula({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
+  }, [
+    aulaHeartbeat,
+    setPreview,
+    syncLiveFromAula,
+    liveState,
+    slug,
+    previewState.blocco,
+  ]);
 
   // L'Aula è passata da sola a un altro modulo (es. avanzando oltre l'ultimo
   // blocco): la Regia lo segue, altrimenti i comandi finirebbero nel vuoto.
