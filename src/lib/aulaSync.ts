@@ -61,6 +61,8 @@ export type AulaHeartbeat = {
   riskProbability?: number;
   /** Comando (cmdTs) che l'Aula sta eseguendo nel momento del battito. */
   ackTs?: number;
+  /** Momento in cui l'Aula ha chiuso da sola l'overlay telefono (verde/rosso). */
+  phoneDismissTs?: number;
   ts: number;
 };
 
