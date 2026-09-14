@@ -302,7 +302,7 @@ const AulaModulo2 = () => {
           BLOCCO 1 — SICUREZZA E RISCHIO (una sola schermata compatta)
           ============================================================ */}
       <Slide bg="black" blockId="sicurezza-rischio" className="items-stretch">
-        <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 py-8">
+        <div className="relative z-10 w-full h-full px-6 md:px-12 py-8">
           <div className="max-w-6xl mx-auto flex flex-col gap-8 justify-center min-h-full">
             {/* Titolo */}
             <div className="text-center">
@@ -376,9 +376,8 @@ const AulaModulo2 = () => {
                     className="h-[18vh]"
                   />
                   <p className="text-sm md:text-base text-foreground/80 leading-snug">
-                    Una strada dritta, larga, poco traffico: ti sembra facile e la
-                    velocità sale da sola — anche se dietro quella curva dolce c'è un
-                    incrocio che non vedi.
+                    Una strada larga sembra facile: la velocità sale, anche se oltre
+                    una curva può esserci un incrocio invisibile.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -387,8 +386,7 @@ const AulaModulo2 = () => {
                     className="h-[18vh]"
                   />
                   <p className="text-sm md:text-base text-foreground/80 leading-snug">
-                    Una strada stretta e tortuosa ti mette in allerta anche quando, in
-                    realtà, il rischio reale è identico.
+                    Una strada stretta ti mette in allerta, anche a parità di rischio.
                   </p>
                 </div>
               </div>
@@ -408,11 +406,8 @@ const AulaModulo2 = () => {
                 dell'auto. Tu lo eviti.
               </p>
               <p className="mt-3 text-sm md:text-base text-foreground/70 leading-relaxed text-center max-w-4xl mx-auto">
-                Anche con un'auto perfetta — frenata al top, gomme nuove, traiettoria
-                pulita — resti su una strada vera, condivisa con persone che non guidano
-                come te, che sbagliano, che sono distratte, che non ti hanno visto. Il
-                rischio non è mai solo tuo e della tua auto: è di tutti quelli con cui
-                condividi l'asfalto.
+                Anche con un'auto efficiente, la strada resta condivisa con persone
+                che possono sbagliare o non averti visto. Il rischio riguarda tutti.
               </p>
             </div>
           </div>
@@ -437,7 +432,7 @@ const AulaModulo2 = () => {
           BLOCCO 3 — IL FATTORE UMANO (una sola schermata compatta)
           ============================================================ */}
       <Slide bg="darker" blockId="fattore-umano" className="items-stretch">
-        <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 py-8">
+        <div className="relative z-10 w-full h-full px-6 md:px-12 py-8">
           <div className="max-w-5xl mx-auto flex flex-col gap-8 justify-center min-h-full">
             <div className="text-center">
               <h2 className="text-3xl md:text-5xl font-bold leading-tight">
@@ -453,20 +448,17 @@ const AulaModulo2 = () => {
               />
               <div className="space-y-4">
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Cintura, airbag, poggiatesta ti proteggono quando l'impatto è già
-                  successo. Sono lì da sempre e li conosci. Ma nella tua auto ci sono
-                  anche sistemi che intervengono prima, mentre stai ancora guidando:
-                  frenano una ruota per farti restare in traiettoria, limitano lo
-                  slittamento, ti aiutano a non perdere il controllo.
+                  Cintura, airbag e poggiatesta proteggono nell'impatto. Altri sistemi
+                  intervengono prima: correggono la traiettoria e limitano lo
+                  slittamento.
                 </p>
                 <p className="text-base md:text-lg font-medium leading-snug">
-                  Sistemi potenti. Ma nessuno di questi decide quando frenare, quanta
-                  velocità tenere, quando è il momento di lasciar perdere e fermarsi.
+                  Nessun sistema decide quando frenare, quanta velocità tenere o
+                  quando fermarsi.
                 </p>
                 <p className="text-base md:text-lg text-primary font-medium leading-snug">
-                  Quella decisione resta sempre tua. Più ti affidi alla tecnologia per
-                  compensare le tue disattenzioni, meno margine reale ti resta quando
-                  serve davvero.
+                  La decisione resta tua. Usare la tecnologia per compensare una
+                  disattenzione riduce il margine quando serve davvero.
                 </p>
               </div>
             </div>

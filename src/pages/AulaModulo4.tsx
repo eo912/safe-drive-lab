@@ -373,28 +373,22 @@ const AulaModulo4 = () => {
               />
               <motion.div {...fade} className="flex flex-col gap-3">
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Un'auto di medie dimensioni pesa più di una tonnellata. A 90
-                  km/h, fermarla in sicurezza significa fare un lavoro enorme in
-                  pochi secondi — e a farlo sono{" "}
+                  A 90 km/h, fermare oltre una tonnellata richiede un lavoro enorme
+                  in pochi secondi. A farlo sono{" "}
                   <span className="text-foreground font-medium">
                     quattro pastiglie, non più grandi di un mazzo di carte
                   </span>{" "}
-                  ciascuna. Tutta quella forza diventa calore, in un attimo.
+                  ciascuna: tutta la forza diventa calore.
                 </p>
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  È per questo che i freni si «stancano»: in una discesa lunga,
-                  frenare in continuazione li fa surriscaldare — le pastiglie
-                  perdono grip proprio come una gomma che pattina troppo a lungo
-                  sull'asfalto. Il pedale sembra ancora premuto a fondo, ma la
-                  frenata risponde sempre meno. Si chiama{" "}
+                  In discesa, frenare continuamente surriscalda le pastiglie e
+                  riduce l'efficacia, anche col pedale premuto. Si chiama{" "}
                   <span className="text-primary font-semibold">fading</span>, e si
-                  previene lasciando lavorare il motore al posto dei freni nei
-                  tratti lunghi in discesa, invece di tenerli sempre schiacciati.
+                  previene usando il freno motore nei tratti lunghi.
                 </p>
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Pastiglie e dischi vanno tenuti efficienti, non solo «presenti»:
-                  pastiglie consumate allungano lo spazio di frenata anche se il
-                  pedale sembra rispondere normalmente.
+                  Pastiglie e dischi consumati allungano lo spazio di frenata anche
+                  quando il pedale sembra normale.
                 </p>
               </motion.div>
             </div>
@@ -462,7 +456,7 @@ const AulaModulo4 = () => {
                 },
                 {
                   sigla: "ESP",
-                  text: "Frena selettivamente una o più ruote quando la traiettoria non corrisponde a quella voluta, contrastando sottosterzo o sovrasterzo. Non crea aderenza dove non c'è.",
+                   text: "Frena una o più ruote per correggere la traiettoria. Non crea aderenza dove non c'è.",
                 },
                 {
                   sigla: "ASR",
@@ -494,10 +488,8 @@ const AulaModulo4 = () => {
                   L'errore comune
                 </p>
                 <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
-                  Pensare che questi sistemi permettano di guidare più vicino al
-                  limite in sicurezza. In realtà spostano il limite un po' più in
-                  là — il margine reale per l'imprevisto resta lo stesso, o si
-                  riduce se compensi aumentando la velocità.
+                  Pensare che permettano di guidare vicino al limite. Aiutano a
+                  recuperare il controllo, ma non sostituiscono il margine.
                 </p>
               </div>
             </div>
