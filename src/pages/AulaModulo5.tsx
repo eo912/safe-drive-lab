@@ -385,7 +385,7 @@ const AulaModulo5 = () => {
                 <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
                   Sottosterzo
                 </p>
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                    Le ruote anteriori perdono aderenza e l'auto allarga la curva.
                    Rilascia l'acceleratore, non aumentare lo sterzo e lascia che
                    l'avantreno recuperi aderenza.
@@ -398,7 +398,7 @@ const AulaModulo5 = () => {
                 <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
                   Sovrasterzo
                 </p>
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                    Le ruote posteriori perdono aderenza e il retrotreno scivola.
                    Correggi con dolcezza nella direzione dello scivolamento.
                 </p>
