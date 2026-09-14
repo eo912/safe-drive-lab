@@ -120,6 +120,7 @@ const AulaModulo2 = () => {
     paused: Boolean(isPaused),
     pauseAtmosphere: aulaState.pauseAtmosphere,
     riskProbability,
+    phoneDismissTs,
   });
 
   const navigateSection = useCallback((delta: number) => {
