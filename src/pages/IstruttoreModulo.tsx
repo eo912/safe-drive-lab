@@ -47,6 +47,7 @@ import {
   type AulaState,
   type AulaStep,
 } from "@/lib/aulaSync";
+import { isSyncEnabled } from "@/lib/syncEnabled";
 import { SyncToggle } from "@/components/sync/SyncToggle";
 import { openAulaWindow } from "@/lib/aulaWindow";
 import { withRoom } from "@/lib/aulaRoom";
@@ -361,11 +362,11 @@ const IstruttoreModulo = () => {
   const isLive =
     liveBlockId === previewState.blocco && liveStep === previewState.step;
 
-  // Aggiornamento posizione: in modalità "lineare" pubblica subito in Aula
-  // (preview e live coincidono); in "regia" aggiorna solo l'anteprima.
+  // Aggiornamento posizione: quando la sincronizzazione è ON pubblica subito
+  // in Aula (una sola volta); quando è OFF cambia solo lo stato locale.
   const applyPosition = useCallback(
     (patch: { blocco: string; step: AulaStep }) => {
-      if (modeRef.current === "lineare") {
+      if (isSyncEnabled()) {
         publish({ ...patch, paused: false });
       } else {
         setPreview(patch);
@@ -420,7 +421,7 @@ const IstruttoreModulo = () => {
       hazardOutcomeRef.current = undefined;
       setHazardPhase("idle");
       setHazardOutcome(undefined);
-      publish({ ...sequence[next], paused: false });
+      applyPosition({ ...sequence[next] });
     };
   }, [
     sequence,
@@ -439,10 +440,9 @@ const IstruttoreModulo = () => {
     hazardOutcomeRef.current = undefined;
     setHazardPhase("idle");
     setHazardOutcome(undefined);
-    publish({
+    applyPosition({
       blocco: previewState.blocco,
       step: previewState.step,
-      paused: false,
     });
   };
 
