@@ -83,7 +83,8 @@ const HOTSPOT_PNEUMATICI: Hotspot[] = [
     x: 44,
     y: 85,
     title: "Aquaplaning",
-    text: "Quando un velo d'acqua non viene più sgomberato dal battistrada e lo pneumatico «galleggia», perdendo aderenza.",
+    text: "L'aquaplaning si verifica quando il battistrada non riesce a sgomberare il velo d'acqua: la ruota «galleggia» e perde aderenza in sterzata, frenata e trazione. Velocità elevata, acqua profonda e battistrada consumato aumentano il rischio. Con pioggia intensa occorre ridurre la velocità e mantenere il battistrada efficiente.",
+    imageLabel: "Modulo 4 · Pneumatici · Aquaplaning",
   },
   {
     id: "estive",
@@ -91,7 +92,8 @@ const HOTSPOT_PNEUMATICI: Hotspot[] = [
     x: 68,
     y: 48,
     title: "Gomme estive",
-    text: "Mescola più rigida, pensata per temperature sopra i 7°C: aderenza ottimale su asfalto asciutto e bagnato in stagione calda.",
+    text: "La mescola più rigida è progettata per lavorare al meglio sopra i 7°C, offrendo precisione e aderenza nella stagione calda. Sotto questa soglia si indurisce e perde aderenza, anche sull'asfalto asciutto.",
+    imageLabel: "Modulo 4 · Pneumatici · Gomme estive",
   },
   {
     id: "invernali",
@@ -99,7 +101,8 @@ const HOTSPOT_PNEUMATICI: Hotspot[] = [
     x: 62,
     y: 66,
     title: "Gomme invernali",
-    text: "Mescola più morbida anche a basse temperature, battistrada disegnato per neve/ghiaccio: mantengono aderenza dove le estive induriscono e perdono grip.",
+    text: "La mescola più morbida resta elastica sotto i 7°C e il battistrada specifico migliora la presa su neve e ghiaccio. Alle basse temperature offre una frenata migliore anche su bagnato e asciutto freddo. Sopra i 7°C, invece, si usura più rapidamente e risulta meno precisa.",
+    imageLabel: "Modulo 4 · Pneumatici · Gomme invernali",
   },
 ];
 
