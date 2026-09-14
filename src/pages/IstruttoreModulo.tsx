@@ -97,8 +97,13 @@ const IstruttoreModulo = () => {
   const module = useMemo(() => modules.find((m) => m.slug === slug), [slug]);
   const blocks = blocksBySlug[slug] ?? [];
 
-  const { previewState, liveState, setPreview, publish: publishBase } =
-    useAulaPublisher(slug, blocks[0]?.id ?? "");
+  const {
+    previewState,
+    liveState,
+    setPreview,
+    publish: publishBase,
+    syncLiveFromAula,
+  } = useAulaPublisher(slug, blocks[0]?.id ?? "");
 
   // Stato overlay telefono: solo lato Aula Live, controllato dalla Regia con OK.
   const phonePhaseRef = useRef<"idle" | "ringing" | "visible">("idle");
