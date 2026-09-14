@@ -113,6 +113,7 @@ export const CatenaIncidenteScene = ({
   hazardPhase = "idle",
   hazardOutcome,
   onRiskChange,
+  onPhoneDismiss,
 }: {
   level: RenderLevel;
   phonePhase?: PhonePhase;
@@ -120,6 +121,7 @@ export const CatenaIncidenteScene = ({
   hazardPhase?: SuddenHazardPhase;
   hazardOutcome?: SuddenHazardOutcome;
   onRiskChange?: (probability: number) => void;
+  onPhoneDismiss?: (ts: number) => void;
 }) => {
   const [fase, setFase] = useState<Fase>("intro");
   const [idx, setIdx] = useState(0);
