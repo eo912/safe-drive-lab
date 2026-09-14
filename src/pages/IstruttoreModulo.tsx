@@ -42,7 +42,7 @@ import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import { syncTrace } from "@/lib/syncTrace";
 import {
-  useAulaPosition,
+  useAulaStatus,
   useAulaPublisher,
   type AulaState,
   type AulaStep,
@@ -104,7 +104,6 @@ const IstruttoreModulo = () => {
     liveState,
     setPreview,
     publish: publishBase,
-    syncLiveFromAula,
   } = useAulaPublisher(slug, blocks[0]?.id ?? "");
 
   // Stato overlay telefono: solo lato Aula Live, controllato dalla Regia con OK.
@@ -302,43 +301,22 @@ const IstruttoreModulo = () => {
   const liveBlockId = liveState?.blocco ?? null;
   const liveStep = liveState?.step ?? null;
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
-  // Posizione dichiarata dall'Aula dopo un gesto dell'utente (un solo evento).
-  const aulaHeartbeat = useAulaPosition(slug);
-
-  // Quando l'Aula cambia scena, la Regia si allinea: nessun comando di ritorno.
-  const lastAulaPosRef = useRef<string | null>(null);
+  // Sincronizzazione UNIDIREZIONALE (Regia → Aula): la Regia si fida solo
+  // del proprio stato locale (previewState/liveState). Dall'Aula arriva solo
+  // lo stato non-posizionale (chiusura telefono, probabilità di rischio),
+  // che non può riportare indietro la scena.
+  const aulaStatus = useAulaStatus(slug);
 
   // L'Aula ha chiuso il telefono con verde/rosso: la sequenza di regia
   // riparte da zero, così il prossimo OK fa squillare di nuovo.
   const lastPhoneDismissRef = useRef(0);
   useEffect(() => {
-    const ts = aulaHeartbeat?.phoneDismissTs ?? 0;
+    const ts = aulaStatus?.phoneDismissTs ?? 0;
     if (ts && ts !== lastPhoneDismissRef.current) {
       lastPhoneDismissRef.current = ts;
       phonePhaseRef.current = "idle";
     }
-  }, [aulaHeartbeat?.phoneDismissTs]);
-  useEffect(() => {
-    if (!aulaHeartbeat) return;
-    const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;
-    if (lastAulaPosRef.current === key) return;
-    lastAulaPosRef.current = key;
-    syncTrace("LOCAL_EFFECT", "IstruttoreModulo.alignToAulaPosition", {
-      moduleId: slug,
-      previousBlockId: previewState.blocco,
-      resultBlockId: aulaHeartbeat.blocco,
-      step: aulaHeartbeat.step,
-      receivedAt: Date.now(),
-    });
-    setPreview({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
-    syncLiveFromAula({ blocco: aulaHeartbeat.blocco, step: aulaHeartbeat.step });
-  }, [
-    aulaHeartbeat,
-    setPreview,
-    syncLiveFromAula,
-    slug,
-    previewState.blocco,
-  ]);
+  }, [aulaStatus?.phoneDismissTs]);
 
 
 
