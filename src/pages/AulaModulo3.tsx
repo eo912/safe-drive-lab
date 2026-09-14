@@ -432,8 +432,8 @@ const AulaModulo3 = () => {
           BLOCCO 3 — DISTRAZIONE, STANCHEZZA, STRESS (testuale)
           ============================================================ */}
       <Slide bg="darker" blockId="distrazione" className="items-stretch">
-        <div className="relative z-10 w-full h-full overflow-y-auto px-6 md:px-12 py-8">
-          <div className="max-w-6xl mx-auto flex flex-col gap-6 justify-center min-h-full">
+        <div className="relative z-10 w-full h-full px-6 md:px-12 py-8">
+          <div className="max-w-6xl mx-auto flex flex-col gap-4 justify-center min-h-full">
             <div className="text-center">
               <h2 className="text-2xl md:text-4xl font-bold leading-tight">
                 Non serve essere distratti a lungo.{" "}
@@ -441,57 +441,59 @@ const AulaModulo3 = () => {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-[1fr_1.2fr] gap-6 items-start">
-              <ImagePlaceholder
-                label="Foto conducente (placeholder generico — verrà sostituita)"
-                className="h-[26vh] w-full"
-              />
-              <div className="flex flex-col gap-4">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  La distrazione non è solo «guardare altrove». Ne esistono tre
-                  tipi, spesso combinati:{" "}
-                  <span className="text-foreground font-medium">Visiva</span> —
-                  gli occhi lasciano la strada.{" "}
-                  <span className="text-foreground font-medium">Manuale</span> —
-                  le mani lasciano il volante.{" "}
-                  <span className="text-foreground font-medium">Cognitiva</span>{" "}
-                  — la mente è altrove anche se occhi e mani restano al loro
-                  posto. È la più insidiosa: non si vede dall'esterno, e spesso
-                  non te ne accorgi nemmeno tu.
+            <ImagePlaceholder
+              label="Foto conducente (placeholder generico — verrà sostituita)"
+              className="h-[16vh] w-full max-w-2xl mx-auto"
+            />
+
+            <div className="grid md:grid-cols-3 gap-3">
+              <motion.div
+                {...fade}
+                className="rounded-lg border border-border/60 bg-card/70 px-4 py-4 text-center"
+              >
+                <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
+                  Visiva
                 </p>
-              </div>
+                <p className="text-sm md:text-base text-foreground/80 leading-snug">
+                  Gli occhi lasciano la strada.
+                </p>
+              </motion.div>
+              <motion.div
+                {...fade}
+                className="rounded-lg border border-border/60 bg-card/70 px-4 py-4 text-center"
+              >
+                <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
+                  Manuale
+                </p>
+                <p className="text-sm md:text-base text-foreground/80 leading-snug">
+                  Le mani lasciano il volante.
+                </p>
+              </motion.div>
+              <motion.div
+                {...fade}
+                className="rounded-lg border border-border/60 bg-card/70 px-4 py-4 text-center"
+              >
+                <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
+                  Cognitiva
+                </p>
+                <p className="text-sm md:text-base text-foreground/80 leading-snug">
+                  La mente è altrove anche se occhi e mani restano al loro posto.
+                </p>
+              </motion.div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <motion.div
-                {...fade}
-                className="rounded-lg border border-border/60 bg-card/70 px-6 py-5"
-              >
-                <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
-                  Stanchezza
-                </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Riduce l'attenzione ben prima di diventare sonnolenza evidente.
-                  Sbadigli ripetuti, fatica a mantenere la traiettoria, «buchi»
-                  negli ultimi minuti di guida — sono già segnali tardivi. L'unico
-                  rimedio è la pausa, non la forza di volontà.
-                </p>
-              </motion.div>
-              <motion.div
-                {...fade}
-                className="rounded-lg border border-border/60 bg-card/70 px-6 py-5"
-              >
-                <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
-                  Stress e fretta
-                </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
-                  Sotto fretta, il campo di attenzione si restringe: ti concentri
-                  sull'obiettivo («arrivare in tempo») e sottovaluti i segnali
-                  attorno. Non è mancanza di esperienza — capita anche a chi guida
-                  da anni. Va gestita, non ignorata.
-                </p>
-              </motion.div>
-            </div>
+            <p className="text-center text-sm md:text-base text-foreground/80 leading-snug max-w-3xl mx-auto">
+              Spesso si combinano: una sola azione può coinvolgerle tutte e tre.
+            </p>
+
+            <motion.div
+              {...fade}
+              className="rounded-lg border border-border/60 bg-card/70 px-5 py-3 max-w-3xl mx-auto"
+            >
+              <p className="text-sm md:text-base text-foreground/80 leading-snug text-center">
+                Anche stanchezza e stress riducono la capacità di restare attento — non sono distrazioni, ma vanno gestiti.
+              </p>
+            </motion.div>
           </div>
         </div>
         <ModuloNextNav to="/aula/modulo-4-il-veicolo" label="Modulo successivo" />
