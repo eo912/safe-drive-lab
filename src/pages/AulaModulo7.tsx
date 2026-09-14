@@ -301,7 +301,7 @@ const AulaModulo7 = () => {
                 className="h-[30vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Chi guida per lavoro trascorre{" "}
                   <span className="text-foreground font-medium">
                     molte più ore al volante
@@ -317,7 +317,7 @@ const AulaModulo7 = () => {
                   <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
                     Pianificazione
                   </p>
-                  <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                  <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                     La guida professionale comincia prima di mettere in moto:
                     conoscere in anticipo eventuali criticità (traffico, lavori,
                     meteo), valutare i tempi in modo{" "}
@@ -403,7 +403,7 @@ const AulaModulo7 = () => {
                 className="h-[30vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Molti veicoli professionali sono allestiti con attrezzature,
                   strutture o carichi che modificano{" "}
                   <span className="text-foreground font-medium">
@@ -418,7 +418,7 @@ const AulaModulo7 = () => {
                   <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
                     Pressione e fretta operativa
                   </p>
-                  <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                  <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                     Nel lavoro capitano richieste urgenti, ritardi da recuperare,
                     tempi stretti. Un professionista non dimostra la propria
                     capacità andando più veloce degli altri o tagliando i margini:{" "}
@@ -452,7 +452,7 @@ const AulaModulo7 = () => {
                 className="h-[32vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Chi guida un veicolo aziendale rappresenta, agli occhi degli
                   altri utenti della strada,{" "}
                   <span className="text-foreground font-medium">

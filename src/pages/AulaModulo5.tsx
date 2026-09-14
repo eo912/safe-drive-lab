@@ -301,13 +301,13 @@ const AulaModulo5 = () => {
                 className="h-[30vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Accelerando, frenando o curvando, il peso si sposta tra le ruote:{" "}
                   <span className="text-foreground font-medium">si sposta</span>.
                   avanti in frenata, indietro in accelerazione e verso l'esterno in
                   curva.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   È fisica normale, ma cambia continuamente{" "}
                   <span className="text-primary font-semibold">
                     quanta aderenza ha davvero a disposizione ciascuna ruota
@@ -414,7 +414,7 @@ const AulaModulo5 = () => {
                 <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
                   L'obiettivo
                 </p>
-                <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/85 leading-relaxed">
                   Non allenarsi a correggerli come tecnica sportiva, ma{" "}
                   <span className="text-foreground font-medium">
                     riconoscerli per tempo
@@ -486,7 +486,7 @@ const AulaModulo5 = () => {
                 className="h-[32vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   L'aderenza disponibile non è mai costante.{" "}
                   <span className="text-foreground font-medium">Bagnato</span>:
                   l'acqua riduce l'attrito, soprattutto nei primi minuti di
@@ -497,7 +497,7 @@ const AulaModulo5 = () => {
                   l'aderenza può ridursi anche di un ordine di grandezza — ogni
                   manovra va fatta con più dolcezza e margini più ampi.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   I punti più insidiosi sono spesso le{" "}
                   <span className="text-primary font-semibold">
                     transizioni improvvise

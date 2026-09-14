@@ -355,7 +355,7 @@ const AulaModulo6 = () => {
                 className="h-[34vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Guidare con fluidità significa usare acceleratore, freno e
                   volante con{" "}
                   <span className="text-foreground font-medium">
@@ -367,7 +367,7 @@ const AulaModulo6 = () => {
                   già «usando» tutta l'attenzione e tutto il controllo del mezzo
                   in una manovra brusca.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Ogni manovra andrebbe preparata con anticipo: frenare
                   all'ultimo istante, sterzare bruscamente o accelerare senza
                   motivo aumenta il rischio, per te e per chi ti circonda.
@@ -449,7 +449,7 @@ const AulaModulo6 = () => {
                 className="h-[34vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Ogni cambio di direzione o corsia segue sempre la stessa
                   sequenza:{" "}
                   <span className="text-foreground font-medium">
@@ -459,7 +459,7 @@ const AulaModulo6 = () => {
                   . Comunica sempre le tue intenzioni con anticipo, perché gli
                   altri possano adattarsi.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   La tecnica non è fissa: va adattata alle condizioni. Con
                   pioggia, nebbia, fondo scivoloso o scarsa illuminazione, tutto
                   quello visto in questo modulo — distanza, velocità, dolcezza
