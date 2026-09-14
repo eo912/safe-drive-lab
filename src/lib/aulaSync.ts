@@ -236,7 +236,7 @@ const useBusListener = (kind: EventKind, fn: Handler) => {
 let suppressedPosition: string | null = null;
 /** Finestra di assestamento dello scroll pilotato dal comando remoto. */
 let suppressUntil = 0;
-const SETTLE_MS = 1800;
+const SETTLE_MS = 3000;
 const posKey = (blocco: string, step: AulaStep) => `${blocco}:${step}`;
 
 /* ------------------------------------------------------------------ *
@@ -420,7 +420,9 @@ export const useAulaHeartbeat = (
     }
     const p = ref.current;
     const key = posKey(p.blocco, p.step);
-    if (suppressedPosition === key || Date.now() < suppressUntil) {
+    if (suppressedPosition !== null && Date.now() < suppressUntil) {
+      // Posizione (o passaggio intermedio) prodotta dal comando remoto:
+      // non è un gesto dell'utente, quindi non torna indietro.
       if (suppressedPosition === key) suppressedPosition = null;
       syncTrace("AULA", "useAulaHeartbeat.suppressed", {
         roomId: ROOM_ID,
