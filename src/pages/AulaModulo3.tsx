@@ -14,6 +14,7 @@ import { HotspotScene, type Hotspot } from "@/components/modulo3/HotspotScene";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
+import { SyncToggle } from "@/components/sync/SyncToggle";
 
 const MODULO = "modulo-3-il-conducente";
 const ASSET_BASE =

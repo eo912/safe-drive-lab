@@ -18,6 +18,7 @@ import { AulaPauseScreen } from "@/components/aula/AulaPauseScreen";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
+import { SyncToggle } from "@/components/sync/SyncToggle";
 import { BrandLogoSlot } from "@/components/brand/BrandLogoSlot";
 
 const MODULO = "modulo-1-perche-un-corso";

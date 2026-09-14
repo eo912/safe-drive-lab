@@ -13,6 +13,7 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
+import { SyncToggle } from "@/components/sync/SyncToggle";
 
 const MODULO = "modulo-8-applicazione-est";
 
