@@ -446,34 +446,24 @@ const AulaModulo2 = () => {
                 label="Mano sul volante in primo piano o cruscotto con spia elettronica accesa, contesto europeo"
                 className="h-[32vh]"
               />
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   Cintura, airbag e poggiatesta proteggono nell'impatto. Altri sistemi
                   intervengono prima: correggono la traiettoria e limitano lo
                   slittamento.
                 </p>
-                <p className="text-base md:text-lg font-medium leading-snug">
+                <p className="text-base md:text-lg font-medium leading-relaxed">
                   Nessun sistema decide quando frenare, quanta velocità tenere o
-                  quando fermarsi.
-                </p>
-                <p className="text-base md:text-lg text-primary font-medium leading-snug">
-                  La decisione resta tua. Usare la tecnologia per compensare una
-                  disattenzione riduce il margine quando serve davvero.
+                  quando fermarsi. La decisione resta tua: usare la tecnologia per
+                  compensare una disattenzione riduce il margine quando serve davvero.
                 </p>
               </div>
             </div>
 
-            <div className="text-center flex flex-col gap-4">
-              <p className="text-base md:text-lg text-foreground/80 leading-snug max-w-3xl mx-auto">
-                Nel prossimo modulo lasciamo l'auto da parte un momento. Parliamo di te:
-                come ti siedi, come guardi, quanto tempo hai davvero per reagire.
-              </p>
-              <p className="text-xl md:text-3xl font-bold text-primary leading-snug max-w-3xl mx-auto">
-                Prima di essere un sistema tecnologico, la tua auto ha già un primo
-                sistema di sicurezza — e sei tu.
-              </p>
-              <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                Prossimo modulo → Il Conducente
+            <div className="text-center">
+              <p className="text-xl md:text-3xl font-bold text-primary leading-snug max-w-4xl mx-auto">
+                Nel prossimo modulo partiamo da te: prima di ogni tecnologia, il primo
+                sistema di sicurezza sei tu.
               </p>
             </div>
           </div>

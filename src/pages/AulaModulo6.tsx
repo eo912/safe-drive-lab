@@ -458,16 +458,6 @@ const AulaModulo6 = () => {
                   </span>
                   , non con la stessa soglia delle condizioni ottimali.
                 </p>
-                <div className="rounded-lg border border-border/60 bg-card/70 px-5 py-4">
-                  <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
-                    Verso il prossimo modulo
-                  </p>
-                  <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
-                    Nel prossimo modulo vediamo cosa cambia quando questo non è
-                    più solo un modo di guidare, ma il tuo lavoro — ore al
-                    volante, ripetizione, pressione operativa.
-                  </p>
-                </div>
               </motion.div>
             </div>
           </div>

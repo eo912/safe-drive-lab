@@ -450,21 +450,56 @@ const AulaModulo7 = () => {
                   . Uno stile di guida sicuro e composto è anche immagine, oltre
                   che sicurezza personale.
                 </p>
-                <div className="rounded-lg border border-primary/60 bg-background/90 px-5 py-4">
-                  <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
-                    In sintesi
-                  </p>
-                  <ul className="text-sm md:text-base text-foreground/85 leading-relaxed list-disc pl-5 space-y-1">
-                    <li>Pianifica il percorso prima di partire</li>
-                    <li>Guida con regolarità, evita manovre brusche</li>
-                    <li>Riconosci e gestisci per tempo stanchezza e cali di attenzione</li>
-                    <li>Comunica sempre con anticipo le tue intenzioni</li>
-                    <li>Conosci come carico e allestimento modificano il comportamento del veicolo</li>
-                    <li>Mantieni un comportamento prevedibile anche sotto pressione</li>
-                  </ul>
-                </div>
               </motion.div>
             </div>
+          </div>
+        </div>
+        <ModuloNextNav
+          to="/aula/modulo-7-guida-professionale?blocco=principi-professionali&step=intro"
+          label="Vai al riepilogo"
+          onClick={() => {
+            document
+              .querySelector<HTMLElement>('[data-block="principi-professionali"]')
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        />
+      </Slide>
+
+      {/* ============================================================
+          BLOCCO 5 — RIEPILOGO AUTONOMO
+          ============================================================ */}
+      <Slide bg="black" blockId="principi-professionali" className="items-stretch">
+        <div className="relative z-10 w-full h-full px-6 md:px-12 py-8 md:py-10">
+          <div className="max-w-5xl mx-auto flex flex-col gap-8 justify-center min-h-full">
+            <div className="text-center">
+              <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-3">
+                In sintesi
+              </p>
+              <h2 className="text-2xl md:text-4xl font-bold leading-tight">
+                Sei principi per una guida <span className="text-primary">professionale</span>
+              </h2>
+            </div>
+
+            <ol className="grid grid-cols-2 gap-4">
+              {[
+                "Pianifica il percorso prima di partire",
+                "Guida con regolarità, senza manovre brusche",
+                "Gestisci per tempo stanchezza e cali di attenzione",
+                "Comunica sempre in anticipo le tue intenzioni",
+                "Conosci gli effetti di carico e allestimento sul veicolo",
+                "Resta prevedibile anche sotto pressione",
+              ].map((principio, index) => (
+                <li
+                  key={principio}
+                  className="flex items-center gap-4 border-t border-border/70 py-4"
+                >
+                  <span className="font-mono text-sm text-primary">0{index + 1}</span>
+                  <span className="text-base md:text-lg font-medium leading-snug">
+                    {principio}
+                  </span>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
         <ModuloNextNav to="/aula/modulo-8-applicazione-est" label="Modulo successivo" />
