@@ -501,7 +501,7 @@ const AulaModulo1 = () => {
           </motion.p>
           <motion.h1
             {...fade}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.1]"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.1]"
           >
             Perché un corso
           </motion.h1>
