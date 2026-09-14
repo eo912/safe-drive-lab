@@ -135,6 +135,25 @@ const IstruttoreModulo = () => {
     [publishWithPhone],
   );
 
+  // Toggle telefono: stessa logica per tasto Invio/OK e bottone UI.
+  const togglePhone = useCallback(() => {
+    if (viewRef.current !== "live" || activeRef.current?.id !== "catena-incidente") {
+      return false;
+    }
+    const cur = phonePhaseRef.current;
+    const next: "idle" | "ringing" | "visible" =
+      cur === "idle" ? "ringing" : cur === "ringing" ? "visible" : "idle";
+    phonePhaseRef.current = next;
+    phoneBlockRef.current = activeRef.current.id;
+    publishWithPhone({ phoneTs: Date.now() });
+    return true;
+  }, [publishWithPhone]);
+  const togglePhoneRef = useRef(togglePhone);
+  useEffect(() => {
+    togglePhoneRef.current = togglePhone;
+  }, [togglePhone]);
+
+
   const [mode, setMode] = useState<Mode>("regia");
   const modeRef = useRef<Mode>(mode);
   useEffect(() => {
@@ -224,18 +243,12 @@ const IstruttoreModulo = () => {
       // OK/Invio: sequenza telefono a toggle sul blocco "catena-incidente".
       // Agisce solo quando nessun campo di input è focalizzato e la Regia è in vista LIVE.
       if (e.key === "Enter") {
-        if (viewRef.current !== "live" || activeRef.current?.id !== "catena-incidente") {
-          return;
+        if (togglePhoneRef.current?.()) {
+          e.preventDefault();
         }
-        e.preventDefault();
-        const cur = phonePhaseRef.current;
-        const next: "idle" | "ringing" | "visible" =
-          cur === "idle" ? "ringing" : cur === "ringing" ? "visible" : "idle";
-        phonePhaseRef.current = next;
-        phoneBlockRef.current = activeRef.current.id;
-        publishWithPhone({ phoneTs: Date.now() });
         return;
       }
+
 
       // Delete è libero sul telecomando: avvia la scena improvvisa senza interferire con OK.
       if (e.key === "Delete") {
@@ -935,7 +948,25 @@ const IstruttoreModulo = () => {
                   </div>
 
                   {active.id === "catena-incidente" && (
+                    <section className="mb-6 border border-border bg-card/70 p-4" aria-label="Controlli telefono che squilla">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold">Telefono che squilla</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Solo Aula Live · scorciatoia telecomando: Invio
+                          </p>
+                        </div>
+                        <Button type="button" onClick={togglePhone} size="sm">
+                          <Play />
+                          Avvia scena
+                        </Button>
+                      </div>
+                    </section>
+                  )}
+
+                  {active.id === "catena-incidente" && (
                     <section className="mb-6 border border-border bg-card/70 p-4" aria-label="Controlli scena auto che frena">
+
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold">Auto che frena davanti</p>
