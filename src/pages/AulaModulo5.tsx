@@ -301,13 +301,13 @@ const AulaModulo5 = () => {
                 className="h-[30vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Accelerando, frenando o curvando, il peso si sposta tra le ruote:{" "}
                   <span className="text-foreground font-medium">si sposta</span>.
                   avanti in frenata, indietro in accelerazione e verso l'esterno in
                   curva.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   È fisica normale, ma cambia continuamente{" "}
                   <span className="text-primary font-semibold">
                     quanta aderenza ha davvero a disposizione ciascuna ruota
@@ -335,7 +335,7 @@ const AulaModulo5 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-6 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Immagina che ogni pneumatico abbia{" "}
                   <span className="text-foreground font-medium">
                     100 di aderenza disponibile
@@ -344,7 +344,7 @@ const AulaModulo5 = () => {
                   Se in quel momento chiedi anche una sterzata decisa, il budget
                   non basta — il veicolo perde precisione o aderenza.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Per questo frenata, sterzata e accelerazione vanno il più
                   possibile{" "}
                   <span className="text-primary font-semibold">
@@ -414,7 +414,7 @@ const AulaModulo5 = () => {
                 <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
                   L'obiettivo
                 </p>
-                <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/85 leading-relaxed">
                   Non allenarsi a correggerli come tecnica sportiva, ma{" "}
                   <span className="text-foreground font-medium">
                     riconoscerli per tempo
@@ -443,7 +443,7 @@ const AulaModulo5 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-6 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Lo spazio di arresto somma reazione e frenata. La frenata cresce
                   con{" "}
                   <span className="text-foreground font-medium">
@@ -451,7 +451,7 @@ const AulaModulo5 = () => {
                   </span>
                   : raddoppiare la velocità moltiplica lo spazio per circa quattro.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Nella guida quotidiana frena in modo{" "}
                   <span className="text-primary font-semibold">progressiva</span>{" "}
                   . In emergenza premi subito a fondo e mantieni la pressione. Con
@@ -486,7 +486,7 @@ const AulaModulo5 = () => {
                 className="h-[32vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   L'aderenza disponibile non è mai costante.{" "}
                   <span className="text-foreground font-medium">Bagnato</span>:
                   l'acqua riduce l'attrito, soprattutto nei primi minuti di
@@ -497,7 +497,7 @@ const AulaModulo5 = () => {
                   l'aderenza può ridursi anche di un ordine di grandezza — ogni
                   manovra va fatta con più dolcezza e margini più ampi.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   I punti più insidiosi sono spesso le{" "}
                   <span className="text-primary font-semibold">
                     transizioni improvvise

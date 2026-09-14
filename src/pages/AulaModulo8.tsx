@@ -302,7 +302,7 @@ const AulaModulo8 = () => {
                 className="h-[34vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Ad inizio turno prendi in carico il{" "}
                   <span className="text-foreground font-medium">
                     VST (veicolo di servizio)
@@ -353,7 +353,7 @@ const AulaModulo8 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-5 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   In un ambiente chiuso, con traffico incanalato in un unico
                   corridoio,{" "}
                   <span className="text-foreground font-medium">
@@ -413,7 +413,7 @@ const AulaModulo8 = () => {
                   tesa e a scatti.
                 </p>
                 <div className="rounded-lg border border-border/60 bg-card/70 px-4 py-3">
-                  <p className="text-sm md:text-base text-foreground/85 leading-snug">
+                  <p className="text-base md:text-lg text-foreground/85 leading-snug">
                     Lampeggianti e sirena{" "}
                     <span className="text-primary font-semibold">
                       modifica il tuo stato psicofisico
@@ -427,7 +427,7 @@ const AulaModulo8 = () => {
                   <p className="font-mono text-xs uppercase tracking-[0.25em] text-destructive mb-1">
                     Errore frequente
                   </p>
-                  <p className="text-sm md:text-base text-foreground/85 leading-snug">
+                  <p className="text-base md:text-lg text-foreground/85 leading-snug">
                     Non basta pensare «so calmarmi». Il margine di sicurezza va
                     deciso a mente fredda, prima dell'intervento.
                   </p>
@@ -461,7 +461,7 @@ const AulaModulo8 = () => {
                 className="h-[34vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Un altro utente può essere distratto, con i finestrini chiusi, la
                   musica alta, può vedere il lampeggiante ma non capire da dove
                   arriva, o reagire in ritardo o nel modo sbagliato. Prima di
@@ -473,7 +473,7 @@ const AulaModulo8 = () => {
                   arriva diversa, adattati, non insistere.
                 </p>
                 <div className="rounded-lg border border-border/60 bg-card/70 px-5 py-4">
-                  <p className="text-sm text-foreground/85 leading-relaxed">
+                  <p className="text-base md:text-lg text-foreground/85 leading-relaxed">
                     I dispositivi luminosi e acustici{" "}
                     <span className="text-foreground font-medium">
                       segnalano la presenza, non rendono automaticamente libera la
@@ -506,7 +506,7 @@ const AulaModulo8 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-5 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Regola pratica:{" "}
                   <span className="text-foreground font-medium">
                     non impegnare mai uno spazio che non riesci a verificare
@@ -519,7 +519,7 @@ const AulaModulo8 = () => {
                   <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
                     Chiusura
                   </p>
-                  <p className="text-sm text-foreground/85 leading-relaxed">
+                  <p className="text-base md:text-lg text-foreground/85 leading-relaxed">
                     La guida in emergenza non sospende i principi della guida
                     sicura —{" "}
                     <span className="text-primary font-semibold">

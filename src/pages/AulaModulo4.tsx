@@ -383,7 +383,7 @@ const AulaModulo4 = () => {
                 className="h-[30vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   A 90 km/h, fermare oltre una tonnellata richiede un lavoro enorme
                   in pochi secondi. A farlo sono{" "}
                   <span className="text-foreground font-medium">
@@ -391,13 +391,13 @@ const AulaModulo4 = () => {
                   </span>{" "}
                   ciascuna: tutta la forza diventa calore.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   In discesa, frenare continuamente surriscalda le pastiglie e
                   riduce l'efficacia, anche col pedale premuto. Si chiama{" "}
                   <span className="text-primary font-semibold">fading</span>, e si
                   previene usando il freno motore nei tratti lunghi.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Pastiglie e dischi consumati allungano lo spazio di frenata anche
                   quando il pedale sembra normale.
                 </p>
@@ -422,12 +422,12 @@ const AulaModulo4 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-6 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Lo sterzo porta la tua decisione alle ruote. Le sospensioni
                   fanno un lavoro meno visibile ma altrettanto critico: tengono la
                   ruota incollata all'asfalto anche sulle imperfezioni.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Un ammortizzatore usurato non si sente su una strada tranquilla
                   — sembra tutto normale. Ma nel momento in cui serve davvero (una
                   frenata forte, una curva stretta, uno sterzo d'emergenza),
@@ -498,7 +498,7 @@ const AulaModulo4 = () => {
                 <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
                   L'errore comune
                 </p>
-                <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/85 leading-relaxed">
                   Pensare che permettano di guidare vicino al limite. Aiutano a
                   recuperare il controllo, ma non sostituiscono il margine.
                 </p>
@@ -529,7 +529,7 @@ const AulaModulo4 = () => {
                 />
                 <motion.p
                   {...fade}
-                  className="text-sm md:text-base text-foreground/80 leading-relaxed"
+                  className="text-base md:text-lg text-foreground/80 leading-relaxed"
                 >
                   Le luci non servono solo a vedere: servono soprattutto a{" "}
                   <span className="text-foreground font-medium">essere visti</span>

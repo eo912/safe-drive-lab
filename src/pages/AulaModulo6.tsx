@@ -298,7 +298,7 @@ const AulaModulo6 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-6 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Osservare lontano non basta guardare avanti nello spazio — serve
                   guardare avanti nel tempo. Non «cosa vedo ora», ma{" "}
                   <span className="text-foreground font-medium">
@@ -312,7 +312,7 @@ const AulaModulo6 = () => {
                   <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
                     La regola dei secondi
                   </p>
-                  <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+                  <p className="text-base md:text-lg text-foreground/85 leading-relaxed">
                     Più spazio hai davanti, più tempo hai per decidere. Scegli un
                     punto fisso (un cartello, un'ombra sull'asfalto): devono
                     passare almeno{" "}
@@ -355,7 +355,7 @@ const AulaModulo6 = () => {
                 className="h-[34vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Guidare con fluidità significa usare acceleratore, freno e
                   volante con{" "}
                   <span className="text-foreground font-medium">
@@ -367,7 +367,7 @@ const AulaModulo6 = () => {
                   già «usando» tutta l'attenzione e tutto il controllo del mezzo
                   in una manovra brusca.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Ogni manovra andrebbe preparata con anticipo: frenare
                   all'ultimo istante, sterzare bruscamente o accelerare senza
                   motivo aumenta il rischio, per te e per chi ti circonda.
@@ -393,7 +393,7 @@ const AulaModulo6 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-6 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   La sequenza corretta per affrontare una curva: osserva in
                   anticipo il raggio e la visibilità,{" "}
                   <span className="text-foreground font-medium">
@@ -403,7 +403,7 @@ const AulaModulo6 = () => {
                   l'acceleratore in modo progressivo solo dopo il punto più
                   stretto della curva.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Frenare dentro la curva, quando lo pneumatico sta già usando
                   gran parte del suo budget di aderenza per sterzare, è una delle
                   situazioni che più facilmente porta a perdere il controllo
@@ -413,7 +413,7 @@ const AulaModulo6 = () => {
                   <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
                     Errore frequente
                   </p>
-                  <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+                  <p className="text-base md:text-lg text-foreground/85 leading-relaxed">
                     Entrare in curva più veloci di quanto si vorrebbe e correggere
                     frenando a metà. È esattamente la sequenza da evitare — meglio
                     rallentare un po' di più prima, con calma, che dover
@@ -449,7 +449,7 @@ const AulaModulo6 = () => {
                 className="h-[34vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   Ogni cambio di direzione o corsia segue sempre la stessa
                   sequenza:{" "}
                   <span className="text-foreground font-medium">
@@ -459,7 +459,7 @@ const AulaModulo6 = () => {
                   . Comunica sempre le tue intenzioni con anticipo, perché gli
                   altri possano adattarsi.
                 </p>
-                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
                   La tecnica non è fissa: va adattata alle condizioni. Con
                   pioggia, nebbia, fondo scivoloso o scarsa illuminazione, tutto
                   quello visto in questo modulo — distanza, velocità, dolcezza
