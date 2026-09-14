@@ -16,6 +16,8 @@ import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 
 const MODULO = "modulo-3-il-conducente";
+const ASSET_BASE =
+  "https://bqibmsptsnewfqsemqpt.supabase.co/storage/v1/object/public/safe-drive-labs-assets";
 
 const fade = {
   initial: { opacity: 0, y: 20, scale: 0.98 },

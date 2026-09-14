@@ -395,19 +395,8 @@ const AulaModulo8 = () => {
 
             <div className="grid md:grid-cols-[1.4fr_1fr] gap-4 items-start">
               <motion.div {...fade} className="flex flex-col gap-2.5">
-                <p className="text-sm text-foreground/80 leading-relaxed">
-                  Quando un trasferimento diventa emergenza, cambia il contesto
-                  operativo —{" "}
-                  <span className="text-foreground font-medium">
-                    non le leggi della fisica
-                  </span>
-                  . L'obiettivo non è la velocità massima possibile, ma il minor
-                  tempo di intervento compatibile col mantenimento del controllo
-                  del veicolo. Un operatore in controllo, fluido e lucido, è quasi
-                  sempre anche più rapido di uno che guida teso e a scatti. Chi
-                  perde il controllo o si trova un imprevisto mal preparato arriva
-                  più tardi, non prima.
-                </p>
+                <p className="text-base text-foreground/80 leading-relaxed">
+                  In emergenza cambia il contesto,{
                 <div className="rounded-lg border border-border/60 bg-card/70 px-4 py-3">
                   <p className="text-xs md:text-sm text-foreground/85 leading-snug">
                     Attivare lampeggianti e sirena non è un gesto neutro:{" "}
