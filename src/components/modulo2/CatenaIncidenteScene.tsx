@@ -113,6 +113,7 @@ export const CatenaIncidenteScene = ({
   hazardPhase = "idle",
   hazardOutcome,
   onRiskChange,
+  onPhoneDismiss,
 }: {
   level: RenderLevel;
   phonePhase?: PhonePhase;
@@ -120,6 +121,7 @@ export const CatenaIncidenteScene = ({
   hazardPhase?: SuddenHazardPhase;
   hazardOutcome?: SuddenHazardOutcome;
   onRiskChange?: (probability: number) => void;
+  onPhoneDismiss?: (ts: number) => void;
 }) => {
   const [fase, setFase] = useState<Fase>("intro");
   const [idx, setIdx] = useState(0);
@@ -169,8 +171,14 @@ export const CatenaIncidenteScene = ({
     }
   }, [nodo.id, secondaChiamata]);
 
+  // Chiusura immediata dopo il click su verde/rosso: ignora il comando remoto
+  // finché la regia non fa ripartire una nuova chiamata (nuovo phoneTs).
+  const [dismissTs, setDismissTs] = useState(0);
+
   const effectivePhonePhase: PhonePhase =
-    level === "full" && phoneTs > callResetTs ? remotePhonePhase : "idle";
+    level === "full" && phoneTs > Math.max(callResetTs, dismissTs)
+      ? remotePhonePhase
+      : "idle";
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -249,6 +257,25 @@ export const CatenaIncidenteScene = ({
     if (nodo.id === "notifica") setSecondaChiamata(false);
     void i;
     avanza();
+  };
+
+  /**
+   * Interazione sul telefono: verde = risponde (rischio +0,08),
+   * rosso = non risponde (probabilità invariata). L'overlay si chiude subito.
+   */
+  const rispondiAlTelefono = (answered: boolean) => {
+    const now = Date.now();
+    setDismissTs(now);
+    onPhoneDismiss?.(now);
+    if (answered) rischioseRef.current += 1;
+    registra(
+      `${nodo.id}:telefono:${answered ? "risponde" : "rifiuta"}`,
+      answered ? 0.08 : 0,
+    );
+    if (nodo.id === "notifica") {
+      if (answered) setSpecchietto(true);
+      else avanza();
+    }
   };
 
   const chiudiSpecchietto = () => {
@@ -333,7 +360,7 @@ export const CatenaIncidenteScene = ({
           </div>
         )}
 
-        {fase === "nodi" && !specchietto && (
+        {fase === "nodi" && !specchietto && nodo.id !== "notifica" && (
           <motion.div
             key={`${nodo.id}-${secondaChiamata ? "bis" : "uno"}`}
             initial={{ opacity: 0, y: 12 }}
@@ -486,10 +513,8 @@ export const CatenaIncidenteScene = ({
           <PhoneCallOverlay
             key="phone"
             callerName={chiamante}
-            onClose={() => {
-              // Il docente chiude anche cliccando sullo sfondo;
-              // la chiusura reale però avviene dalla regia con OK.
-            }}
+            onAnswer={() => rispondiAlTelefono(true)}
+            onDecline={() => rispondiAlTelefono(false)}
           />
         )}
       </AnimatePresence>

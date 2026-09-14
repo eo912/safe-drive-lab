@@ -307,6 +307,17 @@ const IstruttoreModulo = () => {
   // scroll manuale lato Aula) la Regia si allinea, così blocco selezionato,
   // titolo, note e suggerimenti riflettono la scena in onda.
   const lastAulaPosRef = useRef<string | null>(null);
+
+  // L'Aula ha chiuso il telefono con verde/rosso: la sequenza di regia
+  // riparte da zero, così il prossimo OK fa squillare di nuovo.
+  const lastPhoneDismissRef = useRef(0);
+  useEffect(() => {
+    const ts = aulaHeartbeat?.phoneDismissTs ?? 0;
+    if (ts && ts !== lastPhoneDismissRef.current) {
+      lastPhoneDismissRef.current = ts;
+      phonePhaseRef.current = "idle";
+    }
+  }, [aulaHeartbeat?.phoneDismissTs]);
   useEffect(() => {
     if (!aulaHeartbeat) return;
     const key = `${aulaHeartbeat.blocco}:${aulaHeartbeat.step}`;

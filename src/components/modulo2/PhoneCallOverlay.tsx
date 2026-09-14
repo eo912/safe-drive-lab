@@ -6,6 +6,8 @@ export type PhonePhase = "idle" | "ringing" | "visible";
 type Props = {
   callerName: string;
   onClose?: () => void;
+  onAnswer?: () => void;
+  onDecline?: () => void;
 };
 
 /**
@@ -13,7 +15,12 @@ type Props = {
  * Rendering solo lato Aula Live: la Regia non monta mai questo componente.
  * Telefono centrato, non fullscreen, con blur/scurimento dello slide dietro.
  */
-export const PhoneCallOverlay = ({ callerName, onClose }: Props) => {
+export const PhoneCallOverlay = ({
+  callerName,
+  onClose,
+  onAnswer,
+  onDecline,
+}: Props) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -61,25 +68,35 @@ export const PhoneCallOverlay = ({ callerName, onClose }: Props) => {
 
           {/* Pulsanti classici rispondi/rifiuta */}
           <div className="mt-12 flex items-end justify-between gap-4">
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className="flex h-14 w-14 items-center justify-center rounded-full"
+            <button
+              type="button"
+              aria-label="Rispondi"
+              onClick={onAnswer}
+              className="flex flex-col items-center gap-2 focus:outline-none"
+            >
+              <span
+                className="flex h-14 w-14 items-center justify-center rounded-full transition-transform hover:scale-105"
                 style={{ backgroundColor: "hsl(142 70% 45%)" }}
               >
                 <Phone className="h-7 w-7 text-white" />
-              </div>
+              </span>
               <span className="text-xs text-white/80">Rispondi</span>
-            </div>
+            </button>
 
-            <div className="flex flex-col items-center gap-2">
-              <div
-                className="flex h-14 w-14 items-center justify-center rounded-full"
+            <button
+              type="button"
+              aria-label="Rifiuta"
+              onClick={onDecline}
+              className="flex flex-col items-center gap-2 focus:outline-none"
+            >
+              <span
+                className="flex h-14 w-14 items-center justify-center rounded-full transition-transform hover:scale-105"
                 style={{ backgroundColor: "hsl(350 75% 55%)" }}
               >
                 <PhoneOff className="h-7 w-7 text-white" />
-              </div>
+              </span>
               <span className="text-xs text-white/80">Rifiuta</span>
-            </div>
+            </button>
           </div>
         </div>
       </motion.div>
