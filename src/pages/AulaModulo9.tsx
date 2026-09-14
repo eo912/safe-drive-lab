@@ -292,7 +292,6 @@ const AulaModulo9 = () => {
                 </div>
               </div>
             </div>
-            {groupIndex === 3 && <ModuloNextNav to="/aula" label="Torna all'indice moduli" backToIndex />}
           </Slide>
         );
       })}
