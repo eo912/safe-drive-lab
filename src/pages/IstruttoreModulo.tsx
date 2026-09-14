@@ -699,7 +699,11 @@ const IstruttoreModulo = () => {
             </div>
           </div>
 
-          <AulaStatusBadge modulo={slug} blocks={blocks} />
+          <AulaStatusBadge
+            modulo={slug}
+            blocks={blocks}
+            expectedAckTs={liveState?.cmdTs ?? null}
+          />
 
           <OfflineStatus />
 
