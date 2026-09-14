@@ -112,6 +112,7 @@ const AulaModulo2 = () => {
   const hazardOutcome = hazardActive ? aulaState.hazardOutcome : undefined;
 
   useAulaHeartbeat(!embedMode, {
+    ackTs: aulaState.cmdTs,
     modulo: MODULO,
     blocco: visibleBlock,
     step: aulaState.step,

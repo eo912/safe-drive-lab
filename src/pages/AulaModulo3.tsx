@@ -161,6 +161,7 @@ const AulaModulo3 = () => {
   const visibleBlock = useVisibleBlock(scrollerRef, aulaState.blocco, !embedMode);
 
   useAulaHeartbeat(!embedMode, {
+    ackTs: aulaState.cmdTs,
     modulo: MODULO,
     blocco: visibleBlock,
     step: aulaState.step,
