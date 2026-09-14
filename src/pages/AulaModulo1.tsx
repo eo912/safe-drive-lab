@@ -527,9 +527,14 @@ const AulaModulo1 = () => {
           <motion.div {...fade} className="w-full max-w-2xl">
             <EditableImageSlot
               label="Cartina piazzale — Modulo 1 programma giornata"
-              fallback="Cartina del piazzale"
               className="w-full h-[30vh]"
-            />
+            >
+              <div className="w-full h-full rounded-lg border-2 border-dashed border-border/60 flex items-center justify-center">
+                <p className="font-mono text-sm tracking-wider uppercase text-muted-foreground">
+                  Cartina del piazzale
+                </p>
+              </div>
+            </EditableImageSlot>
           </motion.div>
         </div>
       </Slide>
