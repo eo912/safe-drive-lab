@@ -46,10 +46,10 @@ const TreLeve = () => {
           <p className="font-mono text-xs tracking-[0.3em] uppercase text-primary mb-6">
             Le tre leve
           </p>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
             Come la strada è diventata più sicura
           </h2>
-          <p className="text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-foreground/70 max-w-2xl mx-auto leading-relaxed">
             Nel 2001 l'Unione Europea si è posta un obiettivo: dimezzare i morti sulla strada.
             Da lì sono nate tre leve.
           </p>
