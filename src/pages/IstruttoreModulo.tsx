@@ -48,6 +48,7 @@ import {
   type AulaStep,
 } from "@/lib/aulaSync";
 import { openAulaWindow } from "@/lib/aulaWindow";
+import { withRoom } from "@/lib/aulaRoom";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
 import { NotesDrawer } from "@/components/istruttore/NotesDrawer";
@@ -300,8 +301,13 @@ const IstruttoreModulo = () => {
   const liveBlockId = liveState?.blocco ?? null;
   const liveStep = liveState?.step ?? null;
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
-  const { liveHeartbeat: aulaHeartbeat, foreignModulo } =
-    useAulaHeartbeatMonitor(slug, liveState?.cmdTs ?? null);
+  const {
+    liveHeartbeat: aulaHeartbeat,
+    heartbeat: aulaLastBeat,
+    foreignModulo,
+    online: aulaOnline,
+    sinceMs: aulaSinceMs,
+  } = useAulaHeartbeatMonitor(slug, liveState?.cmdTs ?? null);
 
   // L'Aula comunica la posizione realmente visibile: quando cambia (anche per
   // scroll manuale lato Aula) la Regia si allinea, così blocco selezionato,
@@ -591,7 +597,7 @@ const IstruttoreModulo = () => {
     const initial = liveState ?? previewState;
     const url = `/aula/${slug}?blocco=${initial.blocco}&step=${initial.step}`;
     // Riferimento condiviso: riusa sempre la finestra Aula gia' proiettata.
-    openAulaWindow(url);
+    openAulaWindow(withRoom(url));
   };
 
   // Modulo successivo nella sequenza definita in src/lib/modules.ts
@@ -607,7 +613,7 @@ const IstruttoreModulo = () => {
     const firstId = nextModuleFirstBlock?.id ?? "";
     // 1) porta la finestra Aula gia' aperta sul nuovo modulo (stessa finestra)
     openAulaWindow(
-      `/aula/${nextModule.slug}?blocco=${firstId}&step=intro`,
+      withRoom(`/aula/${nextModule.slug}?blocco=${firstId}&step=intro`),
       true,
     );
     // 2) sposta anche la Regia sul nuovo modulo
@@ -727,9 +733,11 @@ const IstruttoreModulo = () => {
           </div>
 
           <AulaStatusBadge
-            modulo={slug}
             blocks={blocks}
-            expectedAckTs={liveState?.cmdTs ?? null}
+            heartbeat={aulaLastBeat}
+            online={aulaOnline}
+            sinceMs={aulaSinceMs}
+            foreignModulo={foreignModulo}
           />
 
           <OfflineStatus />

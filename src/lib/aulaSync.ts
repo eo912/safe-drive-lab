@@ -1,16 +1,25 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isOnline, onConnectivityChange } from "./connectivity";
+import { INSTANCE_ID, ROOM_ID } from "./aulaRoom";
 import type { Resource } from "./instructorTypes";
 import type { PauseAtmosphere } from "./pauseAtmosphere";
 import type { EmbedPayload } from "./sceneMedia";
-import { syncTrace, SYNC_SESSION_ID } from "./syncTrace";
+import { syncTrace } from "./syncTrace";
 
 /**
- * Stato condiviso tra Istruttore e Aula.
- * Sincronizzato tra finestre/tab della stessa macchina via BroadcastChannel.
- * Riflesso anche in URL (?blocco=...&step=...) per copia/incolla del link.
+ * Sincronizzazione Regia ↔ Aula.
+ *
+ * Tre tipi di evento, semanticamente separati:
+ *  - `navigation_command`  Regia → Aula. L'UNICO evento che può navigare/scrollare.
+ *  - `observed_position`   Aula → Regia. Posizione realmente visibile in Aula.
+ *  - `presence`            Aula → Regia. Solo liveness: non tocca mai blocco/step.
+ *
+ * Ogni evento viaggia in una busta con roomId, mittente, eventId e seq
+ * monotono: fuori stanza, di se stessi, duplicati o non crescenti vengono
+ * scartati (con motivo tracciato nei log SYNC_TRACE).
  */
+
 export type AulaStep = "intro" | "scenario" | "esiti" | "spiegazione" | "approfondimento";
 
 export type AulaState = {
@@ -22,106 +31,171 @@ export type AulaState = {
   pauseAtmosphere?: PauseAtmosphere;
   /** Schermata nera istantanea (tasto B). Sovrasta tutto in Aula. */
   blackout?: boolean;
-  // Media attualmente proiettato in Aula (immagine/video/pdf/link). null = nessuno.
   media?: Resource | null;
-  // Media embedded inline nella scena (più di uno consentito).
   embeds?: EmbedPayload[];
   /** Stato overlay telefono (solo lato Aula Live). */
   phonePhase?: "idle" | "ringing" | "visible";
-  /** Blocco a cui è associato l'overlay telefono. */
   phoneBlock?: string;
-  /** Timestamp dell'ultimo comando telefono, per scartare comandi vecchi dopo un reset locale. */
   phoneTs?: number;
-  /** Stato della scena di pericolo improvviso (renderizzata solo in Aula Live). */
   hazardPhase?: "idle" | "active" | "resolved";
   hazardVariant?: "car-braking";
   hazardOutcome?: "stopped" | "failed";
   hazardTs?: number;
-  /** Versione del comando: ts assegnato dalla Regia al momento della pubblicazione.
-   *  Non viene mai riscritto dai destinatari: serve all'Aula per dichiarare
-   *  QUALE comando sta eseguendo (ack) e alla Regia per scartare battiti
-   *  obsoleti o provenienti da un'altra sessione. */
+  /** Versione del comando assegnata dalla Regia: mai riscritta dai destinatari. */
   cmdTs?: number;
   ts: number;
 };
 
-const CHANNEL_NAME = "safedrivelab-aula";
-const STORAGE_KEY = "safedrivelab-aula-state";
-const HEARTBEAT_CHANNEL = "safedrivelab-aula-heartbeat";
-const HEARTBEAT_STORAGE = "safedrivelab-aula-heartbeat";
-
-/** Heartbeat inviato dall'Aula reale alla Regia. */
+/** Posizione dichiarata dall'Aula (observed_position). */
 export type AulaHeartbeat = {
   modulo: string;
   blocco: string;
   step: AulaStep;
   paused: boolean;
   pauseAtmosphere?: PauseAtmosphere;
-  /** Probabilità corrente della catena, riservata alla Regia. */
   riskProbability?: number;
-  /** Comando (cmdTs) che l'Aula sta eseguendo nel momento del battito. */
+  /** Comando (cmdTs) che l'Aula sta eseguendo nel momento dell'osservazione. */
   ackTs?: number;
   /** Momento in cui l'Aula ha chiuso da sola l'overlay telefono (verde/rosso). */
   phoneDismissTs?: number;
   ts: number;
 };
 
-const heartbeatChannel: BroadcastChannel | null =
-  typeof window !== "undefined" && "BroadcastChannel" in window
-    ? new BroadcastChannel(HEARTBEAT_CHANNEL)
-    : null;
-
-const channel: BroadcastChannel | null =
-  typeof window !== "undefined" && "BroadcastChannel" in window
-    ? new BroadcastChannel(CHANNEL_NAME)
-    : null;
-
 /* ------------------------------------------------------------------ *
- * Livello REMOTO (dispositivi diversi: PC regia ↔ TV/proiettore).
- * BroadcastChannel e localStorage funzionano solo sullo stesso browser:
- * per far seguire la TV al PC serve un canale realtime condiviso.
+ * Busta comune                                                        *
  * ------------------------------------------------------------------ */
 
-const REMOTE_ROOM = "safedrivelab-aula-live";
+export type EventKind =
+  | "navigation_command"
+  | "observed_position"
+  | "presence"
+  | "request_state";
 
-const remoteHandlers = {
-  state: new Set<(s: AulaState) => void>(),
-  heartbeat: new Set<(h: AulaHeartbeat) => void>(),
-  request: new Set<() => void>(),
+type Envelope = {
+  kind: EventKind;
+  roomId: string;
+  senderInstanceId: string;
+  eventId: string;
+  seq: number;
+  sentAt: number;
+  moduleId: string;
+  /** Solo per observed_position e navigation_command. */
+  blockId?: string;
+  step?: AulaStep;
+  payload?: unknown;
 };
+
+const LOCAL_CHANNEL = `safedrivelab-aula:${ROOM_ID}`;
+const STORAGE_KEY = `safedrivelab-aula-state:${ROOM_ID}`;
+const REMOTE_ROOM = `safedrivelab-aula-live:${ROOM_ID}`;
+
+let seqCounter = 0;
+const seenEventIds = new Set<string>();
+const seenOrder: string[] = [];
+const lastSeqBySender = new Map<string, number>();
+
+const makeEnvelope = (
+  kind: EventKind,
+  moduleId: string,
+  extra: Partial<Envelope> = {},
+): Envelope => ({
+  kind,
+  roomId: ROOM_ID,
+  senderInstanceId: INSTANCE_ID,
+  eventId: `${INSTANCE_ID}-${++seqCounter}`,
+  seq: seqCounter,
+  sentAt: Date.now(),
+  moduleId,
+  ...extra,
+});
+
+const rememberEvent = (id: string) => {
+  seenEventIds.add(id);
+  seenOrder.push(id);
+  if (seenOrder.length > 500) {
+    const old = seenOrder.shift();
+    if (old) seenEventIds.delete(old);
+  }
+};
+
+const traceEnv = (where: string, e: Envelope, extra: Record<string, unknown> = {}) =>
+  syncTrace("REALTIME", where, {
+    kind: e.kind,
+    roomId: e.roomId,
+    senderInstanceId: e.senderInstanceId,
+    eventId: e.eventId,
+    seq: e.seq,
+    sentAt: e.sentAt,
+    moduleId: e.moduleId,
+    blockId: e.blockId,
+    step: e.step,
+    receivedAt: Date.now(),
+    ...extra,
+  });
+
+/** Filtro unico: stanza, self, duplicati, seq non crescente. */
+const acceptEnvelope = (e: Envelope | null | undefined): e is Envelope => {
+  if (!e || typeof e !== "object" || !e.kind || !e.eventId) return false;
+  if (e.roomId !== ROOM_ID) {
+    traceEnv("bus.reject", e, { reason: "wrong-room", expectedRoomId: ROOM_ID });
+    return false;
+  }
+  if (e.senderInstanceId === INSTANCE_ID) return false; // self-originated
+  if (seenEventIds.has(e.eventId)) {
+    traceEnv("bus.reject", e, { reason: "duplicate-event" });
+    return false;
+  }
+  const key = `${e.senderInstanceId}:${e.kind}`;
+  const last = lastSeqBySender.get(key);
+  if (last != null && e.seq <= last) {
+    traceEnv("bus.reject", e, { reason: "stale-seq", lastSeq: last });
+    return false;
+  }
+  lastSeqBySender.set(key, e.seq);
+  rememberEvent(e.eventId);
+  return true;
+};
+
+/* ------------------------------------------------------------------ *
+ * Bus: una sola sottoscrizione locale + una sola remota, per stanza.   *
+ * ------------------------------------------------------------------ */
+
+type Handler = (e: Envelope) => void;
+const handlers = new Map<EventKind, Set<Handler>>();
+
+const dispatch = (raw: unknown) => {
+  const e = raw as Envelope;
+  if (!acceptEnvelope(e)) return;
+  handlers.get(e.kind)?.forEach((fn) => fn(e));
+};
+
+const localBus: BroadcastChannel | null =
+  typeof window !== "undefined" && "BroadcastChannel" in window
+    ? new BroadcastChannel(LOCAL_CHANNEL)
+    : null;
+
+localBus?.addEventListener("message", (ev: MessageEvent) => dispatch(ev.data));
 
 let remoteChannel: ReturnType<typeof supabase.channel> | null = null;
 
-/**
- * Il canale remoto è solo un "di più": serve a un eventuale secondo
- * dispositivo in rete. Regia e Aula sullo stesso computer restano allineate
- * da BroadcastChannel + localStorage, che funzionano anche senza internet.
- * Quindi: nessuna sottoscrizione remota quando siamo offline.
- */
 const getRemoteChannel = () => {
   if (typeof window === "undefined") return null;
   if (!isOnline()) return null;
   if (remoteChannel) return remoteChannel;
   remoteChannel = supabase
     .channel(REMOTE_ROOM, { config: { broadcast: { self: false } } })
-    .on("broadcast", { event: "state" }, ({ payload }) => {
-      remoteHandlers.state.forEach((fn) => fn(payload as AulaState));
-    })
-    .on("broadcast", { event: "heartbeat" }, ({ payload }) => {
-      remoteHandlers.heartbeat.forEach((fn) => fn(payload as AulaHeartbeat));
-    })
-    .on("broadcast", { event: "request-state" }, () => {
-      remoteHandlers.request.forEach((fn) => fn());
-    });
+    .on("broadcast", { event: "sync" }, ({ payload }) => dispatch(payload));
   remoteChannel.subscribe();
   return remoteChannel;
 };
 
-const remoteSend = (event: string, payload: unknown) => {
+const sendEnvelope = (e: Envelope) => {
+  rememberEvent(e.eventId);
+  localBus?.postMessage(e);
   const ch = getRemoteChannel();
   if (!ch) return;
   try {
-    void Promise.resolve(ch.send({ type: "broadcast", event, payload })).catch(
+    void Promise.resolve(ch.send({ type: "broadcast", event: "sync", payload: e })).catch(
       () => {
         /* offline: resta la sincronizzazione locale */
       },
@@ -131,7 +205,6 @@ const remoteSend = (event: string, payload: unknown) => {
   }
 };
 
-// Al ritorno della rete ricreiamo la sottoscrizione remota da zero.
 if (typeof window !== "undefined") {
   onConnectivityChange((online) => {
     if (online) {
@@ -150,21 +223,28 @@ if (typeof window !== "undefined") {
   });
 }
 
-const useRemoteListener = <T,>(
-  set: Set<(v: T) => void>,
-  fn: (v: T) => void,
-) => {
+/** Una sola registrazione stabile per componente, con cleanup garantito. */
+const useBusListener = (kind: EventKind, fn: Handler) => {
   const ref = useRef(fn);
   ref.current = fn;
   useEffect(() => {
-    const handler = (v: T) => ref.current(v);
+    const handler: Handler = (e) => ref.current(e);
     getRemoteChannel();
-    set.add(handler as never);
+    let set = handlers.get(kind);
+    if (!set) {
+      set = new Set();
+      handlers.set(kind, set);
+    }
+    set.add(handler);
     return () => {
-      set.delete(handler as never);
+      set?.delete(handler);
     };
-  }, [set]);
+  }, [kind]);
 };
+
+/* ------------------------------------------------------------------ *
+ * URL                                                                  *
+ * ------------------------------------------------------------------ */
 
 const readFromUrl = (modulo: string, fallbackBlocco: string): AulaState => {
   if (typeof window === "undefined") {
@@ -179,21 +259,24 @@ const readFromUrl = (modulo: string, fallbackBlocco: string): AulaState => {
   };
 };
 
-const writeToUrl = (state: AulaState) => {
+const writeToUrl = (state: { blocco: string; step: AulaStep }) => {
   if (typeof window === "undefined") return;
   const url = new URL(window.location.href);
+  if (
+    url.searchParams.get("blocco") === state.blocco &&
+    url.searchParams.get("step") === state.step
+  ) {
+    return;
+  }
   url.searchParams.set("blocco", state.blocco);
   url.searchParams.set("step", state.step);
   window.history.replaceState({}, "", url.toString());
 };
 
-/**
- * Hook per la modalità Istruttore.
- * - `previewState`: stato selezionato in anteprima (NON inviato all'Aula).
- * - `liveState`: ultimo stato pubblicato all'Aula.
- * - `publish(patch)`: invia il patch all'Aula e aggiorna liveState.
- * - `setPreview(patch)`: aggiorna solo l'anteprima locale.
- */
+/* ------------------------------------------------------------------ *
+ * REGIA                                                               *
+ * ------------------------------------------------------------------ */
+
 export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
   const initial = readFromUrl(modulo, defaultBlocco);
   const [previewState, setPreviewState] = useState<AulaState>(initial);
@@ -202,12 +285,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
 
   const setPreview = useCallback(
     (patch: Partial<Omit<AulaState, "ts" | "modulo">>) => {
-      setPreviewState((prev) => ({
-        ...prev,
-        ...patch,
-        modulo,
-        ts: Date.now(),
-      }));
+      setPreviewState((prev) => ({ ...prev, ...patch, modulo, ts: Date.now() }));
     },
     [modulo],
   );
@@ -228,15 +306,24 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
         } catch {
           /* ignore */
         }
+        const env = makeEnvelope("navigation_command", modulo, {
+          blockId: next.blocco,
+          step: next.step,
+          payload: next,
+        });
         syncTrace("REGIA", "useAulaPublisher.publish", {
+          kind: env.kind,
+          roomId: env.roomId,
+          senderInstanceId: env.senderInstanceId,
+          eventId: env.eventId,
+          seq: env.seq,
           moduleId: next.modulo,
           previousBlockId: prev.blocco,
           requestedBlockId: next.blocco,
           step: next.step,
-          sentAt: next.ts,
+          sentAt: env.sentAt,
         });
-        channel?.postMessage(next);
-        remoteSend("state", next);
+        sendEnvelope(env);
         lastPublishedRef.current = next;
         setLiveState(next);
         return next;
@@ -246,44 +333,57 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
   );
 
   /**
-   * Riallinea lo stato "in onda" con la posizione REALMENTE segnalata dall'Aula
-   * (heartbeat già validato dal chiamante). Non pubblica nulla: nessun comando
-   * torna verso l'Aula, quindi nessun eco. `cmdTs` resta quello dell'ultimo
-   * comando davvero inviato, così il filtro sugli ack continua a funzionare, e
-   * `ts` non viene toccato per non simulare un publish appena avvenuto.
+   * Allinea lo stato "in onda" alla posizione osservata in Aula.
+   * Non pubblica nulla: nessun comando torna verso l'Aula (nessun eco).
    */
-  const syncLiveFromAula = useCallback(
-    (pos: { blocco: string; step: AulaStep }) => {
-      setLiveState((prev) => {
-        if (!prev) return prev;
-        if (prev.blocco === pos.blocco && prev.step === pos.step) return prev;
-        const next: AulaState = { ...prev, blocco: pos.blocco, step: pos.step };
-        writeToUrl(next);
-        lastPublishedRef.current = next;
-        syncTrace("HEARTBEAT", "useAulaPublisher.syncLiveFromAula", {
-          moduleId: next.modulo,
-          previousBlockId: prev.blocco,
-          resultBlockId: next.blocco,
-          step: next.step,
-          receivedAt: Date.now(),
-        });
-        return next;
+  const syncLiveFromAula = useCallback((pos: { blocco: string; step: AulaStep }) => {
+    setLiveState((prev) => {
+      if (!prev) return prev;
+      if (prev.blocco === pos.blocco && prev.step === pos.step) return prev;
+      const next: AulaState = { ...prev, blocco: pos.blocco, step: pos.step };
+      writeToUrl(next);
+      lastPublishedRef.current = next;
+      syncTrace("HEARTBEAT", "useAulaPublisher.syncLiveFromAula", {
+        kind: "observed_position",
+        roomId: ROOM_ID,
+        moduleId: next.modulo,
+        previousBlockId: prev.blocco,
+        resultBlockId: next.blocco,
+        step: next.step,
+        receivedAt: Date.now(),
       });
-    },
-    [],
-  );
+      return next;
+    });
+  }, []);
 
-  // Una TV che si collega dopo chiede lo stato corrente: lo ri-trasmettiamo.
-  useRemoteListener(remoteHandlers.request, () => {
+  // Un'Aula che si collega dopo chiede lo stato corrente.
+  useBusListener("request_state", () => {
     const last = lastPublishedRef.current;
-    if (last) remoteSend("state", last);
+    if (!last) return;
+    sendEnvelope(
+      makeEnvelope("navigation_command", last.modulo, {
+        blockId: last.blocco,
+        step: last.step,
+        payload: last,
+      }),
+    );
   });
 
-  // Rete tornata: ripubblichiamo lo stato corrente per eventuali altri device.
   useEffect(() => {
     const off = onConnectivityChange((online) => {
       const last = lastPublishedRef.current;
-      if (online && last) window.setTimeout(() => remoteSend("state", last), 600);
+      if (!online || !last) return;
+      window.setTimeout(
+        () =>
+          sendEnvelope(
+            makeEnvelope("navigation_command", last.modulo, {
+              blockId: last.blocco,
+              step: last.step,
+              payload: last,
+            }),
+          ),
+        600,
+      );
     });
     return () => {
       off();
@@ -293,121 +393,85 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
   return { previewState, liveState, setPreview, publish, syncLiveFromAula };
 };
 
-/**
- * Hook per la modalità Aula.
- * Riceve aggiornamenti dall'istruttore (BroadcastChannel + storage fallback).
- */
+/* ------------------------------------------------------------------ *
+ * AULA                                                                *
+ * ------------------------------------------------------------------ */
+
 export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
   const [state, setState] = useState<AulaState>(() => readFromUrl(modulo, defaultBlocco));
-  const lastTsRef = useRef(state.ts);
-  const lastRemoteTsRef = useRef(0);
-  // Istante di apertura: nei primi secondi accettiamo anche uno stato
-  // "vecchio", perché è la risposta alla nostra richiesta di allineamento.
+  const lastCmdTsRef = useRef(0);
   const mountedAtRef = useRef(Date.now());
 
-  // Comandi provenienti da un ALTRO dispositivo (PC regia → TV).
-  // Il timestamp arriva da un altro orologio: confrontiamo solo con l'ultimo
-  // messaggio remoto ricevuto, mai con quello locale.
-  useRemoteListener(remoteHandlers.state, (incoming: AulaState) => {
-    if (!incoming || incoming.modulo !== modulo) return;
-    // Ripetizioni dello stesso comando (ogni Regia collegata risponde alle
-    // richieste di allineamento delle altre): riapplicarle faceva saltare
-    // l'Aula indietro sulla scena di un'altra sessione.
-    if (incoming.ts <= lastRemoteTsRef.current) {
-      syncTrace("REALTIME", "useAulaSubscriber.rejectDuplicate", {
-        moduleId: incoming.modulo,
-        requestedBlockId: incoming.blocco,
-        sentAt: incoming.ts,
-        lastAppliedAt: lastRemoteTsRef.current,
+  useBusListener("navigation_command", (e) => {
+    const incoming = e.payload as AulaState | undefined;
+    if (!incoming || incoming.modulo !== modulo) {
+      traceEnv("useAulaSubscriber.reject", e, { reason: "other-module" });
+      return;
+    }
+    const cmdTs = incoming.cmdTs ?? incoming.ts;
+    if (cmdTs <= lastCmdTsRef.current) {
+      traceEnv("useAulaSubscriber.reject", e, {
+        reason: "stale-command",
+        lastAppliedCmdTs: lastCmdTsRef.current,
       });
       return;
     }
-    // Comando più vecchio dell'apertura di questa schermata: è valido solo
-    // come risposta alla richiesta iniziale di allineamento.
     const joinWindow = Date.now() - mountedAtRef.current < 5000;
-    if (incoming.ts < mountedAtRef.current && !joinWindow) {
-      syncTrace("REALTIME", "useAulaSubscriber.rejectStaleCommand", {
-        moduleId: incoming.modulo,
-        requestedBlockId: incoming.blocco,
-        sentAt: incoming.ts,
+    if (cmdTs < mountedAtRef.current && !joinWindow) {
+      traceEnv("useAulaSubscriber.reject", e, {
+        reason: "older-than-mount",
         mountedAt: mountedAtRef.current,
       });
       return;
     }
-    syncTrace("REALTIME", "useAulaSubscriber.remote", {
-      moduleId: incoming.modulo,
-      requestedBlockId: incoming.blocco,
-      step: incoming.step,
-      sentAt: incoming.ts,
-      receivedAt: Date.now(),
-    });
-    lastRemoteTsRef.current = incoming.ts;
-    lastTsRef.current = Date.now();
+    traceEnv("useAulaSubscriber.apply", e, { reason: "accepted" });
+    lastCmdTsRef.current = cmdTs;
     writeToUrl(incoming);
-    setState({ ...incoming, ts: lastTsRef.current });
+    setState({ ...incoming, ts: Date.now() });
   });
 
-  // All'apertura la TV chiede alla Regia lo stato corrente.
+  // All'apertura chiediamo lo stato corrente alla Regia della stanza.
   useEffect(() => {
     getRemoteChannel();
-    const id = window.setTimeout(() => remoteSend("request-state", { modulo }), 800);
+    const id = window.setTimeout(
+      () => sendEnvelope(makeEnvelope("request_state", modulo)),
+      800,
+    );
     return () => window.clearTimeout(id);
   }, [modulo]);
 
-
+  // Snapshot locale: SOLO al montaggio (niente listener "storage": era la
+  // seconda strada che faceva applicare due volte lo stesso comando).
   useEffect(() => {
-    const apply = (incoming: AulaState) => {
-      if (incoming.modulo !== modulo) return;
-      // Tolleriamo ts uguale (clock low-res): scartiamo solo i veri "vecchi".
-      if (incoming.ts < lastTsRef.current) return;
-      syncTrace("AULA", "useAulaSubscriber.applyLocal", {
-        moduleId: incoming.modulo,
-        requestedBlockId: incoming.blocco,
-        step: incoming.step,
-        sentAt: incoming.ts,
-        receivedAt: Date.now(),
-      });
-      lastTsRef.current = incoming.ts;
-      writeToUrl(incoming);
-      setState(incoming);
-    };
-
-    const onMessage = (e: MessageEvent<AulaState>) => apply(e.data);
-    const onStorage = (e: StorageEvent) => {
-      if (e.key !== STORAGE_KEY || !e.newValue) return;
-      try {
-        apply(JSON.parse(e.newValue) as AulaState);
-      } catch {
-        /* ignore */
-      }
-    };
-
-    channel?.addEventListener("message", onMessage);
-    window.addEventListener("storage", onStorage);
-
-    // Stato iniziale dal localStorage (se l'istruttore ha gia' pubblicato)
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) apply(JSON.parse(raw) as AulaState);
+      if (!raw) return;
+      const snap = JSON.parse(raw) as AulaState;
+      if (snap.modulo !== modulo) return;
+      const cmdTs = snap.cmdTs ?? snap.ts;
+      if (cmdTs <= lastCmdTsRef.current) return;
+      lastCmdTsRef.current = cmdTs;
+      syncTrace("INIT", "useAulaSubscriber.snapshot", {
+        kind: "navigation_command",
+        roomId: ROOM_ID,
+        moduleId: snap.modulo,
+        resultBlockId: snap.blocco,
+        step: snap.step,
+        sentAt: cmdTs,
+      });
+      writeToUrl(snap);
+      setState({ ...snap, ts: Date.now() });
     } catch {
       /* ignore */
     }
-
-    return () => {
-      channel?.removeEventListener("message", onMessage);
-      window.removeEventListener("storage", onStorage);
-    };
   }, [modulo]);
 
   return state;
 };
 
 /**
- * Hook lato Aula: invia un heartbeat ogni `intervalMs` (default 1500ms)
- * con la posizione corrente. Sistema leggero: nessun fetch, nessun polling
- * di rete, solo BroadcastChannel + localStorage (stesso pattern dello stato).
- *
- * NON deve essere chiamato in modalità embed (mini-stage della regia).
+ * Aula → Regia. `presence` ogni `intervalMs` (solo liveness),
+ * `observed_position` quando la posizione osservata cambia davvero.
  */
 export const useAulaHeartbeat = (
   enabled: boolean,
@@ -417,154 +481,130 @@ export const useAulaHeartbeat = (
   const ref = useRef(payload);
   ref.current = payload;
 
-  // L'indirizzo della finestra Aula deve riflettere la scena REALMENTE
-  // visibile, anche quando si è arrivati lì con scroll/frecce locali (nessun
-  // comando dalla Regia). Solo replaceState: non pubblica e non invia nulla
-  // in realtime, quindi non può innescare un eco verso l'Aula. Gli altri
-  // parametri della query (es. synctrace) restano intatti.
+  // L'indirizzo della finestra Aula riflette la scena realmente visibile.
+  // Solo replaceState: non pubblica e non invia nulla.
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
     const { blocco, step } = payload;
     if (!blocco) return;
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("blocco") === blocco && url.searchParams.get("step") === step) {
-      return;
-    }
-    url.searchParams.set("blocco", blocco);
-    url.searchParams.set("step", step);
-    window.history.replaceState({}, "", url.toString());
+    writeToUrl({ blocco, step });
     syncTrace("LOCAL_EFFECT", "useAulaHeartbeat.syncUrl", {
+      roomId: ROOM_ID,
       moduleId: payload.modulo,
       resultBlockId: blocco,
       step,
     });
-  }, [enabled, payload.modulo, payload.blocco, payload.step]);
+  }, [enabled, payload.modulo, payload.blocco, payload.step, payload]);
 
+  // presence: liveness e basta.
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
-    const send = () => {
-      const beat: AulaHeartbeat = { ...ref.current, ts: Date.now() };
-      syncTrace("HEARTBEAT", "useAulaHeartbeat.send", {
-        moduleId: beat.modulo,
-        resultBlockId: beat.blocco,
-        step: beat.step,
-        sentAt: beat.ts,
+    const beat = () => {
+      const env = makeEnvelope("presence", ref.current.modulo);
+      syncTrace("HEARTBEAT", "useAulaHeartbeat.presence", {
+        kind: env.kind,
+        roomId: env.roomId,
+        senderInstanceId: env.senderInstanceId,
+        eventId: env.eventId,
+        seq: env.seq,
+        moduleId: env.moduleId,
+        sentAt: env.sentAt,
       });
-      try {
-        localStorage.setItem(HEARTBEAT_STORAGE, JSON.stringify(beat));
-      } catch {
-        /* ignore */
-      }
-      heartbeatChannel?.postMessage(beat);
-      remoteSend("heartbeat", beat);
+      sendEnvelope(env);
     };
-    send();
-    const id = window.setInterval(send, intervalMs);
+    beat();
+    const id = window.setInterval(beat, intervalMs);
     return () => window.clearInterval(id);
   }, [enabled, intervalMs]);
+
+  // observed_position: solo quando cambia qualcosa di osservato.
+  const signature = JSON.stringify(payload);
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") return;
+    const p = ref.current;
+    const env = makeEnvelope("observed_position", p.modulo, {
+      blockId: p.blocco,
+      step: p.step,
+      payload: { ...p, ts: Date.now() } as AulaHeartbeat,
+    });
+    syncTrace("HEARTBEAT", "useAulaHeartbeat.observedPosition", {
+      kind: env.kind,
+      roomId: env.roomId,
+      senderInstanceId: env.senderInstanceId,
+      eventId: env.eventId,
+      seq: env.seq,
+      moduleId: env.moduleId,
+      blockId: env.blockId,
+      step: env.step,
+      ackTs: p.ackTs ?? null,
+      sentAt: env.sentAt,
+    });
+    sendEnvelope(env);
+  }, [enabled, signature]);
 };
 
 /**
- * Hook lato Regia: riceve gli heartbeat dall'Aula e calcola lo stato
- * online/offline. Aula è considerata offline se non riceviamo heartbeat
- * per più di `offlineAfterMs` (default 6000ms: tolleriamo qualche battito
- * perso su rete lenta o quando la scheda Aula viene rallentata dal browser).
- *
- * I battiti vengono raccolti da QUALSIASI modulo: se l'Aula passa da sola a
- * un altro modulo la Regia deve poterlo sapere, invece di mostrare un
- * fuorviante "Aula offline".
+ * Regia: presenza + posizione osservata dell'Aula della stanza.
+ * La presenza NON tocca mai blocco/step.
  */
 export const useAulaHeartbeatMonitor = (
   modulo: string,
   expectedAckTs: number | null = null,
   offlineAfterMs = 6000,
 ) => {
-  const [last, setLast] = useState<AulaHeartbeat | null>(null);
+  const [observed, setObserved] = useState<AulaHeartbeat | null>(null);
+  const [presence, setPresence] = useState<{ moduleId: string; at: number } | null>(null);
   const [now, setNow] = useState<number>(() => Date.now());
 
-  // Un battito è valido solo se dichiara di eseguire l'ULTIMO comando
-  // pubblicato da questa Regia. Scarta sia i battiti in ritardo (l'Aula non
-  // si è ancora allineata) sia quelli di un'altra sessione sullo stesso
-  // canale: entrambi facevano tornare indietro la Regia.
   const ackRef = useRef<number | null>(expectedAckTs);
   ackRef.current = expectedAckTs;
-  const accepts = useCallback((b: AulaHeartbeat) => {
-    const expected = ackRef.current;
-    if (expected == null) return true;
-    if (b.ackTs === expected) return true;
-    syncTrace("HEARTBEAT", "monitor.rejectStaleBeat", {
-      moduleId: b.modulo,
-      resultBlockId: b.blocco,
-      beatAckTs: b.ackTs ?? null,
-      expectedAckTs: expected,
-    });
-    return false;
-  }, []);
 
-  // Battito da un altro dispositivo: l'orologio è diverso, quindi lo
-  // normalizziamo sull'ora locale per il calcolo online/offline.
-  useRemoteListener(remoteHandlers.heartbeat, (b: AulaHeartbeat) => {
-    if (!b) return;
-    if (!accepts(b)) return;
-    syncTrace("HEARTBEAT", "monitor.remoteBeat", {
-      moduleId: b.modulo,
-      resultBlockId: b.blocco,
-      step: b.step,
-      sentAt: b.ts,
-      receivedAt: Date.now(),
-    });
-    setLast({ ...b, ts: Date.now() });
+  useBusListener("presence", (e) => {
+    setPresence({ moduleId: e.moduleId, at: Date.now() });
   });
 
+  useBusListener("observed_position", (e) => {
+    const b = e.payload as AulaHeartbeat | undefined;
+    if (!b) return;
+    const expected = ackRef.current;
+    // Regola esplicita: durante una transizione comandata accettiamo la nuova
+    // posizione osservata solo quando l'Aula conferma il comando in corso.
+    if (expected != null && b.ackTs !== expected && b.modulo === modulo) {
+      traceEnv("monitor.reject", e, {
+        reason: "not-acking-current-command",
+        beatAckTs: b.ackTs ?? null,
+        expectedAckTs: expected,
+      });
+      return;
+    }
+    traceEnv("monitor.observedPosition", e, { reason: "accepted" });
+    setObserved({ ...b, ts: Date.now() });
+  });
 
   useEffect(() => {
-    const apply = (b: AulaHeartbeat) => {
-      if (!accepts(b)) return;
-      setLast((prev) => (prev && prev.ts > b.ts ? prev : b));
-    };
-    const onMsg = (e: MessageEvent<AulaHeartbeat>) => apply(e.data);
-    const onStorage = (e: StorageEvent) => {
-      if (e.key !== HEARTBEAT_STORAGE || !e.newValue) return;
-      try {
-        apply(JSON.parse(e.newValue) as AulaHeartbeat);
-      } catch {
-        /* ignore */
-      }
-    };
-    heartbeatChannel?.addEventListener("message", onMsg);
-    window.addEventListener("storage", onStorage);
-
-    // Lettura iniziale (se Aula sta già trasmettendo)
-    try {
-      const raw = localStorage.getItem(HEARTBEAT_STORAGE);
-      if (raw) apply(JSON.parse(raw) as AulaHeartbeat);
-    } catch {
-      /* ignore */
-    }
-
     const tick = window.setInterval(() => setNow(Date.now()), 500);
-    return () => {
-      heartbeatChannel?.removeEventListener("message", onMsg);
-      window.removeEventListener("storage", onStorage);
-      window.clearInterval(tick);
-    };
-  }, [accepts]);
+    return () => window.clearInterval(tick);
+  }, []);
 
-  const sinceMs = last ? now - last.ts : Infinity;
-  const connected = last !== null && sinceMs < offlineAfterMs;
-  const sameModule = last?.modulo === modulo;
-  return {
-    /** Ultimo battito del modulo corrente (anche se non più recente). */
-    heartbeat: sameModule ? last : null,
-    /** Battito recente E del modulo corrente: unica fonte affidabile di posizione. */
-    liveHeartbeat: connected && sameModule ? last : null,
-    /** Modulo su cui si trova davvero l'Aula, se diverso da quello in Regia. */
-    foreignModulo: connected && !sameModule ? (last as AulaHeartbeat).modulo : null,
-    /** Aula raggiungibile (qualsiasi modulo). */
-    connected,
-    /** Aula raggiungibile e allineata sul modulo corrente. */
-    online: connected && sameModule,
-    sinceMs,
-  };
+  const presenceAt = presence?.at ?? 0;
+  const sinceMs = presenceAt ? now - presenceAt : Infinity;
+  const connected = presenceAt > 0 && sinceMs < offlineAfterMs;
+  const aulaModule = presence?.moduleId ?? observed?.modulo;
+  const sameModule = aulaModule === modulo;
+  const last = observed && observed.modulo === modulo ? observed : null;
+
+  return useMemo(
+    () => ({
+      /** Ultima posizione osservata del modulo corrente. */
+      heartbeat: last,
+      /** Posizione osservata con Aula presente: unica fonte di posizione. */
+      liveHeartbeat: connected && sameModule ? last : null,
+      /** Modulo su cui si trova davvero l'Aula, se diverso da quello in Regia. */
+      foreignModulo: connected && !sameModule ? (aulaModule ?? null) : null,
+      connected,
+      online: connected && sameModule,
+      sinceMs,
+    }),
+    [last, connected, sameModule, aulaModule, sinceMs],
+  );
 };
-

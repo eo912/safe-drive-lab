@@ -1,14 +1,16 @@
 import { Wifi, WifiOff, Coffee, AlertTriangle } from "lucide-react";
-import { useAulaHeartbeatMonitor } from "@/lib/aulaSync";
+import type { AulaHeartbeat } from "@/lib/aulaSync";
 import type { ModuleBlock } from "@/lib/moduleBlocks";
 import { getAtmosphere } from "@/lib/pauseAtmosphere";
 import { modules } from "@/lib/modules";
 
 type Props = {
-  modulo: string;
   blocks: ModuleBlock[];
-  /** Ultimo comando pubblicato: filtra i battiti obsoleti o di altre sessioni. */
-  expectedAckTs?: number | null;
+  /** Dati forniti dalla Regia: una sola sottoscrizione per pagina. */
+  heartbeat: AulaHeartbeat | null;
+  online: boolean;
+  sinceMs: number;
+  foreignModulo: string | null;
 };
 
 const fmtSince = (ms: number) => {
@@ -29,10 +31,13 @@ const fmtSince = (ms: number) => {
  *
  * Volutamente non-tecnico: niente ping/log/diagnostica.
  */
-export const AulaStatusBadge = ({ modulo, blocks, expectedAckTs = null }: Props) => {
-  const { heartbeat, online, sinceMs, foreignModulo } =
-    useAulaHeartbeatMonitor(modulo, expectedAckTs);
-
+export const AulaStatusBadge = ({
+  blocks,
+  heartbeat,
+  online,
+  sinceMs,
+  foreignModulo,
+}: Props) => {
   const block = heartbeat
     ? blocks.find((b) => b.id === heartbeat.blocco) ?? null
     : null;
