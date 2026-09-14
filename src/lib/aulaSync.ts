@@ -415,6 +415,29 @@ export const useAulaHeartbeat = (
   const ref = useRef(payload);
   ref.current = payload;
 
+  // L'indirizzo della finestra Aula deve riflettere la scena REALMENTE
+  // visibile, anche quando si è arrivati lì con scroll/frecce locali (nessun
+  // comando dalla Regia). Solo replaceState: non pubblica e non invia nulla
+  // in realtime, quindi non può innescare un eco verso l'Aula. Gli altri
+  // parametri della query (es. synctrace) restano intatti.
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") return;
+    const { blocco, step } = payload;
+    if (!blocco) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("blocco") === blocco && url.searchParams.get("step") === step) {
+      return;
+    }
+    url.searchParams.set("blocco", blocco);
+    url.searchParams.set("step", step);
+    window.history.replaceState({}, "", url.toString());
+    syncTrace("LOCAL_EFFECT", "useAulaHeartbeat.syncUrl", {
+      moduleId: payload.modulo,
+      resultBlockId: blocco,
+      step,
+    });
+  }, [enabled, payload.modulo, payload.blocco, payload.step]);
+
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
     const send = () => {
