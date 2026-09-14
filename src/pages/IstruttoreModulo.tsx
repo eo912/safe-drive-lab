@@ -711,15 +711,9 @@ const IstruttoreModulo = () => {
             </div>
           </div>
 
-          <AulaStatusBadge
-            blocks={blocks}
-            heartbeat={aulaLastBeat}
-            online={aulaOnline}
-            sinceMs={aulaSinceMs}
-            foreignModulo={foreignModulo}
-          />
+          <SyncToggle className="hidden md:inline-flex" />
 
-          <OfflineStatus />
+
 
 
           {/* Drawer triggers — solo sotto lg */}
