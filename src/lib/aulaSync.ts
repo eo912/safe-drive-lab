@@ -243,6 +243,34 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
     [modulo],
   );
 
+  /**
+   * Riallinea lo stato "in onda" con la posizione REALMENTE segnalata dall'Aula
+   * (heartbeat già validato dal chiamante). Non pubblica nulla: nessun comando
+   * torna verso l'Aula, quindi nessun eco. `cmdTs` resta quello dell'ultimo
+   * comando davvero inviato, così il filtro sugli ack continua a funzionare, e
+   * `ts` non viene toccato per non simulare un publish appena avvenuto.
+   */
+  const syncLiveFromAula = useCallback(
+    (pos: { blocco: string; step: AulaStep }) => {
+      setLiveState((prev) => {
+        if (!prev) return prev;
+        if (prev.blocco === pos.blocco && prev.step === pos.step) return prev;
+        const next: AulaState = { ...prev, blocco: pos.blocco, step: pos.step };
+        writeToUrl(next);
+        lastPublishedRef.current = next;
+        syncTrace("HEARTBEAT", "useAulaPublisher.syncLiveFromAula", {
+          moduleId: next.modulo,
+          previousBlockId: prev.blocco,
+          resultBlockId: next.blocco,
+          step: next.step,
+          receivedAt: Date.now(),
+        });
+        return next;
+      });
+    },
+    [],
+  );
+
   // Una TV che si collega dopo chiede lo stato corrente: lo ri-trasmettiamo.
   useRemoteListener(remoteHandlers.request, () => {
     const last = lastPublishedRef.current;
