@@ -55,7 +55,11 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
         }`}
       >
         {/* Illustrazione + hotspot */}
-        <div className={`relative w-full ${frameClassName}`}>
+        <div
+          className={`relative w-full ${
+            active?.youtubeEmbedUrl ? "h-[28vh] max-w-[49.78vh] mx-auto" : frameClassName
+          }`}
+        >
           <ImagePlaceholder
             label={illustrationLabel}
             className={`${frameClassName ? "h-full" : compact ? "h-[28vh] min-h-[180px]" : "h-[44vh]"} w-full`}

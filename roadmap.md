@@ -5,4 +5,4 @@
 [fatto] alleggerimento-testi: Modulo 8 e blocchi prioritari dei Moduli 2, 4 e 5
 [fatto] ottimizzazione-foto-aula: compresse stanchezza, pneumatici e freni mantenendo qualità da proiezione
 [fatto] alleggerimento-chiusure: semplificate e verificate le chiusure dei Moduli 2, 6, 7 e 8
-[in corso] video-youtube-corso: inserire e verificare i video nei Moduli 1, 3 e 4
+[fatto] video-youtube-corso: inseriti e verificati i video nei Moduli 1, 3 e 4
