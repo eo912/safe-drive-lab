@@ -301,13 +301,13 @@ const AulaModulo5 = () => {
                 className="h-[30vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   Accelerando, frenando o curvando, il peso si sposta tra le ruote:{" "}
                   <span className="text-foreground font-medium">si sposta</span>.
                   avanti in frenata, indietro in accelerazione e verso l'esterno in
                   curva.
                 </p>
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   È fisica normale, ma cambia continuamente{" "}
                   <span className="text-primary font-semibold">
                     quanta aderenza ha davvero a disposizione ciascuna ruota
@@ -335,7 +335,7 @@ const AulaModulo5 = () => {
 
             <div className="grid md:grid-cols-[1.35fr_1fr] gap-6 items-center">
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   Immagina che ogni pneumatico abbia{" "}
                   <span className="text-foreground font-medium">
                     100 di aderenza disponibile
@@ -344,7 +344,7 @@ const AulaModulo5 = () => {
                   Se in quel momento chiedi anche una sterzata decisa, il budget
                   non basta — il veicolo perde precisione o aderenza.
                 </p>
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   Per questo frenata, sterzata e accelerazione vanno il più
                   possibile{" "}
                   <span className="text-primary font-semibold">

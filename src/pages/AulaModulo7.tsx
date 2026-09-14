@@ -301,7 +301,7 @@ const AulaModulo7 = () => {
                 className="h-[30vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   Chi guida per lavoro trascorre{" "}
                   <span className="text-foreground font-medium">
                     molte più ore al volante
@@ -317,7 +317,7 @@ const AulaModulo7 = () => {
                   <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
                     Pianificazione
                   </p>
-                  <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                  <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                     La guida professionale comincia prima di mettere in moto:
                     conoscere in anticipo eventuali criticità (traffico, lavori,
                     meteo), valutare i tempi in modo{" "}

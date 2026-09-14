@@ -383,7 +383,7 @@ const AulaModulo4 = () => {
                 className="h-[30vh] w-full"
               />
               <motion.div {...fade} className="flex flex-col gap-3">
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   A 90 km/h, fermare oltre una tonnellata richiede un lavoro enorme
                   in pochi secondi. A farlo sono{" "}
                   <span className="text-foreground font-medium">
@@ -391,7 +391,7 @@ const AulaModulo4 = () => {
                   </span>{" "}
                   ciascuna: tutta la forza diventa calore.
                 </p>
-                <p className="text-base md:text-lg text-foreground/80 leading-relaxed">
+                <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                   In discesa, frenare continuamente surriscalda le pastiglie e
                   riduce l'efficacia, anche col pedale premuto. Si chiama{" "}
                   <span className="text-primary font-semibold">fading</span>, e si
