@@ -4,4 +4,4 @@
 [fatto] verifica-modulo-9: distribuite 10 domande su quattro schermate con testi più leggibili
 [fatto] alleggerimento-testi: Modulo 8 e blocchi prioritari dei Moduli 2, 4 e 5
 [fatto] ottimizzazione-foto-aula: compresse stanchezza, pneumatici e freni mantenendo qualità da proiezione
-[in corso] alleggerimento-chiusure: semplificare e verificare le chiusure dei Moduli 2, 6, 7 e 8
+[fatto] alleggerimento-chiusure: semplificate e verificate le chiusure dei Moduli 2, 6, 7 e 8
