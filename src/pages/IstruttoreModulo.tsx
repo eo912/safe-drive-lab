@@ -421,7 +421,7 @@ const IstruttoreModulo = () => {
       hazardOutcomeRef.current = undefined;
       setHazardPhase("idle");
       setHazardOutcome(undefined);
-      publish({ ...sequence[next], paused: false });
+      applyPosition({ ...sequence[next] });
     };
   }, [
     sequence,
