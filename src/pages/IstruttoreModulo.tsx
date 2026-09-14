@@ -300,8 +300,13 @@ const IstruttoreModulo = () => {
   const liveBlockId = liveState?.blocco ?? null;
   const liveStep = liveState?.step ?? null;
   const liveBlock = liveBlockId ? blocks.find((b) => b.id === liveBlockId) ?? null : null;
-  const { liveHeartbeat: aulaHeartbeat, foreignModulo } =
-    useAulaHeartbeatMonitor(slug, liveState?.cmdTs ?? null);
+  const {
+    liveHeartbeat: aulaHeartbeat,
+    heartbeat: aulaLastBeat,
+    foreignModulo,
+    online: aulaOnline,
+    sinceMs: aulaSinceMs,
+  } = useAulaHeartbeatMonitor(slug, liveState?.cmdTs ?? null);
 
   // L'Aula comunica la posizione realmente visibile: quando cambia (anche per
   // scroll manuale lato Aula) la Regia si allinea, così blocco selezionato,
