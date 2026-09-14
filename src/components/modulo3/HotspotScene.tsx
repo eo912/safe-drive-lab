@@ -13,6 +13,8 @@ export type Hotspot = {
   y: number;
   title: string;
   text: string;
+  /** Video YouTube opzionale; ha priorità su qualsiasi immagine */
+  youtubeEmbedUrl?: string;
   /** Immagine opzionale mostrata sopra il testo nel pannello di dettaglio */
   image?: string;
   imageAlt?: string;
@@ -53,7 +55,11 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
         }`}
       >
         {/* Illustrazione + hotspot */}
-        <div className={`relative w-full ${frameClassName}`}>
+        <div
+          className={`relative w-full ${
+            active?.youtubeEmbedUrl ? "h-[28vh] max-w-[49.78vh] mx-auto" : frameClassName
+          }`}
+        >
           <ImagePlaceholder
             label={illustrationLabel}
             className={`${frameClassName ? "h-full" : compact ? "h-[28vh] min-h-[180px]" : "h-[44vh]"} w-full`}
@@ -108,7 +114,16 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
                 >
                   <X className="w-4 h-4" />
                 </button>
-                {active.imageLabel && (
+                {active.youtubeEmbedUrl && (
+                  <iframe
+                    src={active.youtubeEmbedUrl}
+                    title={active.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="h-[22vh] min-h-40 w-full border-b border-border/60 bg-background"
+                  />
+                )}
+                {!active.youtubeEmbedUrl && active.imageLabel && (
                   <EditableImageSlot
                     label={active.imageLabel}
                     className="h-[18vh] min-h-36 w-full"
@@ -120,7 +135,7 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
                     </div>
                   </EditableImageSlot>
                 )}
-                {!active.imageLabel && active.image && !failedImages.includes(active.id) && (
+                {!active.youtubeEmbedUrl && !active.imageLabel && active.image && !failedImages.includes(active.id) && (
                   <img
                     src={active.image}
                     alt={active.imageAlt ?? active.title}
@@ -132,7 +147,7 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
                     className="h-[18vh] min-h-36 w-full object-cover"
                   />
                 )}
-                {!active.imageLabel && active.image && failedImages.includes(active.id) && (
+                {!active.youtubeEmbedUrl && !active.imageLabel && active.image && failedImages.includes(active.id) && (
                   <ImagePlaceholder
                     label="Vista dagli specchietti retrovisori"
                     className="h-[18vh] min-h-36 rounded-none border-x-0 border-t-0"

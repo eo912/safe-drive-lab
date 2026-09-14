@@ -371,8 +371,8 @@ const AulaModulo4 = () => {
           BLOCCO 2 — FRENI
           ============================================================ */}
       <Slide bg="darker" blockId="freni" className="items-stretch">
-        <div className="relative z-10 w-full h-full px-6 md:px-12 py-8 md:py-10">
-          <div className="max-w-6xl mx-auto flex flex-col gap-5 justify-center min-h-full">
+        <div className="relative z-10 w-full h-full px-6 md:px-12 py-5 md:py-6">
+          <div className="max-w-6xl mx-auto flex flex-col gap-3 justify-center min-h-full">
             <div className="text-center">
               <h2 className="text-2xl md:text-4xl font-bold leading-tight">
                 Fermare una tonnellata{" "}
@@ -462,7 +462,7 @@ const AulaModulo4 = () => {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-3">
               {[
                 {
                   sigla: "ABS",
@@ -480,7 +480,7 @@ const AulaModulo4 = () => {
                 <motion.div
                   key={s.sigla}
                   {...fade}
-                  className="rounded-lg border border-border/60 bg-card/70 px-5 py-4"
+                  className="rounded-lg border border-border/60 bg-card/70 px-5 py-3"
                 >
                   <p className="font-mono text-xs uppercase tracking-[0.25em] text-primary mb-2">
                     {s.sigla}
@@ -492,10 +492,10 @@ const AulaModulo4 = () => {
               ))}
             </div>
 
-            <div className="grid md:grid-cols-[1fr_1.35fr] gap-6 items-center">
+            <div className="grid md:grid-cols-[1fr_1.35fr] gap-4 items-center">
               <ImagePlaceholder
                 label="Cruscotto con spia ESP/ABS, o schema ruota che perde e mantiene aderenza (placeholder generico)"
-                className="h-[22vh] w-full"
+                className="h-[14vh] w-full"
               />
               <div className="rounded-lg border border-primary/60 bg-background/90 px-5 py-4">
                 <p className="font-mono text-xs uppercase tracking-widest text-primary mb-2">
@@ -506,6 +506,32 @@ const AulaModulo4 = () => {
                   recuperare il controllo, ma non sostituiscono il margine.
                 </p>
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                {
+                  label: "ESP — spiegazione generale",
+                  src: "https://www.youtube.com/embed/5IP-pgKrNV8",
+                },
+                {
+                  label: "ESP Bosch — come funziona",
+                  src: "https://www.youtube.com/embed/sOfkWfzzR5o",
+                },
+              ].map((video) => (
+                <div key={video.src} className="min-w-0">
+                  <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-primary">
+                    {video.label}
+                  </p>
+                  <iframe
+                    src={video.src}
+                    title={video.label}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="h-[16vh] min-h-28 w-full rounded-lg border border-border/60 bg-background"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>

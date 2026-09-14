@@ -574,6 +574,29 @@ const AulaModulo1 = () => {
       </Free>
 
       {/* ============================================================
+          BLOCCO 2b — VIDEO MISTAKES
+          ============================================================ */}
+      <Slide bg="black" blockId="video-mistakes">
+        <div className="relative z-10 flex w-full max-w-4xl flex-col items-center justify-center gap-6 px-6">
+          <motion.p
+            {...fade}
+            className="font-mono text-xs uppercase tracking-[0.3em] text-primary"
+          >
+            Un esempio
+          </motion.p>
+          <motion.div {...fade} className="aspect-video w-full max-w-3xl">
+            <iframe
+              src="https://www.youtube.com/embed/jwXtDcGj6rk"
+              title="The Speed ad — Mistakes"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="h-full w-full rounded-lg border border-border/60 bg-background"
+            />
+          </motion.div>
+        </div>
+      </Slide>
+
+      {/* ============================================================
           BLOCCO 3 — LE TRE LEVE
           ============================================================ */}
       <Slide bg="darker" blockId="tre-leve" className="items-stretch">
