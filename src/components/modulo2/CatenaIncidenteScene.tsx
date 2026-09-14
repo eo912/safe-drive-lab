@@ -356,7 +356,7 @@ export const CatenaIncidenteScene = ({
           </div>
         )}
 
-        {fase === "nodi" && !specchietto && (
+        {fase === "nodi" && !specchietto && nodo.id !== "notifica" && (
           <motion.div
             key={`${nodo.id}-${secondaChiamata ? "bis" : "uno"}`}
             initial={{ opacity: 0, y: 12 }}
