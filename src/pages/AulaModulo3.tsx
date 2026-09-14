@@ -330,11 +330,15 @@ const AulaModulo3 = () => {
 
       {!isPaused && <AulaWatermark />}
 
-      <div data-aula-sync-toggle className="fixed bottom-4 right-4 z-40">
+      {!embedMode && (
 
-        <SyncToggle />
+        <div data-aula-sync-toggle className="fixed bottom-4 right-4 z-40">
 
-      </div>
+          <SyncToggle />
+
+        </div>
+
+      )}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />
