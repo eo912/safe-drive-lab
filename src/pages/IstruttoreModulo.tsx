@@ -948,7 +948,25 @@ const IstruttoreModulo = () => {
                   </div>
 
                   {active.id === "catena-incidente" && (
+                    <section className="mb-6 border border-border bg-card/70 p-4" aria-label="Controlli telefono che squilla">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold">Telefono che squilla</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Solo Aula Live · scorciatoia telecomando: Invio
+                          </p>
+                        </div>
+                        <Button type="button" onClick={togglePhone} size="sm">
+                          <Play />
+                          Avvia scena
+                        </Button>
+                      </div>
+                    </section>
+                  )}
+
+                  {active.id === "catena-incidente" && (
                     <section className="mb-6 border border-border bg-card/70 p-4" aria-label="Controlli scena auto che frena">
+
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold">Auto che frena davanti</p>
