@@ -17,6 +17,11 @@ import { SyncToggle } from "@/components/sync/SyncToggle";
 
 const MODULO = "modulo-5-dinamica-del-veicolo";
 
+// TODO: incollare qui l'URL pubblico Supabase del video
+const VIDEO_NEUTRO_URL = "";
+const VIDEO_SOTTOSTERZO_URL = "";
+const VIDEO_SOVRASTERZO_URL = "";
+
 const fade = {
   initial: { opacity: 0, y: 20, scale: 0.98 },
   whileInView: { opacity: 1, y: 0, scale: 1 },
