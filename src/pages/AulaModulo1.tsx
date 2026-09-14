@@ -429,6 +429,9 @@ const AulaModulo1 = () => {
 
       {!isPaused && (embedMode ? embedBlocco : visibleBlock) !== "copertina" && (
         <AulaWatermark />
+        <div data-aula-sync-toggle className="fixed bottom-4 right-4 z-40">
+          <SyncToggle />
+        </div>
       )}
 
       {!embedMode && aulaState.blackout && (
