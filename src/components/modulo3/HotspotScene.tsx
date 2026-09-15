@@ -125,7 +125,7 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
                     src={active.youtubeEmbedUrl}
                     title={active.title}
                     revealedVideos={revealedVideos}
-                    className="h-[22vh] min-h-40 w-full rounded-none border-0 border-b border-border/60"
+                    className="h-[22vh] min-h-40 w-full"
                   />
                 )}
                 {!active.youtubeEmbedUrl && active.imageLabel && (

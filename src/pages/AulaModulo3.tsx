@@ -388,6 +388,7 @@ const AulaModulo3 = () => {
           illustrationLabel="Conducente visto di profilo / tre quarti seduto in abitacolo (illustrazione 3D-style — placeholder)"
           hotspots={HOTSPOT_POSIZIONE}
           frameClassName="h-[44vh] max-w-[78.22vh] mx-auto"
+          revealedVideos={aulaState.revealedVideos}
         />
       </Slide>
 
