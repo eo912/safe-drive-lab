@@ -15,6 +15,7 @@ import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { SyncToggle } from "@/components/sync/SyncToggle";
+import { RevealableVideo } from "@/components/aula/RevealableVideo";
 
 const MODULO = "modulo-4-il-veicolo";
 
@@ -511,24 +512,26 @@ const AulaModulo4 = () => {
             <div className="grid grid-cols-2 gap-4">
               {[
                 {
+                  id: "m4-esp-generico",
                   label: "ESP — spiegazione generale",
                   src: "https://www.youtube.com/embed/5IP-pgKrNV8",
                 },
                 {
+                  id: "m4-esp-bosch",
                   label: "ESP Bosch — come funziona",
                   src: "https://www.youtube.com/embed/sOfkWfzzR5o",
                 },
               ].map((video) => (
-                <div key={video.src} className="min-w-0">
+                <div key={video.id} className="min-w-0">
                   <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-primary">
                     {video.label}
                   </p>
-                  <iframe
+                  <RevealableVideo
+                    videoId={video.id}
                     src={video.src}
                     title={video.label}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="h-[16vh] min-h-28 w-full rounded-lg border border-border/60 bg-background"
+                    revealedVideos={aulaState.revealedVideos}
+                    className="h-[16vh] min-h-28 w-full"
                   />
                 </div>
               ))}

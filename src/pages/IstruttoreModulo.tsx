@@ -48,6 +48,7 @@ import {
   type AulaStep,
 } from "@/lib/aulaSync";
 import { isSyncEnabled } from "@/lib/syncEnabled";
+import { videoTriggersFor } from "@/lib/videoTriggers";
 import { SyncToggle } from "@/components/sync/SyncToggle";
 import { openAulaWindow } from "@/lib/aulaWindow";
 import { withRoom } from "@/lib/aulaRoom";
@@ -115,6 +116,7 @@ const IstruttoreModulo = () => {
   const [hazardOutcome, setHazardOutcome] = useState<"stopped" | "failed" | undefined>();
   const [hazardSuggestion, setHazardSuggestion] = useState<"stopped" | "failed">("stopped");
   const [hazardSnapshot, setHazardSnapshot] = useState(0.2);
+  const [revealedVideos, setRevealedVideos] = useState<string[]>([]);
   const publishWithPhone = useCallback(
     (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) => {
       publishBase({
@@ -455,6 +457,20 @@ const IstruttoreModulo = () => {
 
   const resolveHazard = (outcome: "stopped" | "failed") => publishHazard("resolved", outcome);
   const resetHazard = () => publishHazard("idle");
+
+  // Video YouTube richiamati manualmente: nessun autoplay in Aula finché
+  // l'istruttore non li mostra da qui.
+  const toggleVideo = (id: string) => {
+    const next = revealedVideos.includes(id)
+      ? revealedVideos.filter((v) => v !== id)
+      : [...revealedVideos, id];
+    setRevealedVideos(next);
+    publish({
+      blocco: previewState.blocco,
+      step: previewState.step as AulaStep,
+      revealedVideos: next,
+    });
+  };
 
   // (aulaPaused calcolato sopra insieme ai derivati live)
 
@@ -1026,6 +1042,38 @@ const IstruttoreModulo = () => {
                           Esito mostrato in Aula: {hazardOutcome === "stopped" ? "si è fermato in tempo" : "non ci è riuscito"}.
                         </p>
                       )}
+                    </section>
+                  )}
+
+                  {videoTriggersFor(slug, active.id).length > 0 && (
+                    <section className="mb-6 border border-border bg-card/70 p-4" aria-label="Controlli video">
+                      <div className="flex flex-col gap-3">
+                        {videoTriggersFor(slug, active.id).map((video) => {
+                          const shown = revealedVideos.includes(video.id);
+                          return (
+                            <div
+                              key={video.id}
+                              className="flex flex-wrap items-center justify-between gap-3"
+                            >
+                              <div>
+                                <p className="text-sm font-semibold">{video.label}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  Solo Aula Live{video.hint ? ` · ${video.hint}` : ""} · nessun avvio automatico
+                                </p>
+                              </div>
+                              <Button
+                                type="button"
+                                onClick={() => toggleVideo(video.id)}
+                                size="sm"
+                                variant={shown ? "outline" : "default"}
+                              >
+                                {shown ? <RotateCcw /> : <Play />}
+                                {shown ? "Nascondi video" : "Richiama video"}
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </section>
                   )}
 
