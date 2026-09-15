@@ -460,14 +460,14 @@ const IstruttoreModulo = () => {
   // Video YouTube richiamati manualmente: nessun autoplay in Aula finché
   // l'istruttore non li mostra da qui.
   const toggleVideo = (id: string) => {
-    setRevealedVideos((prev) => {
-      const next = prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id];
-      publish({
-        blocco: previewState.blocco,
-        step: previewState.step as AulaStep,
-        revealedVideos: next,
-      });
-      return next;
+    const next = revealedVideos.includes(id)
+      ? revealedVideos.filter((v) => v !== id)
+      : [...revealedVideos, id];
+    setRevealedVideos(next);
+    publish({
+      blocco: previewState.blocco,
+      step: previewState.step as AulaStep,
+      revealedVideos: next,
     });
   };
 
