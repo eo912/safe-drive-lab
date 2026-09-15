@@ -15,6 +15,7 @@ import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { SyncToggle } from "@/components/sync/SyncToggle";
+import { RevealableVideo } from "@/components/aula/RevealableVideo";
 
 const MODULO = "modulo-4-il-veicolo";
 
