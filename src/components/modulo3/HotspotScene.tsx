@@ -33,7 +33,6 @@ type Props = {
   children?: React.ReactNode;
   /** Riduce l'ingombro verticale quando illustrazione e contenuti condividono la schermata */
   compact?: boolean;
-  imageFit?: "cover" | "contain";
   frameClassName?: string;
   /** Video richiamati dall'istruttore (Regia → Aula) */
   revealedVideos?: string[];
@@ -44,7 +43,7 @@ type Props = {
  * con punti interattivi cliccabili che aprono un pannello di dettaglio
  * senza cambiare schermata.
  */
-export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = false, imageFit = "contain", frameClassName = "", revealedVideos }: Props) => {
+export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = false, frameClassName = "", revealedVideos }: Props) => {
   const [active, setActive] = useState<Hotspot | null>(null);
   const [failedImages, setFailedImages] = useState<string[]>([]);
 
@@ -68,7 +67,6 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
           <ImagePlaceholder
             label={illustrationLabel}
             className={`${frameClassName ? "h-full" : compact ? "h-[28vh] min-h-[180px]" : "h-[44vh]"} w-full`}
-            imageFit={imageFit}
           />
           {hotspots.map((h) => {
             const isActive = active?.id === h.id;

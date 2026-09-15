@@ -7,13 +7,11 @@ import { EditableImageSlot } from "@/components/edit/EditableImageSlot";
 export const ImagePlaceholder = ({
   label,
   className = "",
-  imageFit = "cover",
 }: {
   label: string;
   className?: string;
-  imageFit?: "cover" | "contain";
 }) => (
-  <EditableImageSlot label={label} className={className} imageFit={imageFit}>
+  <EditableImageSlot label={label} className={className}>
     <div
       className={`w-full flex items-center justify-center rounded-lg border border-dashed border-border/70 bg-muted/20 overflow-hidden ${className}`}
       role="img"
