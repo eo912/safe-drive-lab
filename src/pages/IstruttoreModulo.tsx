@@ -115,6 +115,7 @@ const IstruttoreModulo = () => {
   const [hazardOutcome, setHazardOutcome] = useState<"stopped" | "failed" | undefined>();
   const [hazardSuggestion, setHazardSuggestion] = useState<"stopped" | "failed">("stopped");
   const [hazardSnapshot, setHazardSnapshot] = useState(0.2);
+  const [revealedVideos, setRevealedVideos] = useState<string[]>([]);
   const publishWithPhone = useCallback(
     (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) => {
       publishBase({
@@ -455,6 +456,20 @@ const IstruttoreModulo = () => {
 
   const resolveHazard = (outcome: "stopped" | "failed") => publishHazard("resolved", outcome);
   const resetHazard = () => publishHazard("idle");
+
+  // Video YouTube richiamati manualmente: nessun autoplay in Aula finché
+  // l'istruttore non li mostra da qui.
+  const toggleVideo = (id: string) => {
+    setRevealedVideos((prev) => {
+      const next = prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id];
+      publish({
+        blocco: previewState.blocco,
+        step: previewState.step as AulaStep,
+        revealedVideos: next,
+      });
+      return next;
+    });
+  };
 
   // (aulaPaused calcolato sopra insieme ai derivati live)
 
