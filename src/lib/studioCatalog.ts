@@ -36,6 +36,7 @@ export type StudioModule = {
 const PLACEHOLDERS: Record<string, Record<string, string[]>> = {
   "modulo-1": {
     copertina: [],
+    "programma-giornata": ["Cartina piazzale — Modulo 1 programma giornata"],
     hook: [],
     "tre-leve": [],
     "numeri-2001-2024": [],
@@ -72,6 +73,9 @@ const PLACEHOLDERS: Record<string, Record<string, string[]>> = {
   "modulo-4": {
     pneumatici: [
       "Pneumatico visto lateralmente e dall'alto, con area di contatto evidenziata (placeholder generico)",
+      "Modulo 4 · Pneumatici · Aquaplaning",
+      "Modulo 4 · Pneumatici · Gomme estive",
+      "Modulo 4 · Pneumatici · Gomme invernali",
     ],
     freni: ["Disco freno e pinza in primo piano (placeholder generico)"],
     "sterzo-sospensioni": [
