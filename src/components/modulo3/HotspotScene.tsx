@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { EditableImageSlot } from "@/components/edit/EditableImageSlot";
+import { RevealableVideo } from "@/components/aula/RevealableVideo";
 
 export type Hotspot = {
   id: string;
@@ -34,6 +35,8 @@ type Props = {
   compact?: boolean;
   imageFit?: "cover" | "contain";
   frameClassName?: string;
+  /** Video richiamati dall'istruttore (Regia → Aula) */
+  revealedVideos?: string[];
 };
 
 /**
@@ -41,7 +44,7 @@ type Props = {
  * con punti interattivi cliccabili che aprono un pannello di dettaglio
  * senza cambiare schermata.
  */
-export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = false, imageFit = "contain", frameClassName = "" }: Props) => {
+export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = false, imageFit = "contain", frameClassName = "", revealedVideos }: Props) => {
   const [active, setActive] = useState<Hotspot | null>(null);
   const [failedImages, setFailedImages] = useState<string[]>([]);
 
@@ -117,12 +120,12 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
                   <X className="w-4 h-4" />
                 </button>
                 {active.youtubeEmbedUrl && (
-                  <iframe
+                  <RevealableVideo
+                    videoId={active.videoId ?? active.id}
                     src={active.youtubeEmbedUrl}
                     title={active.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="h-[22vh] min-h-40 w-full border-b border-border/60 bg-background"
+                    revealedVideos={revealedVideos}
+                    className="h-[22vh] min-h-40 w-full rounded-none border-0 border-b border-border/60"
                   />
                 )}
                 {!active.youtubeEmbedUrl && active.imageLabel && (
