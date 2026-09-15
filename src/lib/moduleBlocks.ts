@@ -453,6 +453,15 @@ export const moduloNoveBlocks: ModuleBlock[] = [
     kind: "chiusura",
     notes: "Ultima parte del test finale. Chiudere ricordando che la valutazione viene registrata dal docente a parte.",
   },
+  {
+    id: "chiusura",
+    index: 5,
+    expectedSeconds: 30,
+    title: "Grazie per l'attenzione",
+    kind: "chiusura",
+    notes:
+      "Schermata finale di chiusura del corso, con pulsante per tornare all'indice moduli. Nessun contenuto da leggere, chiude la giornata.",
+  },
 ];
 
 export const blocksBySlug: Record<string, ModuleBlock[]> = {
