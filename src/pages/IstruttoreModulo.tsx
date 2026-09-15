@@ -48,6 +48,7 @@ import {
   type AulaStep,
 } from "@/lib/aulaSync";
 import { isSyncEnabled } from "@/lib/syncEnabled";
+import { videoTriggersFor } from "@/lib/videoTriggers";
 import { SyncToggle } from "@/components/sync/SyncToggle";
 import { openAulaWindow } from "@/lib/aulaWindow";
 import { withRoom } from "@/lib/aulaRoom";
