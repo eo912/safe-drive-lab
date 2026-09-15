@@ -15,6 +15,8 @@ export type Hotspot = {
   text: string;
   /** Video YouTube opzionale; ha priorità su qualsiasi immagine */
   youtubeEmbedUrl?: string;
+  /** Id stabile del video, richiamabile dalla Regia (vedi videoTriggers.ts) */
+  videoId?: string;
   /** Immagine opzionale mostrata sopra il testo nel pannello di dettaglio */
   image?: string;
   imageAlt?: string;

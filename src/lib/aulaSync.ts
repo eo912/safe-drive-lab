@@ -48,6 +48,8 @@ export type AulaState = {
   hazardVariant?: "car-braking";
   hazardOutcome?: "stopped" | "failed";
   hazardTs?: number;
+  /** Id dei video YouTube richiamati manualmente dall'istruttore. */
+  revealedVideos?: string[];
   /** Versione del comando assegnata dalla Regia: mai riscritta dai destinatari. */
   cmdTs?: number;
   ts: number;
