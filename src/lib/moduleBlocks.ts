@@ -24,8 +24,17 @@ export const moduloUnoBlocks: ModuleBlock[] = [
       "Slide di apertura, solo logo e nome. Nessun intervento istruttore necessario, transizione rapida al blocco successivo.",
   },
   {
-    id: "hook",
+    id: "programma-giornata",
     index: 2,
+    expectedSeconds: 60,
+    title: "Programma della giornata",
+    kind: "intro",
+    notes:
+      "Programma orario della giornata: 08:30–11:00 Aula, 11:00–12:00 Piazzale, 13:30–17:30 Piazzale. Sotto, cartina del piazzale (immagine caricabile da Regia). Nessun intervento particolare richiesto, transizione rapida al blocco successivo.",
+  },
+  {
+    id: "hook",
+    index: 3,
     expectedSeconds: 60,
     title: "Perché un corso",
     kind: "intro",
@@ -35,7 +44,7 @@ export const moduloUnoBlocks: ModuleBlock[] = [
   },
   {
     id: "video-mistakes",
-    index: 3,
+    index: 4,
     expectedSeconds: 120,
     title: "Un esempio",
     kind: "video",
@@ -44,7 +53,7 @@ export const moduloUnoBlocks: ModuleBlock[] = [
   },
   {
     id: "tre-leve",
-    index: 4,
+    index: 5,
     expectedSeconds: 180,
     title: "Le tre leve",
     kind: "scenario",
@@ -55,7 +64,7 @@ export const moduloUnoBlocks: ModuleBlock[] = [
   },
   {
     id: "numeri-2001-2024",
-    index: 5,
+    index: 6,
     expectedSeconds: 150,
     title: "2001 vs oggi",
     kind: "dati",
@@ -66,7 +75,7 @@ export const moduloUnoBlocks: ModuleBlock[] = [
   },
   {
     id: "costi-stato",
-    index: 6,
+    index: 7,
     expectedSeconds: 90,
     title: "Il costo per tutti",
     kind: "chiusura",
@@ -443,6 +452,15 @@ export const moduloNoveBlocks: ModuleBlock[] = [
     title: "Test finale — Domande 9-10",
     kind: "chiusura",
     notes: "Ultima parte del test finale. Chiudere ricordando che la valutazione viene registrata dal docente a parte.",
+  },
+  {
+    id: "chiusura",
+    index: 5,
+    expectedSeconds: 30,
+    title: "Grazie per l'attenzione",
+    kind: "chiusura",
+    notes:
+      "Schermata finale di chiusura del corso, con pulsante per tornare all'indice moduli. Nessun contenuto da leggere, chiude la giornata.",
   },
 ];
 
