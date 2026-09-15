@@ -95,6 +95,7 @@ const HOTSPOT_POSIZIONE: Hotspot[] = [
     title: "Cintura",
     text: "Aderente, non attorcigliata. La fascia diagonale passa sulla clavicola, mai sul collo.",
     youtubeEmbedUrl: "https://www.youtube.com/embed/PK1wzwKaGPk",
+    videoId: "m3-cintura-crashtest",
   },
   {
     id: "specchi",

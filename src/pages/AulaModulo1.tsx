@@ -585,12 +585,12 @@ const AulaModulo1 = () => {
             Un esempio
           </motion.p>
           <motion.div {...fade} className="aspect-video w-full max-w-3xl">
-            <iframe
+            <RevealableVideo
+              videoId="m1-mistakes"
               src="https://www.youtube.com/embed/jwXtDcGj6rk"
               title="The Speed ad — Mistakes"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="h-full w-full rounded-lg border border-border/60 bg-background"
+              revealedVideos={aulaState.revealedVideos}
+              className="h-full w-full"
             />
           </motion.div>
         </div>
