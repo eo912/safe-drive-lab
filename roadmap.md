@@ -7,4 +7,4 @@
 [fatto] alleggerimento-chiusure: semplificate e verificate le chiusure dei Moduli 2, 6, 7 e 8
 [fatto] video-youtube-corso: inseriti e verificati i video nei Moduli 1, 3 e 4
 
-[in corso] uniformazione-segnaposto-immagine: cover centrato e dimensioni stabili per tutti gli EditableImageSlot
+[fatto] uniformazione-segnaposto-immagine: cover centrato e dimensioni stabili per tutti gli EditableImageSlot
