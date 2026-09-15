@@ -1044,6 +1044,38 @@ const IstruttoreModulo = () => {
                     </section>
                   )}
 
+                  {videoTriggersFor(slug, active.id).length > 0 && (
+                    <section className="mb-6 border border-border bg-card/70 p-4" aria-label="Controlli video">
+                      <div className="flex flex-col gap-3">
+                        {videoTriggersFor(slug, active.id).map((video) => {
+                          const shown = revealedVideos.includes(video.id);
+                          return (
+                            <div
+                              key={video.id}
+                              className="flex flex-wrap items-center justify-between gap-3"
+                            >
+                              <div>
+                                <p className="text-sm font-semibold">{video.label}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  Solo Aula Live{video.hint ? ` · ${video.hint}` : ""} · nessun avvio automatico
+                                </p>
+                              </div>
+                              <Button
+                                type="button"
+                                onClick={() => toggleVideo(video.id)}
+                                size="sm"
+                                variant={shown ? "outline" : "default"}
+                              >
+                                {shown ? <RotateCcw /> : <Play />}
+                                {shown ? "Nascondi video" : "Richiama video"}
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
+
                   <div
                     className={`grid grid-cols-1 gap-4 md:gap-5 transition-[grid-template-columns] duration-300 ${
                       aulaPaused ? "" : "md:grid-cols-3"
