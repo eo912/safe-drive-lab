@@ -30,6 +30,13 @@ import { isSyncEnabled, onSyncEnabledChange } from "./syncEnabled";
  * ricreato da solo con un ritardo crescente tra i tentativi. Quando l'Aula si
  * (ri)aggancia invia un `request_state`: la Regia risponde ripubblicando la
  * propria posizione corrente come un normale `navigation_command`.
+ *
+ * Navigazione vs azioni secondarie: solo i comandi marcati `isNavigation`
+ * (avanti/indietro/vai a, dalla Regia) spostano la scena in Aula. Le azioni
+ * secondarie (video, pausa, blackout, ...) viaggiano sullo stesso evento
+ * `navigation_command` ma senza quel flag: l'Aula applica i campi non
+ * posizionali e ignora blocco/step, restando dove si trova realmente anche
+ * se la Regia ne conosce una posizione vecchia.
  */
 
 export type AulaStep = "intro" | "scenario" | "esiti" | "spiegazione" | "approfondimento";
@@ -94,6 +101,13 @@ type Envelope = {
   blockId?: string;
   step?: AulaStep;
   payload?: unknown;
+  /**
+   * Solo per `navigation_command`: true se è un vero spostamento di scena
+   * (avanti/indietro/vai a, dalla Regia). Assente/false per le azioni
+   * secondarie (video, pausa, blackout, ...), che non devono muovere l'Aula
+   * da dove si trova realmente.
+   */
+  isNavigation?: boolean;
 };
 
 const REMOTE_ROOM = `safedrivelab-aula-live:${ROOM_ID}`;
@@ -135,6 +149,7 @@ const traceEnv = (where: string, e: Envelope, extra: Record<string, unknown> = {
     moduleId: e.moduleId,
     blockId: e.blockId,
     step: e.step,
+    isNavigation: e.isNavigation,
     receivedAt: Date.now(),
     ...extra,
   });
@@ -382,9 +397,18 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
     [modulo],
   );
 
-  /** Gesto dell'utente in Regia: applica subito in locale, invia un solo evento. */
+  /**
+   * Gesto dell'utente in Regia: applica subito in locale, invia un solo
+   * evento. `opts.isNavigation` va messo a true SOLO per i comandi che
+   * devono davvero spostare la scena in Aula (avanti/indietro/vai a);
+   * le azioni secondarie (video, pausa, blackout, ...) lo lasciano assente,
+   * così l'Aula ignora blocco/step e resta dove si trova realmente.
+   */
   const publish = useCallback(
-    (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) => {
+    (
+      patch?: Partial<Omit<AulaState, "ts" | "modulo">>,
+      opts?: { isNavigation?: boolean },
+    ) => {
       setPreviewState((prev) => {
         const next: AulaState = {
           ...prev,
@@ -398,6 +422,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           blockId: next.blocco,
           step: next.step,
           payload: next,
+          isNavigation: opts?.isNavigation === true,
         });
         syncTrace("REGIA", "useAulaPublisher.publish", {
           kind: env.kind,
@@ -408,6 +433,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           previousBlockId: prev.blocco,
           requestedBlockId: next.blocco,
           step: next.step,
+          isNavigation: env.isNavigation,
           sentAt: env.sentAt,
         });
         sendEnvelope(env);
@@ -443,6 +469,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
       blockId: resync.blocco,
       step: resync.step,
       payload: resync,
+      isNavigation: true,
     });
     traceEnv("regia.resync", env, { reason: "request_state" });
     sendEnvelope(env);
@@ -493,12 +520,28 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
     }
     traceEnv("useAulaSubscriber.apply", e, { reason: "accepted" });
     lastCmdTsRef.current = cmdTs;
-    // Soppressione one-shot: la posizione prodotta da questo comando non è
-    // un gesto dell'utente e non deve tornare indietro come aula_position.
-    suppressedPosition = posKey(incoming.blocco, incoming.step);
-    suppressUntil = Date.now() + SETTLE_MS;
-    writeToUrl(incoming);
-    setState({ ...incoming, ts: Date.now() });
+
+    if (e.isNavigation) {
+      // Vero comando di navigazione (avanti/indietro/vai a): sposta la scena.
+      // Soppressione one-shot: la posizione prodotta da questo comando non è
+      // un gesto dell'utente e non deve tornare indietro come aula_position.
+      suppressedPosition = posKey(incoming.blocco, incoming.step);
+      suppressUntil = Date.now() + SETTLE_MS;
+      writeToUrl(incoming);
+      setState({ ...incoming, ts: Date.now() });
+      return;
+    }
+
+    // Azione secondaria (video, pausa, blackout, ...): NON sposta la scena.
+    // blocco/step/ts restano quelli che l'Aula ha già, così un comando che
+    // porta con sé una posizione vecchia (nota solo alla Regia) non fa
+    // saltare l'Aula via da dove l'istruttore l'ha portata manualmente.
+    setState((prev) => ({
+      ...incoming,
+      blocco: prev.blocco,
+      step: prev.step,
+      ts: prev.ts,
+    }));
   });
 
   // Ad ogni aggancio (o riaggancio dopo una caduta) chiede una volta sola

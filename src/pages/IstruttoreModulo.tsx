@@ -118,22 +118,33 @@ const IstruttoreModulo = () => {
   const [hazardSnapshot, setHazardSnapshot] = useState(0.2);
   const [revealedVideos, setRevealedVideos] = useState<string[]>([]);
   const publishWithPhone = useCallback(
-    (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) => {
-      publishBase({
-        ...patch,
-        phonePhase: phonePhaseRef.current,
-        phoneBlock: phoneBlockRef.current,
-        hazardPhase: hazardPhaseRef.current,
-        hazardVariant: "car-braking",
-        hazardOutcome: hazardOutcomeRef.current,
-      });
+    (
+      patch?: Partial<Omit<AulaState, "ts" | "modulo">>,
+      opts?: { isNavigation?: boolean },
+    ) => {
+      publishBase(
+        {
+          ...patch,
+          phonePhase: phonePhaseRef.current,
+          phoneBlock: phoneBlockRef.current,
+          hazardPhase: hazardPhaseRef.current,
+          hazardVariant: "car-braking",
+          hazardOutcome: hazardOutcomeRef.current,
+        },
+        opts,
+      );
     },
     [publishBase],
   );
   // Wrapper esposto al resto della pagina: include sempre lo stato telefono.
+  // `opts.isNavigation` va passato solo dai comandi di navigazione veri
+  // (vedi applyPosition): le azioni secondarie (video, pausa, blackout, ...)
+  // lo lasciano assente così l'Aula non cambia scheda.
   const publish = useCallback(
-    (patch?: Partial<Omit<AulaState, "ts" | "modulo">>) =>
-      publishWithPhone(patch),
+    (
+      patch?: Partial<Omit<AulaState, "ts" | "modulo">>,
+      opts?: { isNavigation?: boolean },
+    ) => publishWithPhone(patch, opts),
     [publishWithPhone],
   );
 
@@ -357,10 +368,13 @@ const IstruttoreModulo = () => {
 
   // Aggiornamento posizione: quando la sincronizzazione è ON pubblica subito
   // in Aula (una sola volta); quando è OFF cambia solo lo stato locale.
+  // Unico punto che marca isNavigation: true, cioè un vero spostamento di
+  // scena (avanti/indietro/vai a/invia in aula) — le azioni secondarie
+  // (video, pausa, blackout, ...) passano da `publish` senza questo flag.
   const applyPosition = useCallback(
     (patch: { blocco: string; step: AulaStep }) => {
       if (isSyncEnabled()) {
-        publish({ ...patch, paused: false });
+        publish({ ...patch, paused: false }, { isNavigation: true });
       } else {
         setPreview(patch);
       }
