@@ -40,7 +40,6 @@ import {
 } from "@/components/ui/sheet";
 import { modules } from "@/lib/modules";
 import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
-import { syncTrace } from "@/lib/syncTrace";
 import {
   useAulaStatus,
   useAulaPublisher,
@@ -68,7 +67,6 @@ import { useOnline } from "@/lib/connectivity";
 import { useLinkedContent } from "@/lib/instructorStorage";
 import type { EmbedPayload } from "@/lib/sceneMedia";
 import type { Resource } from "@/lib/instructorTypes";
-import { buildLinearSequence, findPositionIndex } from "@/lib/courseSequence";
 import { useSlideTimes, useLiveSlideTimer } from "@/lib/slideTiming";
 import { SlideTimeIndicator } from "@/components/istruttore/SlideTimeIndicator";
 import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
@@ -207,16 +205,15 @@ const IstruttoreModulo = () => {
     viewRef.current = view;
   }, [view]);
 
-  // Sequenza lineare predefinita del corso (intro di ogni blocco + scenari/video).
-  const sequence = useMemo(() => buildLinearSequence(blocks), [blocks]);
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   // Scorciatoie tastiera istruttore: N = note, A = archivio.
-  // Telecomando (lineare + regia): ←/PageUp = indietro, →/PageDown/Space = avanti.
-  // L'attuale gestione drawers e telecomando vive nello stesso listener per evitare conflitti.
+  // L'avanzamento (avanti/indietro) non viene più comandato da qui: l'istruttore
+  // muove l'Aula direttamente sul posto (scroll/tastiera/air mouse in Aula).
+  // La Regia invia solo comandi mirati: blocco scelto dalla scaletta/pulsante
+  // "Avanti", step esplicito, pausa, blackout, video.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName;
@@ -270,30 +267,12 @@ const IstruttoreModulo = () => {
         startHazardRef.current?.();
         return;
       }
-
-      if (
-        e.key === "ArrowRight" ||
-        e.key === "ArrowDown" ||
-        e.key === "PageDown" ||
-        e.key === " " ||
-        e.key === "Spacebar"
-      ) {
-        e.preventDefault();
-        stepRemoteRef.current?.(1);
-        return;
-      }
-      if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") {
-        e.preventDefault();
-        stepRemoteRef.current?.(-1);
-        return;
-      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Ref aggiornata sotto: contiene la callback "telecomando" stabile rispetto a stato.
-  const stepRemoteRef = useRef<((dir: 1 | -1) => void) | null>(null);
+  // Ref aggiornata sotto: contiene callback stabili rispetto a stato.
   const pauseRemoteRef = useRef<(() => void) | null>(null);
   const blackoutRemoteRef = useRef<(() => void) | null>(null);
   const startHazardRef = useRef<(() => void) | null>(null);
@@ -388,48 +367,6 @@ const IstruttoreModulo = () => {
   };
   const setStep = (step: AulaStep) =>
     applyPosition({ blocco: previewState.blocco, step });
-
-  // Telecomando: muove la posizione corrente lungo la sequenza lineare.
-  // I tasti comandano SEMPRE l'Aula (anche in modalità "regia"): si parte dalla
-  // posizione realmente in onda, con ripiego sull'anteprima se l'Aula è ferma.
-  useEffect(() => {
-    stepRemoteRef.current = (dir: 1 | -1) => {
-      if (sequence.length === 0) return;
-      // Unidirezionale: si parte dallo stato locale della Regia
-      // (liveState se abbiamo già pubblicato, altrimenti anteprima).
-      const fromBlocco = liveState?.blocco ?? previewState.blocco;
-      const fromStep = liveState?.step ?? previewState.step;
-      const cur = findPositionIndex(sequence, fromBlocco, fromStep);
-      const safe = cur === -1 ? 0 : cur;
-      const next = Math.max(0, Math.min(sequence.length - 1, safe + dir));
-      syncTrace("REGIA", "IstruttoreModulo.stepRemote", {
-        moduleId: slug,
-        dir,
-        fromBlockId: fromBlocco,
-        fromStep,
-        fromIndex: cur,
-        requestedBlockId: sequence[next]?.blocco,
-        requestedStep: sequence[next]?.step,
-        liveBlockId: liveState?.blocco ?? null,
-        previewBlockId: previewState.blocco,
-      });
-      if (next === safe && cur !== -1) return;
-      // Cambio slide: chiude eventuale overlay telefono.
-      phonePhaseRef.current = "idle";
-      phoneBlockRef.current = undefined;
-      hazardPhaseRef.current = "idle";
-      hazardOutcomeRef.current = undefined;
-      setHazardPhase("idle");
-      setHazardOutcome(undefined);
-      applyPosition({ ...sequence[next] });
-    };
-  }, [
-    sequence,
-    previewState.blocco,
-    previewState.step,
-    liveState,
-    publish,
-  ]);
 
   const sendToAula = () => {
     phonePhaseRef.current = "idle";
