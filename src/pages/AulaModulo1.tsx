@@ -19,6 +19,7 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { SyncToggle } from "@/components/sync/SyncToggle";
+import { AulaConnectionIndicator } from "@/components/aula/AulaConnectionIndicator";
 import { BrandLogoSlot } from "@/components/brand/BrandLogoSlot";
 import { EditableImageSlot } from "@/components/edit/EditableImageSlot";
 import { RevealableVideo } from "@/components/aula/RevealableVideo";
@@ -439,6 +440,8 @@ const AulaModulo1 = () => {
           <SyncToggle />
         </div>
       )}
+
+      {!embedMode && <AulaConnectionIndicator />}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />

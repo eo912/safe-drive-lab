@@ -14,6 +14,7 @@ import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { SyncToggle } from "@/components/sync/SyncToggle";
+import { AulaConnectionIndicator } from "@/components/aula/AulaConnectionIndicator";
 
 const MODULO = "modulo-7-guida-professionale";
 
@@ -260,6 +261,8 @@ const AulaModulo7 = () => {
         </div>
 
       )}
+
+      {!embedMode && <AulaConnectionIndicator />}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />

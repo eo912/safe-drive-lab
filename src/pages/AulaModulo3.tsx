@@ -15,6 +15,7 @@ import { ImagePlaceholder } from "@/components/modulo2/ImagePlaceholder";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { SyncToggle } from "@/components/sync/SyncToggle";
+import { AulaConnectionIndicator } from "@/components/aula/AulaConnectionIndicator";
 
 const MODULO = "modulo-3-il-conducente";
 const ASSET_BASE =
@@ -341,6 +342,8 @@ const AulaModulo3 = () => {
         </div>
 
       )}
+
+      {!embedMode && <AulaConnectionIndicator />}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />

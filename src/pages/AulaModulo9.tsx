@@ -12,6 +12,7 @@ import { SyncDebugOverlay } from "@/components/dev/SyncDebugOverlay";
 import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { SyncToggle } from "@/components/sync/SyncToggle";
+import { AulaConnectionIndicator } from "@/components/aula/AulaConnectionIndicator";
 import { QuizQuestion } from "@/components/moduloQuiz/QuizQuestion";
 import { quizFinale } from "@/lib/quizFinale";
 
@@ -253,6 +254,8 @@ const AulaModulo9 = () => {
         </div>
 
       )}
+
+      {!embedMode && <AulaConnectionIndicator />}
 
       {!embedMode && aulaState.blackout && (
         <div className="fixed inset-0 z-[9999] bg-background" aria-hidden="true" />

@@ -23,8 +23,13 @@ import { isSyncEnabled, onSyncEnabledChange } from "./syncEnabled";
  *    applica nulla.
  *
  * Disattivati in questa versione (codice rimosso dal flusso attivo):
- * heartbeat/presence, monitor di connessione, polling, request_state, retry
- * alla riconnessione, snapshot da localStorage, BroadcastChannel locale.
+ * heartbeat/presence, polling, snapshot da localStorage, BroadcastChannel
+ * locale.
+ *
+ * Riconnessione: se il canale cade (CHANNEL_ERROR, TIMED_OUT o CLOSED) viene
+ * ricreato da solo con un ritardo crescente tra i tentativi. Quando l'Aula si
+ * (ri)aggancia invia un `request_state`: la Regia risponde ripubblicando la
+ * propria posizione corrente come un normale `navigation_command`.
  */
 
 export type AulaStep = "intro" | "scenario" | "esiti" | "spiegazione" | "approfondimento";
@@ -73,7 +78,11 @@ export type AulaHeartbeat = {
  * Busta                                                               *
  * ------------------------------------------------------------------ */
 
-export type EventKind = "navigation_command" | "aula_position" | "aula_status";
+export type EventKind =
+  | "navigation_command"
+  | "aula_position"
+  | "aula_status"
+  | "request_state";
 
 type Envelope = {
   kind: EventKind;
@@ -162,23 +171,106 @@ const dispatch = (raw: unknown) => {
   handlers.get(e.kind)?.forEach((fn) => fn(e));
 };
 
+/** Stato del canale realtime, per l'indicatore visivo in Aula. */
+export type AulaConnStatus = "connected" | "connecting" | "disconnected";
+
+let connStatus: AulaConnStatus = "disconnected";
+const connStatusListeners = new Set<(s: AulaConnStatus) => void>();
+
+const setConnStatus = (s: AulaConnStatus) => {
+  if (connStatus === s) return;
+  connStatus = s;
+  connStatusListeners.forEach((fn) => fn(s));
+};
+
+export const onAulaConnStatusChange = (fn: (s: AulaConnStatus) => void) => {
+  connStatusListeners.add(fn);
+  return () => {
+    connStatusListeners.delete(fn);
+  };
+};
+
+/** Aula: mostra un indicatore solo quando il canale non è connesso. */
+export const useAulaConnectionStatus = (): AulaConnStatus => {
+  const [status, setStatus] = useState(connStatus);
+  useEffect(() => onAulaConnStatusChange(setStatus), []);
+  return status;
+};
+
+/** Notificati ad ogni aggancio (o riaggancio) riuscito del canale. */
+const subscribedListeners = new Set<() => void>();
+const onChannelSubscribed = (fn: () => void) => {
+  subscribedListeners.add(fn);
+  return () => {
+    subscribedListeners.delete(fn);
+  };
+};
+
 let channel: ReturnType<typeof supabase.channel> | null = null;
 let listenerCount = 0;
+let reconnectAttempt = 0;
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+const RECONNECT_BASE_MS = 1000;
+const RECONNECT_MAX_MS = 10000;
+
+const clearReconnectTimer = () => {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+};
+
+const scheduleReconnect = () => {
+  if (reconnectTimer) return;
+  if (!isSyncEnabled() || listenerCount === 0) return;
+  const delay = Math.min(RECONNECT_BASE_MS * 2 ** reconnectAttempt, RECONNECT_MAX_MS);
+  reconnectAttempt += 1;
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    openChannel();
+  }, delay);
+};
 
 const openChannel = () => {
   if (typeof window === "undefined") return null;
   if (!isSyncEnabled() || listenerCount === 0) return null;
   if (channel) return channel;
-  channel = supabase
+  clearReconnectTimer();
+  setConnStatus("connecting");
+  const ch = supabase
     .channel(REMOTE_ROOM, { config: { broadcast: { self: false } } })
     .on("broadcast", { event: "sync" }, ({ payload }) => dispatch(payload));
-  channel.subscribe();
+  channel = ch;
+  ch.subscribe((status) => {
+    if (channel !== ch) return; // canale già sostituito: ignora callback tardivi
+    if (status === "SUBSCRIBED") {
+      reconnectAttempt = 0;
+      clearReconnectTimer();
+      setConnStatus("connected");
+      subscribedListeners.forEach((fn) => fn());
+      return;
+    }
+    if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+      channel = null;
+      try {
+        void supabase.removeChannel(ch);
+      } catch {
+        /* ignore */
+      }
+      setConnStatus("disconnected");
+      scheduleReconnect();
+    }
+  });
   return channel;
 };
 
 const closeChannel = () => {
+  clearReconnectTimer();
+  reconnectAttempt = 0;
   const ch = channel;
   channel = null;
+  setConnStatus("disconnected");
   if (!ch) return;
   try {
     void supabase.removeChannel(ch);
@@ -280,6 +372,8 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
   const initial = readFromUrl(modulo, defaultBlocco);
   const [previewState, setPreviewState] = useState<AulaState>(initial);
   const [liveState, setLiveState] = useState<AulaState | null>(null);
+  const liveStateRef = useRef<AulaState | null>(null);
+  liveStateRef.current = liveState;
 
   const setPreview = useCallback(
     (patch: Partial<Omit<AulaState, "ts" | "modulo">>) => {
@@ -335,6 +429,25 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
     });
   }, []);
 
+  /** L'Aula si è (ri)agganciata al canale: ripubblica la posizione in onda. */
+  useBusListener("request_state", (e) => {
+    const req = e.payload as { modulo?: string } | undefined;
+    if ((req?.modulo ?? e.moduleId) !== modulo) {
+      traceEnv("regia.rejectRequestState", e, { reason: "other-module" });
+      return;
+    }
+    const current = liveStateRef.current;
+    if (!current) return;
+    const resync: AulaState = { ...current, cmdTs: Date.now(), ts: Date.now() };
+    const env = makeEnvelope("navigation_command", modulo, {
+      blockId: resync.blocco,
+      step: resync.step,
+      payload: resync,
+    });
+    traceEnv("regia.resync", env, { reason: "request_state" });
+    sendEnvelope(env);
+  });
+
   return { previewState, liveState, setPreview, publish, syncLiveFromAula };
 };
 
@@ -387,6 +500,16 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
     writeToUrl(incoming);
     setState({ ...incoming, ts: Date.now() });
   });
+
+  // Ad ogni aggancio (o riaggancio dopo una caduta) chiede una volta sola
+  // alla Regia la posizione corrente, per riallinearsi senza ricaricare.
+  useEffect(() => {
+    return onChannelSubscribed(() => {
+      const env = makeEnvelope("request_state", modulo, { payload: { modulo } });
+      traceEnv("aula.requestState", env, {});
+      sendEnvelope(env);
+    });
+  }, [modulo]);
 
   return state;
 };
