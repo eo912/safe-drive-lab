@@ -17,6 +17,7 @@ import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { SyncToggle } from "@/components/sync/SyncToggle";
 import { AulaConnectionIndicator } from "@/components/aula/AulaConnectionIndicator";
 import { RevealableVideo } from "@/components/aula/RevealableVideo";
+import { placeholderId, usePlaceholderMedia } from "@/lib/placeholderImages";
 
 const MODULO = "modulo-4-il-veicolo";
 
@@ -123,6 +124,16 @@ const AulaModulo4 = () => {
   const aulaState = useAulaSubscriber(MODULO, "pneumatici");
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
+
+  // Indirizzi dei video ESP, modificabili dallo Studio (Immagini della
+  // schermata). Finché non vengono cambiati restano quelli già in uso: il
+  // richiamo manuale in Regia (revealedVideos) non cambia.
+  const espGenericoVideoSrc =
+    usePlaceholderMedia(placeholderId("Video — ESP, spiegazione generale (richiamato dalla Regia)"))
+      ?.url ?? "https://www.youtube.com/embed/5IP-pgKrNV8";
+  const espBoschVideoSrc =
+    usePlaceholderMedia(placeholderId("Video — ESP Bosch, come funziona (richiamato dalla Regia)"))
+      ?.url ?? "https://www.youtube.com/embed/sOfkWfzzR5o";
 
   const urlParams =
     typeof window !== "undefined"
@@ -517,12 +528,12 @@ const AulaModulo4 = () => {
                 {
                   id: "m4-esp-generico",
                   label: "ESP — spiegazione generale",
-                  src: "https://www.youtube.com/embed/5IP-pgKrNV8",
+                  src: espGenericoVideoSrc,
                 },
                 {
                   id: "m4-esp-bosch",
                   label: "ESP Bosch — come funziona",
-                  src: "https://www.youtube.com/embed/sOfkWfzzR5o",
+                  src: espBoschVideoSrc,
                 },
               ].map((video) => (
                 <div key={video.id} className="min-w-0">

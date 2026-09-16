@@ -23,6 +23,7 @@ import { AulaConnectionIndicator } from "@/components/aula/AulaConnectionIndicat
 import { BrandLogoSlot } from "@/components/brand/BrandLogoSlot";
 import { EditableImageSlot } from "@/components/edit/EditableImageSlot";
 import { RevealableVideo } from "@/components/aula/RevealableVideo";
+import { placeholderId, usePlaceholderMedia } from "@/lib/placeholderImages";
 
 const MODULO = "modulo-1-perche-un-corso";
 
@@ -246,6 +247,13 @@ const AulaModulo1 = () => {
   const aulaState = useAulaSubscriber(MODULO, "copertina");
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
+
+  // Indirizzo del video "Mistakes", modificabile dallo Studio (Immagini della
+  // schermata). Finché non viene cambiato resta quello già in uso: il
+  // richiamo manuale in Regia (revealedVideos) non cambia.
+  const mistakesVideoSrc =
+    usePlaceholderMedia(placeholderId("Video — The Speed ad (richiamato dalla Regia)"))
+      ?.url ?? "https://www.youtube.com/embed/jwXtDcGj6rk";
 
   const urlParams =
     typeof window !== "undefined"
@@ -591,7 +599,7 @@ const AulaModulo1 = () => {
           <motion.div {...fade} className="aspect-video w-full max-w-3xl">
             <RevealableVideo
               videoId="m1-mistakes"
-              src="https://www.youtube.com/embed/jwXtDcGj6rk"
+              src={mistakesVideoSrc}
               title="The Speed ad — Mistakes"
               revealedVideos={aulaState.revealedVideos}
               className="h-full w-full"

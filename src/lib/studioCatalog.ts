@@ -38,6 +38,7 @@ const PLACEHOLDERS: Record<string, Record<string, string[]>> = {
     copertina: [],
     "programma-giornata": ["Cartina piazzale — Modulo 1 programma giornata"],
     hook: [],
+    "video-mistakes": ["Video — The Speed ad (richiamato dalla Regia)"],
     "tre-leve": [],
     "numeri-2001-2024": [],
     "costi-stato": [],
@@ -83,6 +84,8 @@ const PLACEHOLDERS: Record<string, Record<string, string[]>> = {
     ],
     "sistemi-elettronici": [
       "Cruscotto con spia ESP/ABS, o schema ruota che perde e mantiene aderenza (placeholder generico)",
+      "Video — ESP, spiegazione generale (richiamato dalla Regia)",
+      "Video — ESP Bosch, come funziona (richiamato dalla Regia)",
     ],
     "prima-di-partire": [
       "Conducente che fa il giro esterno dell'auto (placeholder generico)",
