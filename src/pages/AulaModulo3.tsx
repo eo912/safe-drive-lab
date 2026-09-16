@@ -16,6 +16,7 @@ import { ModuloNextNav } from "@/components/aula/ModuloNextNav";
 import { AulaWatermark } from "@/components/aula/AulaWatermark";
 import { SyncToggle } from "@/components/sync/SyncToggle";
 import { AulaConnectionIndicator } from "@/components/aula/AulaConnectionIndicator";
+import { placeholderId, usePlaceholderMedia } from "@/lib/placeholderImages";
 
 const MODULO = "modulo-3-il-conducente";
 const ASSET_BASE =
@@ -145,6 +146,16 @@ const AulaModulo3 = () => {
   const aulaState = useAulaSubscriber(MODULO, "posizione-guida");
   const scrollerRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
+
+  // Indirizzo del video "Cintura" (crash test), modificabile dallo Studio.
+  // Finché non viene cambiato resta quello già in uso: il richiamo manuale
+  // in Regia/Aula (revealedVideos) non cambia.
+  const cinturaVideoSrc =
+    usePlaceholderMedia(placeholderId("Video — Cintura, crash test ADAC (richiamato dalla Regia)"))
+      ?.url ?? "https://www.youtube.com/embed/PK1wzwKaGPk";
+  const hotspotPosizione = HOTSPOT_POSIZIONE.map((h) =>
+    h.id === "cintura" ? { ...h, youtubeEmbedUrl: cinturaVideoSrc } : h,
+  );
 
   const urlParams =
     typeof window !== "undefined"
@@ -390,9 +401,10 @@ const AulaModulo3 = () => {
         </div>
         <HotspotScene
           illustrationLabel="Conducente visto di profilo / tre quarti seduto in abitacolo (illustrazione 3D-style — placeholder)"
-          hotspots={HOTSPOT_POSIZIONE}
+          hotspots={hotspotPosizione}
           frameClassName="h-[44vh] max-w-[78.22vh] mx-auto"
           revealedVideos={aulaState.revealedVideos}
+          modulo={MODULO}
         />
       </Slide>
 

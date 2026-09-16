@@ -64,6 +64,7 @@ const PLACEHOLDERS: Record<string, Record<string, string[]>> = {
   "modulo-3": {
     "posizione-guida": [
       "Conducente visto di profilo / tre quarti seduto in abitacolo (illustrazione 3D-style — placeholder)",
+      "Video — Cintura, crash test ADAC (richiamato dalla Regia)",
     ],
     visione: [
       "Visuale frontale del conducente attraverso il parabrezza, prospettiva soggettiva, con specchietto retrovisore (placeholder)",

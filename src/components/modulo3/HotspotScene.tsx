@@ -36,6 +36,8 @@ type Props = {
   frameClassName?: string;
   /** Video richiamati dall'istruttore (Regia → Aula) */
   revealedVideos?: string[];
+  /** Modulo corrente: passato a RevealableVideo per rendere cliccabile il segnaposto video */
+  modulo?: string;
 };
 
 /**
@@ -43,7 +45,7 @@ type Props = {
  * con punti interattivi cliccabili che aprono un pannello di dettaglio
  * senza cambiare schermata.
  */
-export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = false, frameClassName = "", revealedVideos }: Props) => {
+export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = false, frameClassName = "", revealedVideos, modulo }: Props) => {
   const [active, setActive] = useState<Hotspot | null>(null);
   const [failedImages, setFailedImages] = useState<string[]>([]);
 
@@ -120,6 +122,7 @@ export const HotspotScene = ({ illustrationLabel, hotspots, children, compact = 
                 {active.youtubeEmbedUrl && (
                   <RevealableVideo
                     videoId={active.videoId ?? active.id}
+                    modulo={modulo}
                     src={active.youtubeEmbedUrl}
                     title={active.title}
                     revealedVideos={revealedVideos}
