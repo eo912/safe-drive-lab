@@ -41,6 +41,15 @@ import { isSyncEnabled, onSyncEnabledChange } from "./syncEnabled";
  * `reveal_video_request` (Aula → Regia): richiamo di un video cliccando
  * direttamente sul segnaposto in Aula, in aggiunta al pulsante in Regia. La
  * Regia riusa la stessa toggleVideo del pulsante: nessuna logica duplicata.
+ *
+ * `aula_position` (Aula → Regia): la posizione REALMENTE visibile in Aula
+ * (scroll/tastiera locali), inviata ogni volta che cambia per un gesto
+ * dell'utente in Aula. La Regia la applica in silenzio a `liveState`, senza
+ * rispondere nulla — serve solo a tenerla allineata a dove si trova
+ * davvero l'Aula, così `request_state` rispedisce sempre la posizione
+ * corretta. Soppressa nella finestra di assestamento subito dopo un
+ * `navigation_command` in arrivo, altrimenti Aula e Regia si
+ * rimbalzerebbero messaggi a vicenda.
  */
 
 export type AulaStep = "intro" | "scenario" | "esiti" | "spiegazione" | "approfondimento";
@@ -462,6 +471,22 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
     });
   }, []);
 
+  /**
+   * L'Aula ha riportato la propria posizione REALE (scroll/tastiera
+   * locali): aggiorna silenziosamente "in onda", senza rimandare nulla
+   * all'Aula in risposta. Così `liveState` resta sempre corretto, anche
+   * quando l'istruttore avanza a mano direttamente in Aula.
+   */
+  useBusListener("aula_position", (e) => {
+    const p = e.payload as AulaHeartbeat | undefined;
+    if (!p || p.modulo !== modulo) {
+      traceEnv("regia.rejectAulaPosition", e, { reason: "other-module" });
+      return;
+    }
+    traceEnv("regia.syncLiveFromAula", e, { reason: "accepted" });
+    syncLiveFromAula({ blocco: p.blocco, step: p.step });
+  });
+
   /** L'Aula si è (ri)agganciata al canale: ripubblica la posizione in onda. */
   useBusListener("request_state", (e) => {
     const req = e.payload as { modulo?: string } | undefined;
@@ -583,16 +608,16 @@ export const useRequestVideoReveal = (modulo: string) =>
   );
 
 /**
- * Aula: solo effetti locali. La sincronizzazione è UNIDIREZIONALE
- * (Regia → Aula): l'Aula determina la propria posizione visibile per il
- * proprio funzionamento interno (URL, timer, scroll) ma NON la trasmette
- * più alla Regia — nessun evento "aula_position" viene inviato, così una
- * posizione vecchia non può tornare indietro come falsa conferma (ack)
- * del comando appena pubblicato.
- *
- * Eccezione dedicata: "aula_status" porta SOLO dati di stato che non
- * muovono la scena (chiusura overlay telefono, probabilità di rischio),
- * senza blocco/step: non può creare rimbalzi di posizione.
+ * Aula: effetti locali (URL, timer, scroll) più due segnali dedicati verso
+ * la Regia:
+ *  - `aula_position`, quando la scheda REALMENTE visibile cambia per un
+ *    gesto locale (scroll/tastiera) — mai in risposta a un
+ *    `navigation_command` appena applicato, soppresso nella finestra di
+ *    assestamento (vedi `suppressedPosition`/`suppressUntil`), altrimenti
+ *    Aula e Regia si rimbalzerebbero messaggi a vicenda;
+ *  - `aula_status`, dati di stato che non muovono la scena (chiusura
+ *    overlay telefono, probabilità di rischio), senza blocco/step: non può
+ *    creare rimbalzi di posizione.
  */
 export const useAulaHeartbeat = (
   enabled: boolean,
@@ -606,6 +631,44 @@ export const useAulaHeartbeat = (
     if (!blocco) return;
     writeToUrl({ blocco, step });
   }, [enabled, payload.blocco, payload.step, payload]);
+
+  // Segnala alla Regia la posizione REALE, ma solo per cambi di origine
+  // locale: soppressa quando corrisponde a un comando appena ricevuto.
+  const firstPositionRef = useRef(true);
+  const positionRef = useRef(payload);
+  positionRef.current = payload;
+
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") return;
+    if (firstPositionRef.current) {
+      firstPositionRef.current = false;
+      return;
+    }
+    const p = positionRef.current;
+    const { blocco, step } = p;
+    if (!blocco) return;
+    if (posKey(blocco, step) === suppressedPosition && Date.now() < suppressUntil) {
+      // Posizione appena imposta da un comando remoto: non è un gesto
+      // dell'utente, non va rimandata indietro come aula_position.
+      return;
+    }
+    const env = makeEnvelope("aula_position", p.modulo, {
+      blockId: blocco,
+      step,
+      payload: { ...p, ts: Date.now() },
+    });
+    syncTrace("AULA", "useAulaHeartbeat.sendPosition", {
+      kind: env.kind,
+      roomId: env.roomId,
+      senderInstanceId: env.senderInstanceId,
+      eventId: env.eventId,
+      moduleId: env.moduleId,
+      blockId: env.blockId,
+      step: env.step,
+      sentAt: env.sentAt,
+    });
+    sendEnvelope(env);
+  }, [enabled, payload.blocco, payload.step]);
 
   // Evento dedicato e separato dalla posizione: solo stato non-posizionale.
   const statusSignature = `${payload.riskProbability ?? ""}:${payload.phoneDismissTs ?? ""}`;
