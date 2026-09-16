@@ -43,6 +43,7 @@ import { blocksBySlug, type ModuleBlock } from "@/lib/moduleBlocks";
 import {
   useAulaStatus,
   useAulaPublisher,
+  useBusListener,
   type AulaState,
   type AulaStep,
 } from "@/lib/aulaSync";
@@ -422,6 +423,14 @@ const IstruttoreModulo = () => {
       revealedVideos: next,
     });
   };
+
+  // Richiamo diretto dal segnaposto in Aula (in aggiunta al pulsante in
+  // Regia): stessa identica toggleVideo, nessuna logica duplicata.
+  useBusListener("reveal_video_request", (e) => {
+    if (e.moduleId !== slug) return;
+    const req = e.payload as { videoId?: string } | undefined;
+    if (req?.videoId) toggleVideo(req.videoId);
+  });
 
   // (aulaPaused calcolato sopra insieme ai derivati live)
 

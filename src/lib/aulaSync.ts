@@ -37,6 +37,10 @@ import { isSyncEnabled, onSyncEnabledChange } from "./syncEnabled";
  * `navigation_command` ma senza quel flag: l'Aula applica i campi non
  * posizionali e ignora blocco/step, restando dove si trova realmente anche
  * se la Regia ne conosce una posizione vecchia.
+ *
+ * `reveal_video_request` (Aula → Regia): richiamo di un video cliccando
+ * direttamente sul segnaposto in Aula, in aggiunta al pulsante in Regia. La
+ * Regia riusa la stessa toggleVideo del pulsante: nessuna logica duplicata.
  */
 
 export type AulaStep = "intro" | "scenario" | "esiti" | "spiegazione" | "approfondimento";
@@ -89,7 +93,8 @@ export type EventKind =
   | "navigation_command"
   | "aula_position"
   | "aula_status"
-  | "request_state";
+  | "request_state"
+  | "reveal_video_request";
 
 type Envelope = {
   kind: EventKind;
@@ -317,7 +322,9 @@ const sendEnvelope = (e: Envelope) => {
   }
 };
 
-const useBusListener = (kind: EventKind, fn: Handler) => {
+/** Sottoscrizione generica al bus di sincronizzazione, per eventi dedicati
+ *  che non hanno un hook specifico (es. `reveal_video_request`). */
+export const useBusListener = (kind: EventKind, fn: Handler) => {
   const ref = useRef(fn);
   ref.current = fn;
   useEffect(() => {
@@ -556,6 +563,24 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
 
   return state;
 };
+
+/**
+ * Aula: richiede alla Regia di richiamare un video cliccando direttamente
+ * sul segnaposto, in aggiunta al pulsante in Regia (stesso risultato: la
+ * Regia riceve `reveal_video_request` e chiama la sua toggleVideo esistente,
+ * quindi pubblica revealedVideos come farebbe con un click sul pulsante).
+ */
+export const useRequestVideoReveal = (modulo: string) =>
+  useCallback(
+    (videoId: string) => {
+      const env = makeEnvelope("reveal_video_request", modulo, {
+        payload: { videoId },
+      });
+      traceEnv("aula.requestVideoReveal", env, { videoId });
+      sendEnvelope(env);
+    },
+    [modulo],
+  );
 
 /**
  * Aula: solo effetti locali. La sincronizzazione è UNIDIREZIONALE

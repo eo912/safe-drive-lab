@@ -599,6 +599,7 @@ const AulaModulo1 = () => {
           <motion.div {...fade} className="aspect-video w-full max-w-3xl">
             <RevealableVideo
               videoId="m1-mistakes"
+              modulo={MODULO}
               src={mistakesVideoSrc}
               title="The Speed ad — Mistakes"
               revealedVideos={aulaState.revealedVideos}

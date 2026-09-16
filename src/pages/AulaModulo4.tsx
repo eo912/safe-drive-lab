@@ -542,6 +542,7 @@ const AulaModulo4 = () => {
                   </p>
                   <RevealableVideo
                     videoId={video.id}
+                    modulo={MODULO}
                     src={video.src}
                     title={video.label}
                     revealedVideos={aulaState.revealedVideos}
