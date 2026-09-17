@@ -571,7 +571,7 @@ const AulaModulo1 = () => {
         </div>
       </Slide>
 
-      <Free className="text-center" blockId="hook">
+      <Free className="text-center" blockId="hook-storia">
         <motion.p
           {...fade}
           className="text-3xl md:text-5xl lg:text-6xl font-semibold leading-tight text-foreground/90"
@@ -694,7 +694,7 @@ const AulaModulo1 = () => {
         </div>
       </Slide>
 
-      <Free className="text-center" blockId="costi-stato">
+      <Free className="text-center" blockId="costi-stato-cta">
         <motion.p
           {...fade}
           className="text-2xl md:text-4xl font-semibold leading-snug text-foreground/90"
