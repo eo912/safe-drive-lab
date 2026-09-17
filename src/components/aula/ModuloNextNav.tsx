@@ -10,18 +10,26 @@ export const ModuloNextNav = ({
   to,
   label,
   backToIndex = false,
+  internalJump = false,
   onClick,
 }: {
   to: string;
   label: string;
   backToIndex?: boolean;
+  /**
+   * true per un salto interno allo stesso modulo (es. "Vai al riepilogo"):
+   * non è la vera fine del modulo, quindi non deve portare l'attributo
+   * `data-modulo-next` usato da `navigateSection` (Aula) per trovare il
+   * pulsante di avanzamento a fine modulo. Indipendente da `backToIndex`.
+   */
+  internalJump?: boolean;
   onClick?: () => void;
 }) => (
   <div className="absolute bottom-5 inset-x-0 z-20 flex justify-center pointer-events-none">
     <Link
       to={to}
       onClick={onClick}
-      data-modulo-next={backToIndex ? undefined : ""}
+      data-modulo-next={backToIndex || internalJump ? undefined : ""}
       className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background/70 px-5 py-2 font-mono text-xs uppercase tracking-widest text-primary backdrop-blur-sm transition-colors hover:bg-primary hover:text-primary-foreground"
     >
       {label}

@@ -471,6 +471,7 @@ const AulaModulo7 = () => {
         <ModuloNextNav
           to="/aula/modulo-7-guida-professionale?blocco=principi-professionali&step=intro"
           label="Vai al riepilogo"
+          internalJump
           onClick={() => {
             document
               .querySelector<HTMLElement>('[data-block="principi-professionali"]')
