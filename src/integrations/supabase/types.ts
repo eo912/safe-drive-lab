@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      editorial_associations: {
+        Row: {
+          block_id: string
+          embeds: Json
+          media: Json
+          module_id: string
+          updated_at: string
+        }
+        Insert: {
+          block_id: string
+          embeds?: Json
+          media?: Json
+          module_id: string
+          updated_at?: string
+        }
+        Update: {
+          block_id?: string
+          embeds?: Json
+          media?: Json
+          module_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       media_assets: {
         Row: {
           categoria: string | null

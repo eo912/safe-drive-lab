@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Resource } from "./instructorTypes";
+import {
+  loadEditorialAssociation,
+  saveEditorialMedia,
+} from "./editorialAssociations";
 
 /**
- * Storage istruttore — solo localStorage (per ora).
- * Strutturato per essere migrato a Lovable Cloud quando verra' aggiunto il login.
+ * Storage istruttore. Note e archivio restano locali; le associazioni media
+ * per slide usano Supabase con fallback localStorage.
  *
  * Chiavi:
  *   sdl-instr:notes:free:<modulo>           → string  (note libere modulo)
@@ -143,15 +147,43 @@ export const useLinkedContent = (modulo: string, blocco: string) => {
   );
 
   useEffect(() => {
-    setItems(safeRead<Resource[]>(key, []));
-  }, [key]);
+    let cancelled = false;
+    const local = safeRead<Resource[]>(key, []);
+    setItems(local);
+
+    void loadEditorialAssociation(modulo, blocco)
+      .then((association) => {
+        if (cancelled) return;
+        if (association && Array.isArray(association.media)) {
+          const remote = association.media as unknown as Resource[];
+          if (remote.length === 0 && local.length > 0) {
+            void saveEditorialMedia(modulo, blocco, local).catch(() => undefined);
+          } else {
+            setItems(remote);
+            safeWrite(key, remote);
+          }
+        } else if (local.length > 0) {
+          void saveEditorialMedia(modulo, blocco, local).catch(() => undefined);
+        }
+      })
+      .catch(() => {
+        // La copia locale resta utilizzabile se Supabase non è raggiungibile.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [blocco, key, modulo]);
 
   const persist = useCallback(
     (next: Resource[]) => {
       setItems(next);
       safeWrite(key, next);
+      void saveEditorialMedia(modulo, blocco, next).catch(() => {
+        // Persistenza locale già completata; il prossimo caricamento ritenterà.
+      });
     },
-    [key],
+    [blocco, key, modulo],
   );
 
   const add = useCallback(

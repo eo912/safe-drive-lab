@@ -27,9 +27,9 @@ import { isSyncEnabled, onSyncEnabledChange } from "./syncEnabled";
  * locale.
  *
  * Riconnessione: se il canale cade (CHANNEL_ERROR, TIMED_OUT o CLOSED) viene
- * ricreato da solo con un ritardo crescente tra i tentativi. Quando l'Aula si
- * (ri)aggancia invia un `request_state`: la Regia risponde ripubblicando la
- * propria posizione corrente come un normale `navigation_command`.
+ * ricreato da solo con un ritardo crescente tra i tentativi. Il riaggancio non
+ * produce mai comandi di navigazione: l'Aula dichiara invece la propria
+ * posizione reale alla Regia.
  *
  * Navigazione vs azioni secondarie: solo i comandi marcati `isNavigation`
  * (avanti/indietro/vai a, dalla Regia) spostano la scena in Aula. Le azioni
@@ -46,8 +46,7 @@ import { isSyncEnabled, onSyncEnabledChange } from "./syncEnabled";
  * (scroll/tastiera locali), inviata ogni volta che cambia per un gesto
  * dell'utente in Aula. La Regia la applica in silenzio a `liveState`, senza
  * rispondere nulla — serve solo a tenerla allineata a dove si trova
- * davvero l'Aula, così `request_state` rispedisce sempre la posizione
- * corretta. Soppressa nella finestra di assestamento subito dopo un
+ * davvero l'Aula. Soppressa nella finestra di assestamento subito dopo un
  * `navigation_command` in arrivo, altrimenti Aula e Regia si
  * rimbalzerebbero messaggi a vicenda.
  */
@@ -102,7 +101,6 @@ export type EventKind =
   | "navigation_command"
   | "aula_position"
   | "aula_status"
-  | "request_state"
   | "reveal_video_request";
 
 type Envelope = {
@@ -268,7 +266,7 @@ const openChannel = () => {
   clearReconnectTimer();
   setConnStatus("connecting");
   const ch = supabase
-    .channel(REMOTE_ROOM, { config: { broadcast: { self: false } } })
+    .channel(REMOTE_ROOM, { config: { broadcast: { self: false, ack: true } } })
     .on("broadcast", { event: "sync" }, ({ payload }) => dispatch(payload));
   channel = ch;
   ch.subscribe((status) => {
@@ -312,31 +310,43 @@ if (typeof window !== "undefined") {
   onSyncEnabledChange((on) => (on ? openChannel() : closeChannel()));
 }
 
-const sendEnvelope = (e: Envelope) => {
+const sendEnvelope = async (e: Envelope) => {
   if (!isSyncEnabled()) {
     traceEnv("bus.skip", e, { reason: "sync-off" });
     return;
   }
   rememberEvent(e.eventId);
   const ch = openChannel();
-  if (!ch) return;
+  if (!ch) {
+    traceEnv("bus.send.failure", e, { reason: "channel-unavailable" });
+    return;
+  }
+  traceEnv("bus.send", e, { result: "sent" });
   try {
-    void Promise.resolve(
-      ch.send({ type: "broadcast", event: "sync", payload: e }),
-    ).catch(() => {
-      /* rete assente: il cambio locale resta comunque applicato */
+    const result = await ch.send({ type: "broadcast", event: "sync", payload: e });
+    if (result === "ok") {
+      traceEnv("bus.ack", e, { result: "ok" });
+      return;
+    }
+    traceEnv("bus.ack.failure", e, {
+      result,
+      reason: result === "timed out" ? "timeout" : "send-error",
     });
-  } catch {
-    /* rete assente: il cambio locale resta comunque applicato */
+  } catch (error) {
+    traceEnv("bus.ack.failure", e, {
+      reason: "exception",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 
 /** Sottoscrizione generica al bus di sincronizzazione, per eventi dedicati
  *  che non hanno un hook specifico (es. `reveal_video_request`). */
-export const useBusListener = (kind: EventKind, fn: Handler) => {
+export const useBusListener = (kind: EventKind, fn: Handler, enabled = true) => {
   const ref = useRef(fn);
   ref.current = fn;
   useEffect(() => {
+    if (!enabled) return;
     const handler: Handler = (e) => ref.current(e);
     let set = handlers.get(kind);
     if (!set) {
@@ -351,7 +361,7 @@ export const useBusListener = (kind: EventKind, fn: Handler) => {
       listenerCount = Math.max(0, listenerCount - 1);
       if (listenerCount === 0) closeChannel();
     };
-  }, [kind]);
+  }, [enabled, kind]);
 };
 
 /* ------------------------------------------------------------------ *
@@ -403,8 +413,6 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
   const initial = readFromUrl(modulo, defaultBlocco);
   const [previewState, setPreviewState] = useState<AulaState>(initial);
   const [liveState, setLiveState] = useState<AulaState | null>(null);
-  const liveStateRef = useRef<AulaState | null>(null);
-  liveStateRef.current = liveState;
 
   const setPreview = useCallback(
     (patch: Partial<Omit<AulaState, "ts" | "modulo">>) => {
@@ -452,7 +460,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
           isNavigation: env.isNavigation,
           sentAt: env.sentAt,
         });
-        sendEnvelope(env);
+        void sendEnvelope(env);
         setLiveState(next);
         return next;
       });
@@ -461,15 +469,26 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
   );
 
   /** Allinea "in onda" alla posizione dichiarata dall'Aula. Non invia nulla. */
-  const syncLiveFromAula = useCallback((pos: { blocco: string; step: AulaStep }) => {
+  const syncLiveFromAula = useCallback((pos: AulaHeartbeat) => {
     setLiveState((prev) => {
-      if (!prev) return prev;
+      if (!prev) {
+        const next: AulaState = {
+          modulo,
+          blocco: pos.blocco,
+          step: pos.step,
+          paused: pos.paused,
+          pauseAtmosphere: pos.pauseAtmosphere,
+          ts: Date.now(),
+        };
+        writeToUrl(next);
+        return next;
+      }
       if (prev.blocco === pos.blocco && prev.step === pos.step) return prev;
       const next: AulaState = { ...prev, blocco: pos.blocco, step: pos.step };
       writeToUrl(next);
       return next;
     });
-  }, []);
+  }, [modulo]);
 
   /**
    * L'Aula ha riportato la propria posizione REALE (scroll/tastiera
@@ -484,27 +503,7 @@ export const useAulaPublisher = (modulo: string, defaultBlocco: string) => {
       return;
     }
     traceEnv("regia.syncLiveFromAula", e, { reason: "accepted" });
-    syncLiveFromAula({ blocco: p.blocco, step: p.step });
-  });
-
-  /** L'Aula si è (ri)agganciata al canale: ripubblica la posizione in onda. */
-  useBusListener("request_state", (e) => {
-    const req = e.payload as { modulo?: string } | undefined;
-    if ((req?.modulo ?? e.moduleId) !== modulo) {
-      traceEnv("regia.rejectRequestState", e, { reason: "other-module" });
-      return;
-    }
-    const current = liveStateRef.current;
-    if (!current) return;
-    const resync: AulaState = { ...current, cmdTs: Date.now(), ts: Date.now() };
-    const env = makeEnvelope("navigation_command", modulo, {
-      blockId: resync.blocco,
-      step: resync.step,
-      payload: resync,
-      isNavigation: true,
-    });
-    traceEnv("regia.resync", env, { reason: "request_state" });
-    sendEnvelope(env);
+    syncLiveFromAula(p);
   });
 
   return { previewState, liveState, setPreview, publish, syncLiveFromAula };
@@ -535,6 +534,9 @@ export const useAulaPosition = (modulo: string) => {
 export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
   const [state, setState] = useState<AulaState>(() => readFromUrl(modulo, defaultBlocco));
   const lastCmdTsRef = useRef(0);
+  const realtimeEnabled =
+    typeof window === "undefined" ||
+    !["mini", "preview"].includes(new URLSearchParams(window.location.search).get("embed") ?? "");
 
   useBusListener("navigation_command", (e) => {
     const incoming = e.payload as AulaState | undefined;
@@ -574,17 +576,7 @@ export const useAulaSubscriber = (modulo: string, defaultBlocco: string) => {
       step: prev.step,
       ts: prev.ts,
     }));
-  });
-
-  // Ad ogni aggancio (o riaggancio dopo una caduta) chiede una volta sola
-  // alla Regia la posizione corrente, per riallinearsi senza ricaricare.
-  useEffect(() => {
-    return onChannelSubscribed(() => {
-      const env = makeEnvelope("request_state", modulo, { payload: { modulo } });
-      traceEnv("aula.requestState", env, {});
-      sendEnvelope(env);
-    });
-  }, [modulo]);
+  }, realtimeEnabled);
 
   return state;
 };
@@ -602,7 +594,7 @@ export const useRequestVideoReveal = (modulo: string) =>
         payload: { videoId },
       });
       traceEnv("aula.requestVideoReveal", env, { videoId });
-      sendEnvelope(env);
+      void sendEnvelope(env);
     },
     [modulo],
   );
@@ -632,22 +624,36 @@ export const useAulaHeartbeat = (
     writeToUrl({ blocco, step });
   }, [enabled, payload.blocco, payload.step, payload]);
 
-  // Segnala alla Regia la posizione REALE, ma solo per cambi di origine
-  // locale: soppressa quando corrisponde a un comando appena ricevuto.
-  const firstPositionRef = useRef(true);
+  // Segnala alla Regia la posizione REALE. Ogni SUBSCRIBED, incluso un
+  // reconnect, forza un invio iniziale senza trasformarlo in navigazione.
   const positionRef = useRef(payload);
   positionRef.current = payload;
+  const [subscriptionVersion, setSubscriptionVersion] = useState(0);
+  const sentSubscriptionRef = useRef(0);
 
   useEffect(() => {
-    if (!enabled || typeof window === "undefined") return;
-    if (firstPositionRef.current) {
-      firstPositionRef.current = false;
-      return;
+    if (!enabled) return;
+    const unsubscribe = onChannelSubscribed(() => {
+      setSubscriptionVersion((version) => version + 1);
+    });
+    if (connStatus === "connected") {
+      setSubscriptionVersion((version) => version + 1);
     }
+    return unsubscribe;
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined" || subscriptionVersion === 0) return;
     const p = positionRef.current;
     const { blocco, step } = p;
     if (!blocco) return;
-    if (posKey(blocco, step) === suppressedPosition && Date.now() < suppressUntil) {
+    const isSubscribedPosition = sentSubscriptionRef.current !== subscriptionVersion;
+    sentSubscriptionRef.current = subscriptionVersion;
+    if (
+      !isSubscribedPosition &&
+      posKey(blocco, step) === suppressedPosition &&
+      Date.now() < suppressUntil
+    ) {
       // Posizione appena imposta da un comando remoto: non è un gesto
       // dell'utente, non va rimandata indietro come aula_position.
       return;
@@ -667,8 +673,8 @@ export const useAulaHeartbeat = (
       step: env.step,
       sentAt: env.sentAt,
     });
-    sendEnvelope(env);
-  }, [enabled, payload.blocco, payload.step]);
+    void sendEnvelope(env);
+  }, [enabled, payload.blocco, payload.step, subscriptionVersion]);
 
   // Evento dedicato e separato dalla posizione: solo stato non-posizionale.
   const statusSignature = `${payload.riskProbability ?? ""}:${payload.phoneDismissTs ?? ""}`;
@@ -699,7 +705,7 @@ export const useAulaHeartbeat = (
       moduleId: env.moduleId,
       sentAt: env.sentAt,
     });
-    sendEnvelope(env);
+    void sendEnvelope(env);
   }, [enabled, statusSignature]);
 };
 

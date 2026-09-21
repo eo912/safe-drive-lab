@@ -29,6 +29,20 @@
       "when": 1789312749388,
       "tag": "0003_create_media_assets",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790018641358,
+      "tag": "0004_create_editorial_associations",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790022829971,
+      "tag": "0005_protect_editorial_associations",
+      "breakpoints": true
     }
   ]
 }

@@ -20,6 +20,7 @@ import AulaModulo9 from "./pages/AulaModulo9.tsx";
 import StorageAdmin from "./pages/StorageAdmin.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { useEditModeHotkey } from "@/lib/editMode";
+import { InstructorAuthGate } from "@/components/auth/InstructorAuthGate";
 
 const queryClient = new QueryClient();
 
@@ -34,9 +35,23 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/aula" element={<Aula />} />
-          <Route path="/istruttore" element={<Istruttore />} />
+          <Route
+            path="/istruttore"
+            element={
+              <InstructorAuthGate>
+                <Istruttore />
+              </InstructorAuthGate>
+            }
+          />
           <Route path="/studio/file" element={<StorageAdmin />} />
-          <Route path="/istruttore/:slug" element={<IstruttoreModulo />} />
+          <Route
+            path="/istruttore/:slug"
+            element={
+              <InstructorAuthGate>
+                <IstruttoreModulo />
+              </InstructorAuthGate>
+            }
+          />
           <Route
             path="/modulo/perche-un-corso"
             element={<PercheUnCorso />}

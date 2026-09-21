@@ -51,7 +51,7 @@ import { isSyncEnabled } from "@/lib/syncEnabled";
 import { videoTriggersFor } from "@/lib/videoTriggers";
 import { SyncToggle } from "@/components/sync/SyncToggle";
 import { openAulaWindow } from "@/lib/aulaWindow";
-import { withRoom } from "@/lib/aulaRoom";
+import { ROOM_ID, withRoom } from "@/lib/aulaRoom";
 import { AulaTimer } from "@/components/istruttore/AulaTimer";
 import { SlidePreview } from "@/components/istruttore/SlidePreview";
 import { NotesDrawer } from "@/components/istruttore/NotesDrawer";
@@ -75,6 +75,7 @@ import { CourseFormatPanel } from "@/components/istruttore/CourseFormatPanel";
 import { useCourseFormat } from "@/lib/courseFormat";
 
 import { useModuleTimer, formatTimerMMSS, formatTimerAdaptive } from "@/lib/moduleTimer";
+import { useFollowAulaModule } from "@/lib/useFollowAulaModule";
 
 // "lineare" = tipo slide, telecomando + auto-publish in Aula.
 // "regia"   = controllo manuale, preview separata da live (Invia in Aula).
@@ -105,6 +106,7 @@ const IstruttoreModulo = () => {
     setPreview,
     publish: publishBase,
   } = useAulaPublisher(slug, blocks[0]?.id ?? "");
+  useFollowAulaModule(slug, navigate);
 
   // Stato overlay telefono: solo lato Aula Live, controllato dalla Regia con OK.
   const phonePhaseRef = useRef<"idle" | "ringing" | "visible">("idle");
@@ -671,6 +673,22 @@ const IstruttoreModulo = () => {
 
           <SyncToggle className="hidden md:inline-flex" />
 
+          <div
+            className={`hidden xl:flex items-center gap-1.5 rounded-md border px-2 py-1 text-[10px] font-mono ${
+              liveState
+                ? "border-emerald-500/40 text-emerald-500"
+                : "border-amber-500/40 text-amber-500"
+            }`}
+            title={
+              liveState
+                ? `Aula rilevata nella room ${ROOM_ID}`
+                : `In attesa di un'Aula nella room ${ROOM_ID}`
+            }
+          >
+            <Radio className="w-3 h-3" />
+            Room {ROOM_ID} · {liveState ? "Aula rilevata" : "in attesa Aula"}
+          </div>
+
 
 
 
@@ -1079,6 +1097,7 @@ const IstruttoreModulo = () => {
 
                   <div className="mt-4 flex items-center justify-between gap-3">
                     <div className="text-[11px] text-muted-foreground min-w-0 truncate">
+                      <span className="font-mono">Room {ROOM_ID} · </span>
                       {liveState ? (
                         <>
                           In Aula:{" "}

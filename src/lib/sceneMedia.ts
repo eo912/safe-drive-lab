@@ -1,5 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Resource } from "./instructorTypes";
+import {
+  loadEditorialAssociation,
+  saveEditorialEmbeds,
+} from "./editorialAssociations";
 
 /**
  * ============================================================
@@ -20,7 +24,7 @@ import type { Resource } from "./instructorTypes";
  *   - aula:  istruttore proietta in Aula (publish via aulaSync).
  *   - regia: solo istruttore, non viene mai inviato all'Aula.
  *
- *  Persistenza: localStorage. Pronto per migrazione cloud.
+ *  Persistenza: Supabase con fallback localStorage.
  *  Chiave: `sdl-instr:scene-media:<modulo>:<blocco>:<step>` → Placement[]
  */
 
@@ -101,17 +105,52 @@ export const useSceneMedia = (modulo: string, blocco: string, step: string) => {
   const [items, setItems] = useState<ScenePlacement[]>(() =>
     safeRead<ScenePlacement[]>(key, []),
   );
+  const embedsByStepRef = useRef<Record<string, ScenePlacement[]>>({});
 
   useEffect(() => {
-    setItems(safeRead<ScenePlacement[]>(key, []));
-  }, [key]);
+    let cancelled = false;
+    const local = safeRead<ScenePlacement[]>(key, []);
+    setItems(local);
+    embedsByStepRef.current = {};
+
+    void loadEditorialAssociation(modulo, blocco)
+      .then((association) => {
+        if (cancelled) return;
+        const stored = association?.embeds;
+        const byStep =
+          stored && typeof stored === "object" && !Array.isArray(stored)
+            ? (stored as unknown as Record<string, ScenePlacement[]>)
+            : {};
+        embedsByStepRef.current = byStep;
+        if (Array.isArray(byStep[step])) {
+          setItems(byStep[step]);
+          safeWrite(key, byStep[step]);
+        } else if (local.length > 0) {
+          const next = { ...byStep, [step]: local };
+          embedsByStepRef.current = next;
+          void saveEditorialEmbeds(modulo, blocco, next).catch(() => undefined);
+        }
+      })
+      .catch(() => {
+        // La copia locale resta utilizzabile se Supabase non è raggiungibile.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [blocco, key, modulo, step]);
 
   const persist = useCallback(
     (next: ScenePlacement[]) => {
       setItems(next);
       safeWrite(key, next);
+      const nextByStep = { ...embedsByStepRef.current, [step]: next };
+      embedsByStepRef.current = nextByStep;
+      void saveEditorialEmbeds(modulo, blocco, nextByStep).catch(() => {
+        // Persistenza locale già completata; il prossimo caricamento ritenterà.
+      });
     },
-    [key],
+    [blocco, key, modulo, step],
   );
 
   const upsertForResource = useCallback(
